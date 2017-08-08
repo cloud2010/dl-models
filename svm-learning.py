@@ -1,6 +1,5 @@
 """
-    Credits: Forked from https://github.com/MorvanZhou/tutorials/blob/master/sklearnTUT/sk9_cross_validation2.py
-    by MorvanZhou
+交叉验证可视化学习
 """
 
 from sklearn.model_selection import learning_curve
@@ -13,20 +12,48 @@ import numpy as np
 digits = load_digits()
 X = digits.data
 y = digits.target
-train_sizes, train_loss, test_loss = learning_curve(
-    SVC(gamma=0.01), X, y, cv=10, scoring='neg_mean_squared_error',
-    train_sizes=[0.1, 0.25, 0.5, 0.75, 1])
-train_loss_mean = -np.mean(train_loss, axis=1)
-test_loss_mean = -np.mean(test_loss, axis=1)
 
 # Activate Seaborn Style
 sns.set()
-plt.plot(train_sizes, train_loss_mean, 'o-', color="r",
-         label="Training")
-plt.plot(train_sizes, test_loss_mean, 'o-', color="g",
-         label="Cross-validation")
 
-plt.xlabel("Training examples")
-plt.ylabel("Loss")
-plt.legend(loc="best")
+
+def plot_with_err(x, data, **kwargs):
+    """
+    概述
+    ---
+    描绘曲线包含错误值阴影
+    参数
+    ---
+    x: x轴输入
+    data: y轴输入
+    **kwargs: 其它参数，例如label=绘图标题
+    """
+    # 得分结果转换(均值和标准差)
+    mu, std = -np.mean(data, axis=1), np.std(data, axis=1)
+    lines = plt.plot(x, mu, '-', **kwargs)
+    plt.fill_between(x, mu - std, mu + std, edgecolor='none',
+                     facecolor=lines[0].get_color(), alpha=0.2)
+
+
+# 学习曲线 函数学习，train_sizes 分割为10份，交叉验证10折，分类器SVM
+train_sizes, val_train, val_test = learning_curve(
+    SVC(gamma=0.01), X, y, cv=10, scoring='neg_mean_squared_error',
+    train_sizes=np.linspace(0.1, 1.0, 10))
+
+# 训练得分转换
+# train_scores = -np.mean(val_train, axis=1)
+
+# 测试集验证结果得分转换
+# test_scores = -np.mean(val_test, axis=1)
+
+# 学习曲线可视化
+plot_with_err(train_sizes, val_train, label='training scores')
+plot_with_err(train_sizes, val_test, label='validation scores')
+plt.xlabel('Training Set Size')
+plt.ylabel('neg mean squared error')
+plt.legend()
 plt.show()
+
+print(train_sizes)
+print(val_train)
+print(val_test)
