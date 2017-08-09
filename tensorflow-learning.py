@@ -1,14 +1,17 @@
+"""
+TensorFlow basic operation learning
+"""
 import tensorflow as tf
 # 避免输出TensorFlow未编译CPU指令集信息
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# 常量f
+# 常量
 node1 = tf.constant(3.0, dtype=tf.float32)
 node2 = tf.constant(4.0, dtype=tf.float32)
 
-# 打印
+# 打印节点
 print(node1, node2)
 
 # 创建会话sess正式运行，输出节点信息
