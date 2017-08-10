@@ -1,5 +1,3 @@
-# from tensorflow.examples.tutorials.mnist import input_data
-# mnist = input_data.read_data_sets("D://MNIST_data/", one_hot=True)
 """
 TensorFlow MINIST Sample
 Source: https://www.tensorflow.org/get_started/mnist/beginners
@@ -7,7 +5,9 @@ Source: https://www.tensorflow.org/get_started/mnist/beginners
 import tensorflow as tf
 # 避免输出TensorFlow未编译CPU指令集信息
 import os
+from tensorflow.examples.tutorials.mnist import input_data
 
+mnist = input_data.read_data_sets("D://MNIST_data/", one_hot=True)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 2维输入 784个像素点 28*28=784
