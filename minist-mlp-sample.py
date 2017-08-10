@@ -6,7 +6,10 @@ Under Python 3.5 and TensorFlow 1.2
 import tensorflow as tf
 # Import MNIST data
 from tensorflow.examples.tutorials.mnist import input_data
+import os
 mnist = input_data.read_data_sets("D://MNIST_data/", one_hot=True)
+# 避免输出TensorFlow未编译CPU指令集信息
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 设定参数
 learning_rate = 0.001
