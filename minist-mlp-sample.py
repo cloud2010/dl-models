@@ -12,10 +12,10 @@ mnist = input_data.read_data_sets("D://MNIST_data/", one_hot=True)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 设定参数
-learning_rate = 0.001
-training_epochs = 100  # 训练次数
+learning_rate = 0.01
+training_epochs = 30  # 训练次数
 batch_size = 100  # 每批次选择的样本数
-display_step = 10  # 训练步长
+display_step = 2  # 训练步长
 
 # 神经网络参数，建立2个隐藏层，每层256个神经元
 n_hidden_1 = 256  # 1st layer number of features
