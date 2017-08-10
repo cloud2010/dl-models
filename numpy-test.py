@@ -27,6 +27,11 @@ print("Train Set Shape:", train_nitration_set.shape)
 sample_index = np.random.randint(0, train_nitration_set.shape[0], 10)
 # 输出抽样矩阵
 print(n_target[sample_index])
+# 输出转置的target矩阵
+n_target_sample = n_target[sample_index]
+n_target_t = np.transpose([n_target_sample])
+# print(n_target[sample_index].reshape(len(n_target[sample_index]), -1))
+print(n_target_t)
 
 
 def random_sample(train_set, size=10, isReplace=True):
