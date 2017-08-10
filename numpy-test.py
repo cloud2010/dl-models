@@ -23,6 +23,11 @@ print("Target Shape: ", n_target.shape)
 print("Features Shape: ", n_features.shape)
 print("Train Set Shape:", train_nitration_set.shape)
 
+# 随机抽样矩阵索引
+sample_index = np.random.randint(0, train_nitration_set.shape[0], 10)
+# 输出抽样矩阵
+print(n_target[sample_index])
+
 
 def random_sample(train_set, size=10, isReplace=True):
     """
