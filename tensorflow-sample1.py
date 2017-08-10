@@ -29,7 +29,9 @@ sess = tf.Session()
 sess.run(init)  # reset values to wrong 所有变量初始化
 for i in range(1000):
     sess.run(train, {x: x_train, y: y_train})
-
-# evaluate training accuracy 结果评估
-curr_W, curr_b, curr_loss = sess.run([W, b, loss], {x: x_train, y: y_train})
-print("W: %s b: %s loss: %s" % (curr_W, curr_b, curr_loss))
+    if i % 100 == 0:
+        # evaluate training accuracy 结果评估，每隔100步输出拟合结果
+        curr_W, curr_b, curr_loss = sess.run(
+            [W, b, loss], {x: x_train, y: y_train})
+        print("Epoches: %d" % i)
+        print("W: %s b: %s loss: %s" % (curr_W, curr_b, curr_loss))
