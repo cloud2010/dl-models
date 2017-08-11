@@ -73,6 +73,19 @@ print("\nSum of Label2: ", np.sum(n_target == 2),
 # print(n_target[sample_index].reshape(len(n_target[sample_index]), -1))
 # print(n_target_t)
 
+"""
+矩阵判别运算
+"""
+test_a = np.array([0, 1])
+test_b = np.array([1, 0])
+print("\nTest np.equal func:\n")
+print(np.equal(test_a, np.array([0, 1])))
+print(np.equal(test_a, np.array([0, 0])))
+print(np.equal(test_a, np.array([1, 0])))
+
+print("\nTest_a argmax:", np.argmax(test_a))
+print("\nTest_b argmax:", np.argmax(test_b))
+
 
 def random_sample(train_set, size=10, isReplace=True):
     """
