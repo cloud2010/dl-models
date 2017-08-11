@@ -2,10 +2,10 @@
 Numpy learning
 """
 import numpy as np
-import tensorflow as tf
+# import tensorflow as tf
 import os
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # 导入CSV数据
 TRAIN_NITRATION = os.path.join(os.path.dirname(
     __file__), "d:\\train_nitration_941_standard.csv")
@@ -18,20 +18,46 @@ n_target = train_nitration_set[:, 0]
 # 特征矩阵 212*941
 n_features = train_nitration_set[:, 1:]
 
-# 输出两个矩阵的Shape
-print("Target Shape: ", n_target.shape)
-print("Features Shape: ", n_features.shape)
-print("Train Set Shape:", train_nitration_set.shape)
+# 建立新target矩阵 212 * 2
+new_target = np.array([0, 0])
+# print(n_target)
+# print(np.where(n_target == 2))
+for i in n_target:
+    if i == 1:  # Label 1
+        new_target = np.vstack((new_target, np.array([0, 1])))
+    elif i == 2:  # Label 2
+        new_target = np.vstack((new_target, np.array([1, 0])))
 
-# 随机抽样矩阵索引
-sample_index = np.random.randint(0, train_nitration_set.shape[0], 10)
+# 删除第一行空值
+new_target = np.delete(new_target, 0, 0)
+# print(new_target)
+# print("New target shape:", new_target.shape)
+# 输出两个矩阵的Shape
+# print("Target Shape: ", n_target.shape)
+# print("Features Shape: ", n_features.shape)
+# print("Train Set Shape:", train_nitration_set.shape)
+
+"""
+留一法测试
+"""
+# 总索引数
+total_index = np.arange(0, 212)
+# 不放回随机抽样
+sample_index = np.random.choice(total_index, size=211, replace=False)
+
+print(sample_index)
+print(total_index)
+
+# 打印差集
+print(np.setdiff1d(total_index, sample_index))
+
 # 输出抽样矩阵
-print(n_target[sample_index])
+# print(n_target[sample_index])
 # 输出转置的target矩阵
 n_target_sample = n_target[sample_index]
 n_target_t = np.transpose([n_target_sample])
 # print(n_target[sample_index].reshape(len(n_target[sample_index]), -1))
-print(n_target_t)
+# print(n_target_t)
 
 
 def random_sample(train_set, size=10, isReplace=True):
@@ -65,12 +91,12 @@ def random_sample(train_set, size=10, isReplace=True):
     return (target, features)
 
 # 测试抽样结果
-batch_x, batch_y = random_sample(train_nitration_set, 10, True)
-print("batch_x:", batch_x)
+# batch_x, batch_y = random_sample(train_nitration_set, 10, True)
+# print("batch_x:", batch_x)
 
 # 开始测试 TensorFlow 赋值
-node1 = tf.constant(batch_x, dtype=tf.float32)
-print("node1:", node1)
+# node1 = tf.constant(batch_x, dtype=tf.float32)
+# print("node1:", node1)
 
-sess = tf.Session()
-print("node1:", sess.run(node1))
+# sess = tf.Session()
+# print("node1:", sess.run(node1))
