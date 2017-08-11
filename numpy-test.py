@@ -45,17 +45,31 @@ total_index = np.arange(0, 212)
 # 不放回随机抽样
 sample_index = np.random.choice(total_index, size=211, replace=False)
 
-print(sample_index)
-print(total_index)
+# print(sample_index)
+# print(total_index)
 
 # 打印差集
-print(np.setdiff1d(total_index, sample_index))
+# print(np.setdiff1d(total_index, sample_index))
+
+"""
+留一法测试2
+"""
+test_index = np.array([3])
+print("\nTest-index:", test_index)
+# 打印去除测试集索引的差集
+print("\nTrain-index:\n", np.setdiff1d(total_index, test_index))
+
+"""
+矩阵元素统计
+"""
+print("\nSum of Label2: ", np.sum(n_target == 2),
+      "\nSum of Label1: ", np.sum(n_target == 1))
 
 # 输出抽样矩阵
 # print(n_target[sample_index])
 # 输出转置的target矩阵
-n_target_sample = n_target[sample_index]
-n_target_t = np.transpose([n_target_sample])
+# n_target_sample = n_target[sample_index]
+# n_target_t = np.transpose([n_target_sample])
 # print(n_target[sample_index].reshape(len(n_target[sample_index]), -1))
 # print(n_target_t)
 
@@ -87,7 +101,7 @@ def random_sample(train_set, size=10, isReplace=True):
     sample_set = np.delete(sample_set, 0, 0)
     # 返回抽样的分类结果和输入数据（通常是特征值），默认第一列为target（分类结果）
     target = sample_set[:, 0]
-    features = sample_set[:, 1:] 
+    features = sample_set[:, 1:]
     return (target, features)
 
 # 测试抽样结果
