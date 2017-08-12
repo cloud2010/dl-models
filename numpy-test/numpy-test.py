@@ -22,19 +22,30 @@ n_features = train_nitration_set[:, 1:]
 
 print(n_features.shape[1])
 
-# 建立新target矩阵 212 * 2
-new_target = np.array([0, 0])
-# print(n_target)
-# print(np.where(n_target == 2))
-for i in n_target:
-    if i == 1:  # Label 1
-        new_target = np.vstack((new_target, np.array([0, 1])))
-    elif i == 2:  # Label 2
-        new_target = np.vstack((new_target, np.array([1, 0])))
 
-# 删除第一行空值
-new_target = np.delete(new_target, 0, 0)
-# print(new_target)
+def class_target_matrix(ori_target, n_class=2):
+    """
+    原始单列分类矩阵转换为多列（10进制转换为2进制）
+    参数
+    ----
+    ori_target: 原始分类矩阵
+    n_class: 分类数，默认为2分类
+    返回
+    ----
+    新分类矩阵
+    """
+    new_target = np.zeros(shape=[1, n_class])
+    for i in n_target:
+        if i == 1:  # Label 1
+            new_target = np.vstack((new_target, np.array([0, 1])))
+        elif i == 2:  # Label 2
+            new_target = np.vstack((new_target, np.array([1, 0])))
+    # 删除第一行空值
+    new_target = np.delete(new_target, 0, 0)
+    return new_target
+
+new_matrix = class_target_matrix(n_target, 2)
+print(new_matrix.shape)
 # print("New target shape:", new_target.shape)
 # 输出两个矩阵的Shape
 # print("Target Shape: ", n_target.shape)
