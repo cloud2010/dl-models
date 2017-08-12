@@ -12,11 +12,15 @@ TRAIN_NITRATION = os.path.join(os.path.dirname(
 train_nitration_set = np.genfromtxt(
     TRAIN_NITRATION, delimiter=',', skip_header=1)
 
+print(train_nitration_set.shape[0])
+
 # 分类矩阵为第一列数据
 n_target = train_nitration_set[:, 0]
 
 # 特征矩阵 212*941
 n_features = train_nitration_set[:, 1:]
+
+print(n_features.shape[1])
 
 # 建立新target矩阵 212 * 2
 new_target = np.array([0, 0])
