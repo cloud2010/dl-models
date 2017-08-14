@@ -31,7 +31,7 @@ def snn_usage():
     print("\n--inputFile: The filename of training dataset")
 
 
-if "__main__" == __name__:
+if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hc:", ["h1=", "h2=",
                                                          "help", "inputFile="])
