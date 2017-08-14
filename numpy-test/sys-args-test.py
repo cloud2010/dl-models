@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 代码解释：
 a) sys.argv[1:]为要处理的参数列表，sys.argv[0]为脚本名，所以用sys.argv[1:]过滤掉脚本名。
@@ -14,28 +15,74 @@ getopt.getopt(sys.argv[1:], "hi:o:", ["version", "file="])
 import sys
 import getopt
 
-opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["version", "file="])
-input_file = ""
-output_file = ""
-file_name = ""
-if len(sys.argv) == 1:
-    print("\nUsage: python test.py  -h -i -o")
-    sys.exit()
-for op, value in opts:
-    if op == "-i":
-        input_file = value
-        print(input_file)
-    elif op == "-o":
-        output_file = value
-        print(output_file)
-    elif op == "--file":
-        file_name = value
-        print(file_name)
-    elif op == "--version":
-        print("v1.0")
-    elif op == "-h":
-        print("\nUsage: python test.py  -h -i -o")
-        sys.exit()
+
+def snn_usage():
+    """SNN程序使用说明
+    """
+    print("\nThis a SelfNormalizingNetworks implementation using TensorFlow v1.2.1 framework.")
+    print(
+        "\nUsage:%s [-c|--h1|--h2] [--help|--inputFile] args...." % sys.argv[0])
+    print("\nExample:python %s -c 2 --h1=256 --h2=256 --inputFile=train.data" %
+          sys.argv[0])
+    print("\nIntroduction:")
+    print("\n-c: The number of class, e.g 2 or n")
+    print("\n--h1: The number of hidden layer 1 units")
+    print("\n--h2: The number of hidden layer 2 units")
+    print("\n--inputFile: The filename of training dataset")
+
+
+if "__main__" == __name__:
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hc:", ["h1=", "h2=",
+                                                         "help", "inputFile="])
+
+        # print("============ opts ==================")
+        # print(opts)
+
+        # print("============ args ==================")
+        # print(args)
+
+        # check all params
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                snn_usage()
+                sys.exit(1)
+            elif opt not in ("--inputFile"):
+                print("\nPlease input training dataset filename!")
+                sys.exit(1)
+            else:
+                print("%s  ==> %s" % (opt, arg))
+    except getopt.GetoptError:
+        snn_usage()
+        sys.exit(1)
+
+# opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["version", "file="])
+# input_file = ""
+# output_file = ""
+# file_name = ""
+# if len(sys.argv) == 1:
+#     print("\nUsage: python test.py  -h -i -o")
+#     print(opts)
+#     sys.exit()
+# # if opts['file'] == 0:
+# #     print('\nPlease input train data filename!')
+# #     sys.exit()
+# for op, value in opts:
+#     if op == "-i":
+#         input_file = value
+#         print(input_file)
+#     elif op == "-o":
+#         output_file = value
+#         print(output_file)
+#     elif op == "--file":
+#         file_name = value
+#         print(file_name)
+#     elif op == "--version":
+#         print("v1.0")
+#     elif op == "-h":
+#         print("\nUsage: python test.py  -h -i -o")
+#         print(opts[1])
+#         sys.exit()
 
 # import sys
 # print("script name: ", sys.argv[0])

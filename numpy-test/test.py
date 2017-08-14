@@ -2,7 +2,7 @@
 python learning
 """
 import numpy as np
-from sklearn import datasets
+# from sklearn import datasets
 import matplotlib.pyplot as plt
 import seaborn as sns
 

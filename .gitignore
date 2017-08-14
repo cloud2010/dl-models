@@ -5,7 +5,7 @@
 .idea/vcs.xml
 .idea/workspace.xml
 snn-nitration-941-win.py
-snn-nitration-941.py
+snn-linux.py
 SNN-INSTRUCTION.md
 snn-nitration-941-train.log
 fnn-relu-test.py
