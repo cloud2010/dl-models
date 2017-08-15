@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Numpy learning
 """
@@ -22,19 +23,23 @@ n_features = train_nitration_set[:, 1:]
 
 print(n_features.shape[1])
 
+# Random 学习
+labels = np.random.randint(2, size=(10, 2))
+print("\nLabes:", labels)
 
-def class_target_matrix(ori_target, n_class=2):
+
+def class_target_matrix(ori_target, n_classes=2):
     """
     原始单列分类矩阵转换为多列（10进制转换为2进制）
     参数
     ----
     ori_target: 原始分类矩阵
-    n_class: 分类数，默认为2分类
+    n_classes: 分类数，默认为2分类
     返回
     ----
     新分类矩阵
     """
-    new_target = np.zeros(shape=[1, n_class])
+    new_target = np.zeros(shape=[1, n_classes])
     for i in n_target:
         if i == 1:  # Label 1
             new_target = np.vstack((new_target, np.array([0, 1])))
