@@ -35,12 +35,15 @@ if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hc:", ["h1=", "h2=",
                                                          "help", "inputFile="])
+        if len(opts) == 0:
+            snn_usage()
+            sys.exit(1)
+            
+        print("============ opts ==================")
+        print(opts, len(opts))
 
-        # print("============ opts ==================")
-        # print(opts)
-
-        # print("============ args ==================")
-        # print(args)
+        print("============ args ==================")
+        print(args)
 
         # check all params
         for opt, arg in opts:
@@ -52,6 +55,7 @@ if __name__ == "__main__":
                 sys.exit(1)
             else:
                 print("%s  ==> %s" % (opt, arg))
+                """执行主函数"""
     except getopt.GetoptError:
         snn_usage()
         sys.exit(1)
