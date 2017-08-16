@@ -1,5 +1,5 @@
 """
-python learning
+python matplot learning
 """
 import numpy as np
 # from sklearn import datasets
