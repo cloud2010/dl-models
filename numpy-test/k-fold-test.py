@@ -1,12 +1,11 @@
 """
-Learning sklearn.model_selection.ShuffleSplit
+Learning sklearn.model_selection.ShuffleSplit and KFold
 
-ShuffleSplit is thus a good alternative to KFold cross validation
-that allows a finer control on the number of iterations and the
-proportion of samples on each side of the train / test split.
+Ref: http://scikit-learn.org/stable/modules/cross_validation.html
 """
 import numpy as np
 from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import KFold
 import os
 import logging  # 导入日志模块
 
@@ -35,8 +34,19 @@ n_target = train_set[:, 0]
 # 特征矩阵
 n_features = train_set[:, 1:]
 
-# 建立 K-fold 分割器
-rs = ShuffleSplit(n_splits=10, test_size=0.1, train_size=0.9, random_state=10)
+"""
+Shuffle 分割器，类似k-fold，默认随机抽取
+但为保证测试集训练集大小一致，所以存在多个测试样本重复
+"""
+# rs = ShuffleSplit(n_splits=10, test_size=0.1, train_size=0.9, random_state=10)
+
+"""
+K-fold 介绍
+shuffle 参数为 True 非顺序抽取，即先洗牌后切割，反之顺序抽取 Test-dataset
+shuffle = True 才可以激活随机种子 random_state，通常我们是这种做法
+通过设定 random_state 确保每次随机排列一致
+"""
+rs = KFold(n_splits=10, shuffle=True, random_state=10)
 
 # 输出分割信息
 print("\nK-ford info:", rs)
@@ -49,3 +59,4 @@ print("\nk-fold={%d}" % kfold)
 
 for train_index, test_index in cv_set:
     print("\nTrain-index:\n", train_index, "\nTest-index:\n", test_index)
+    print("\nTest dataset size:", test_index.shape)
