@@ -9,7 +9,7 @@ import os
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # 导入CSV数据
 TRAIN_NITRATION = os.path.join(os.path.dirname(
-    __file__), "d:\\train_nitration_941_standard.csv")
+    __file__), "d:\\datasets\\train_nitration_941_standard.csv")
 train_nitration_set = np.genfromtxt(
     TRAIN_NITRATION, delimiter=',', skip_header=1)
 
@@ -18,7 +18,7 @@ print(train_nitration_set.shape[0])
 # 分类矩阵为第一列数据
 n_target = train_nitration_set[:, 0]
 
-# 特征矩阵 212*941
+# 特征矩阵
 n_features = train_nitration_set[:, 1:]
 
 print(n_features.shape[1])
