@@ -1,4 +1,5 @@
-snn-win.py
+snn-linux.py
+snn-k-fold.py
 SNN-INSTRUCTION.md
 fnn-relu-test.py
 SNNs.py
