@@ -4,5 +4,8 @@
         "python": "C:\\Python35\\python.exe"
     },
     "code-runner.customCommand": "python D:\\PycharmProjects\\SNNs-learning\\numpy-test\\sys-args-test.py --version --file=test.txt",
-    "code-runner.clearPreviousOutput": true
+    "code-runner.clearPreviousOutput": true,
+    "python.linting.pep8Args": [
+        "--ignore=E501" //忽略pep8 E501错误
+    ]
 }
