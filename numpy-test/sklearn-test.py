@@ -133,6 +133,8 @@ mcc, tk, pk = matthews_corrcoef(con_mat)
 print("\nMCC =", mcc)
 print("\nTk =", tk)
 print("\nPk =", pk)
+
+# print((49 * 144 - 4 * 15) / math.sqrt((49 + 15) * (49 + 4) * (144 + 15) * (144 + 4)))
 # print("\ns:", con_mat.sum())
 
 # for i in range(4):
