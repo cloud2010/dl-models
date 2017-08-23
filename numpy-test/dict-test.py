@@ -24,3 +24,13 @@ for i in range(1, n_hiddens + 1):
     biases[i] = i**2
 
 print(biases)
+
+# np merge
+test0 = np.array([], dtype=np.int)
+test1 = np.array([1, 2, 3, 5])
+test2 = np.array([1, 2, 4, 6])
+test3 = np.concatenate((test0, test1, test2))
+print(test0)
+print(test1)
+print(test2)
+print("\nAfter concatenate:", test3)
