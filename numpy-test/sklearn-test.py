@@ -38,19 +38,19 @@ def matthews_corrcoef(c_matrix):
     # 先获取分类数
     cm_classes = c_matrix.shape[0]
     # 初始化变量
-    t_k = []
-    p_k = []
+    t_k = np.zeros(cm_classes)
+    p_k = np.zeros(cm_classes)
     c = 0
     s = c_matrix.sum()
     for i in range(cm_classes):
         # 计算相关变量值
         c += c_matrix[i, i]
-        t_k.append(c_matrix[i, :].sum())
-        p_k.append(c_matrix[:, i].sum())
+        t_k[i] = c_matrix[i, :].sum()
+        p_k[i] = c_matrix[:, i].sum()
     
-    sum_tk_dot_pk = sum([t_k[i] * p_k[i] for i in range(cm_classes)])
-    sum_power_tk = sum([t_k[i]**2 for i in range(cm_classes)])
-    sum_power_pk = sum([p_k[i]**2 for i in range(cm_classes)])
+    sum_tk_dot_pk = np.array([t_k[i] * p_k[i] for i in range(cm_classes)]).sum()
+    sum_power_tk = np.array([t_k[i]**2 for i in range(cm_classes)]).sum()
+    sum_power_pk = np.array([p_k[i]**2 for i in range(cm_classes)]).sum()
     # 计算 MCC
     mcc = (c * s - sum_tk_dot_pk) / math.sqrt((s**2 - sum_power_pk) * (s**2 - sum_power_tk))
 
