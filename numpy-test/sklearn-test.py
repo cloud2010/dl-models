@@ -78,8 +78,11 @@ for i in range(4):
     pred_names.append('Pred C' + str(i + 1))
 # print(target_names, len(target_names))
 con_df = pd.DataFrame(data=con_mat, index=target_names, columns=pred_names)
+# print("\nSum of each Class:\n", con_df.sum(axis=1).values)
+# 添加一列统计
+con_df['Sum'] = con_df.sum(axis=1).values
 print("\nNew Confusion Matrix:\n{0}".format(con_df))
-print("\nSum of each Class:\n", con_df.loc[:, ].sum())
+
 # print(con_df.describe())
 # 输出数据报告
 print(classification_report(y_true, y_pred, target_names=target_names))
