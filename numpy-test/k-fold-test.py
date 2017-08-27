@@ -6,6 +6,7 @@ Ref: http://scikit-learn.org/stable/modules/cross_validation.html
 import numpy as np
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import KFold
+from sklearn.utils import resample
 import os
 import logging  # 导入日志模块
 
@@ -59,4 +60,8 @@ print("\nk-fold={%d}" % kfold)
 
 for train_index, test_index in cv_set:
     print("\nTrain-index:\n", train_index, "\nTest-index:\n", test_index)
+    batch_x = n_target[train_index]
+    # Sub-sampling
+    batch_sample_index = resample(train_index, replace=False, n_samples=50)
+    print("\nSub-Sample-index:", batch_sample_index)
     print("\nTest dataset size:", test_index.shape)
