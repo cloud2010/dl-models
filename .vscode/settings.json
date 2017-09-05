@@ -1,9 +1,10 @@
 // 将设置放入此文件中以覆盖默认值和用户设置。
 {
+    "python.linting.pylintEnabled": false,
+    "python.linting.pep8Enabled": true,
     "code-runner.executorMap": {
-        "python": "C:\\Python35\\python.exe"
+        "python": "python.exe"
     },
-    "code-runner.customCommand": "python D:\\PycharmProjects\\SNNs-learning\\numpy-test\\sys-args-test.py --version --file=test.txt",
     "code-runner.clearPreviousOutput": true,
     "python.linting.pep8Args": [
         "--ignore=E501" //忽略pep8 E501错误
