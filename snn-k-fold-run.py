@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
-
-' a test module '
+"""
+Using SNNs
+"""
+import sys
+import time
+import getopt
 
 __author__ = 'Min'
 
-import sys
 
-try:
+def run():
+    """ 运行SNN模型  """
+    try:
         # 默认参数构建
         start_time = time.time()  # 程序开始时间
         n_hiddens = 2  # 默认2层隐藏层
@@ -20,7 +25,7 @@ try:
         train_file = ""
 
         opts, args = getopt.getopt(sys.argv[1:], "hc:l:u:e:k:s:d:r:", [
-                                   "help", "inputFile="])
+                                "help", "inputFile="])
 
         # 无输入参数显示帮助信息
         if len(opts) == 0:
@@ -61,7 +66,7 @@ try:
             n_classes, n_hiddens, n_hidden_units, train_file))
         print("\nCross-validation info:")
         print("\nK-fold =", n_fold, ", Training epochs per fold:", n_epochs, ", Subsampling size in training:",
-              n_samples, ", Dropout rate is:", dropout_rate, ", Random seed is", random_seed)
+            n_samples, ", Dropout rate is:", dropout_rate, ", Random seed is", random_seed)
         print("\nTraining Start...")
 
         # 执行主程序
@@ -75,3 +80,4 @@ try:
         print("\nMaybe you input some invalid parameters!")
         print("\nTry `python %s --help` for more information." % sys.argv[0])
         sys.exit(1)
+
