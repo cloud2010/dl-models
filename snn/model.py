@@ -3,7 +3,7 @@
 A SelfNormalizingNetworks implementation for Multi-classification Problem using TensorFlow and sklearn-kit library.
 Author: liumin@shmtu.edu.cn
 Date: 2017-08-23
-Tested under: Python3.5 / Python3.6 and TensorFlow 1.1 / Tensorflow 1.2
+Tested under: Python3.5 / Python3.6 and TensorFlow 1.1 / 1.2 / 1.3
 Derived from: Guenter Klambauer, 2017
 Source: https://github.com/bioinf-jku/SNNs/blob/master/SelfNormalizingNetworks_MLP_MNIST.ipynb
 Cross-validation: k-fold using sklearn.model_selection.KFold
@@ -14,14 +14,13 @@ Source: http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.O
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+import os
+import sys
+import time
+import getopt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import time
-import numbers
-import math
-import sys
-import getopt
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 from sklearn.metrics import accuracy_score  # 计算 ACC
@@ -29,118 +28,11 @@ from sklearn.metrics import confusion_matrix  # 输出混淆矩阵
 from sklearn.metrics import classification_report  # 输出 recall f1等指标
 from sklearn.utils import resample  # 添加 subsampling 工具类
 from tensorflow.contrib import layers
-from tensorflow.python.framework import ops
-from tensorflow.python.framework import tensor_shape
-from tensorflow.python.framework import tensor_util
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import random_ops
-from tensorflow.python.ops import array_ops
-from tensorflow.python.layers import utils
+
 # from sklearn.metrics import matthews_corrcoef  # MCC Metric
 # 避免输出TensorFlow未编译CPU指令集信息
-import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
-
-def matthews_corrcoef(c_matrix):
-    """
-    多分类问题计算MCC
-    MCC = cov(X, Y) / sqrt(cov(X, X)*cov(Y, Y))
-    Ref: http://scikit-learn.org/stable/modules/model_evaluation.html
-         https://en.wikipedia.org/wiki/Matthews_correlation_coefficient
-    t_k=\sum_{i}^{K} C_{ik} the number of times class K truly occurred
-    p_k=\sum_{i}^{K} C_{ki} the number of times class K was predicted
-    c=\sum_{k}^{K} C_{kk} the total number of samples correctly predicted
-    s=\sum_{i}^{K} \sum_{j}^{K} C_{ij} the total number of samples
-    参数
-    ----
-    c_matrix: 混淆矩阵 array, shape = [n_classes, n_classes]
-    返回
-    ----
-    mcc: Matthews correlation coefficient, float
-    """
-    # 先获取分类数
-    cm_classes = c_matrix.shape[0]
-    # 初始化变量
-    t_k = np.zeros(cm_classes)
-    p_k = np.zeros(cm_classes)
-    c = 0
-    s = c_matrix.sum()
-    for i in range(cm_classes):
-        # 计算相关变量值
-        c += c_matrix[i, i]
-        t_k[i] = c_matrix[i, :].sum()
-        p_k[i] = c_matrix[:, i].sum()
-
-    sum_tk_dot_pk = np.array([t_k[i] * p_k[i]
-                              for i in range(cm_classes)]).sum()
-    sum_power_tk = np.array([t_k[i]**2 for i in range(cm_classes)]).sum()
-    sum_power_pk = np.array([p_k[i]**2 for i in range(cm_classes)]).sum()
-    # 计算 MCC
-    mcc = (c * s - sum_tk_dot_pk) / \
-        math.sqrt((s**2 - sum_power_pk) * (s**2 - sum_power_tk))
-
-    # 返回值
-    return mcc
-    # return mcc, t_k, p_k
-
-
-def selu(x):
-    """
-    Definition of scaled exponential linear units (SELUs)
-    SELU激活函数定义
-    """
-    with ops.name_scope('selu') as scope:
-        alpha = 1.6732632423543772848170429916717
-        scale = 1.0507009873554804934193349852946
-        return scale * tf.where(x >= 0.0, x, alpha * tf.nn.elu(x))
-
-
-def dropout_selu(x, rate, alpha=-1.7580993408473766, fixedPointMean=0.0, fixedPointVar=1.0,
-                 noise_shape=None, seed=None, name=None, training=False):
-    """Definition of dropout variant for SNNs"""
-    """Dropout to a value with rescaling."""
-
-    def dropout_selu_impl(x, rate, alpha, noise_shape, seed, name):
-        keep_prob = 1.0 - rate
-        x = ops.convert_to_tensor(x, name="x")
-        if isinstance(keep_prob, numbers.Real) and not 0 < keep_prob <= 1:
-            raise ValueError("keep_prob must be a scalar tensor or a float in the "
-                             "range (0, 1), got %g" % keep_prob)
-        keep_prob = ops.convert_to_tensor(
-            keep_prob, dtype=x.dtype, name="keep_prob")
-        keep_prob.get_shape().assert_is_compatible_with(tensor_shape.scalar())
-
-        alpha = ops.convert_to_tensor(alpha, dtype=x.dtype, name="alpha")
-        keep_prob.get_shape().assert_is_compatible_with(tensor_shape.scalar())
-
-        if tensor_util.constant_value(keep_prob) == 1:
-            return x
-
-        noise_shape = noise_shape if noise_shape is not None else array_ops.shape(
-            x)
-        random_tensor = keep_prob
-        random_tensor += random_ops.random_uniform(
-            noise_shape, seed=seed, dtype=x.dtype)
-        binary_tensor = math_ops.floor(random_tensor)
-        ret = x * binary_tensor + alpha * (1 - binary_tensor)
-
-        a = tf.sqrt(fixedPointVar / (keep_prob * ((1 - keep_prob)
-                                                  * tf.pow(alpha - fixedPointMean, 2) + fixedPointVar)))
-
-        b = fixedPointMean - a * \
-            (keep_prob * fixedPointMean + (1 - keep_prob) * alpha)
-        ret = a * ret + b
-        ret.set_shape(x.get_shape())
-        return ret
-
-    with ops.name_scope(name, "dropout", [x]) as name:
-        return utils.smart_cond(training,
-                                lambda: dropout_selu_impl(
-                                    x, rate, alpha, noise_shape, seed, name),
-                                lambda: array_ops.identity(x))
-
 
 def multilayer_perceptron(x, weights, biases, n_layers, rate, is_training):
     """
