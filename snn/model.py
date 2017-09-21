@@ -320,25 +320,6 @@ def main(inputFile, output_classes=2, h_nums=2, h_units=256, epochs=10, folds=10
     print("\thttps://en.wikipedia.org/wiki/Matthews_correlation_coefficient")
 
 
-def snn_usage():
-    """SNN程序使用说明
-    """
-    print("\nThis a SelfNormalizingNetworks implementation using TensorFlow v1.2.1 and scikit-learn v0.19.")
-    print(
-        "\nUsage:python %s [-c|-l|-u||-e|-k|-s|-d|-r] [--help|--inputFile] args...." % sys.argv[0])
-    print("\nExample:python %s -c 2 -l 2 -u 256 -e 100 -k 10 -s 50 -d 0.5 -r 6 --inputFile=train.csv" %
-          sys.argv[0])
-    print("\nIntroduction:")
-    print("\n-c: Number of class. Must be at least 2 aka two-classification.")
-    print("\n-l: Number of hidden layers. Default=2")
-    print("\n-u: Number of hidden layer units. Default=256")
-    print("\n-e: Training epochs in each fold. Default=10")
-    print("\n-k: Number of folds. Must be at least 2. Default=10")
-    print("\n-s: Subsampling size in training. If 0, all samples will be training. Default=0")
-    print("\n-d: Dropout rate. Default=0.5")
-    print("\n-r: Random seed, pseudo-random number generator state used for shuffling")
-    print("\n--inputFile: The filename of training dataset\n")
-
 
 if __name__ == "__main__":
     try:
