@@ -5,7 +5,7 @@ Using SNNs
 import sys
 import os
 import time
-from snn import model_raw
+# from snn import model_raw
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 __author__ = 'Min'
@@ -40,8 +40,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--logdir", type=str, help="The directory for TF logs and summaries.", default="logs")
 
-    # by parsing the arguments already, we can bail out now instead of waiting
-    # for TF to load, in case the arguments aren't ok
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid
     logdir_base = os.getcwd()  # 获取当前目录
@@ -71,7 +69,10 @@ if __name__ == "__main__":
     print("\nTraining Start...")
 
     # 执行 SNN 训练模型并验证
-    model_raw.run(args.inputfile, args.nclass, args.nlayers, args.nunits, args.epochs, args.kfolds,
+    # by parsing the arguments already, we can bail out now instead of waiting
+    # for TF to load, in case the arguments aren't ok
+    from snn.model_raw import run
+    run(args.inputfile, args.nclass, args.nlayers, args.nunits, args.epochs, args.kfolds,
                       args.batchsize, args.dropout, args.learningrate, args.gpuid, args.logdir, args.randomseed)
     end_time = time.time()  # 程序结束时间
     print("\nRuntime Consumption:", "{0:.6f} mins = {1:.6f} seconds".format(
