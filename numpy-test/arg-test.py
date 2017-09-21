@@ -1,6 +1,6 @@
 """
 argparse Tutorial
-source: http://www.jianshu.com/p/a50aead61319
+source: http://www.jianshu.com/p/a50aead61319 and http://www.jianshu.com/p/fef2d215b91d
 """
 import argparse
 parser = argparse.ArgumentParser(description="calculate X to the power of Y")
