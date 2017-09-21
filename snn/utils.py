@@ -49,3 +49,15 @@ def matthews_corrcoef(c_matrix):
     # 返回 MCC
     return mcc
     # return mcc, t_k, p_k
+
+
+def get_timestamp(fmt='%y%m%d_%H%M'):
+    '''Returns a string that contains the current date and time.
+
+    Suggested formats:
+        short_format=%y%m%d_%H%M  (default)
+        long format=%Y%m%d_%H%M%S
+    '''
+    import datetime
+    now = datetime.datetime.now()
+    return datetime.datetime.strftime(now, fmt)
