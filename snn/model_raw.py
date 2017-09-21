@@ -19,14 +19,14 @@ import sys
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import selu
-import utils
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 from sklearn.metrics import accuracy_score  # 计算 ACC
 from sklearn.metrics import confusion_matrix  # 输出混淆矩阵
 from sklearn.metrics import classification_report  # 输出 recall f1等指标
 from sklearn.utils import resample  # 添加 subsampling 工具类
+from .selu import selu, dropout_selu
+from .utils import matthews_corrcoef, get_timestamp
 
 # from sklearn.metrics import matthews_corrcoef  # MCC Metric
 # 避免输出TensorFlow未编译CPU指令集信息
@@ -55,16 +55,16 @@ def multilayer_perceptron(x, weights, biases, n_layers, rate, is_training):
         1: tf.add(tf.matmul(x, weights['h1']), biases['b1'])
     }
     # Hidden layer with SELU activation
-    layers[1] = selu.selu(layers[1])
+    layers[1] = selu(layers[1])
     # add dropout layer 防止 over-fitting
-    layers[1] = selu.dropout_selu(layers[1], rate, training=is_training)
+    layers[1] = dropout_selu(layers[1], rate, training=is_training)
 
     # 从 2nd 开始循环建立中间 hidden layer
     for i in range(2, n_layers + 1):
         layers[i] = tf.add(
             tf.matmul(layers[i - 1], weights['h' + str(i)]), biases['b' + str(i)])
-        layers[i] = selu.selu(layers[i])
-        layers[i] = selu.dropout_selu(layers[i], rate, training=is_training)
+        layers[i] = selu(layers[i])
+        layers[i] = dropout_selu(layers[i], rate, training=is_training)
 
     # 输出层建立，Output layer with linear activation
     out_layer = tf.matmul(layers[n_layers], weights['out']) + biases['out']
@@ -110,6 +110,10 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     # 设定神经网络参数，输入层神经元个数为 n_features 列数
     n_input = train_set.shape[1] - 1  # features input 即为特征数
 
+    # 如未设定隐藏层单元数则数目为输入特征数
+    if h_units == -1:
+        h_units = n_input
+
     # Tensorboard 记录位置
     logs_path = os.path.join(os.getcwd(), log_dir)
 
@@ -120,7 +124,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     n_features = train_set[:, 1:]
 
     # 总样本数索引矩阵
-    total_index = np.arange(0, train_set.shape[0])
+    # total_index = np.arange(0, train_set.shape[0])
 
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
@@ -282,7 +286,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
 
         # 模型各变量持久化
         save_path = saver.save(sess, os.path.join(
-            logs_path, "model-{0}.ckpt".format(utils.get_timestamp())))
+            logs_path, "model-{0}.ckpt".format(get_timestamp())))
 
     # 训练结束计算Precision、Recall、ACC、MCC等统计指标
     class_names = []
@@ -310,7 +314,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     print("\n=== Accuracy classification score ===")
     print("\nACC = {:.6f}".format(accuracy_score(test_cache, pred_cache)))
     print("\n=== Matthews Correlation Coefficient ===")
-    print("\nMCC = {:.6f}".format(utils.matthews_corrcoef(cm)))
+    print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
     print("\n=== Confusion Matrix ===\n")
     print(df)
     print("\n=== Detailed Accuracy By Class ===\n")

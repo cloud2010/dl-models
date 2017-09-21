@@ -7,3 +7,4 @@ SNNs.py
 *.log
 *.pyc
 /tmp
+/logs

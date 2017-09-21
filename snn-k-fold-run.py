@@ -5,6 +5,7 @@ Using SNNs
 import sys
 import os
 import time
+from snn import model_raw
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 __author__ = 'Min'
@@ -66,10 +67,12 @@ if __name__ == "__main__":
     print("\nThe directory for TF logs:",
           os.path.join(logdir_base, args.logdir))
     print("\nGPU to use:", "No GPU support" if args.gpuid ==
-          "" else "/gpu:{}".format(args.gpuid))
+          "" else "/gpu:{0}".format(args.gpuid))
     print("\nTraining Start...")
 
-    # 执行主程序
+    # 执行 SNN 训练模型并验证
+    model_raw.run(args.inputfile, args.nclass, args.nlayers, args.nunits, args.epochs, args.kfolds,
+                      args.batchsize, args.dropout, args.learningrate, args.gpuid, args.logdir, args.randomseed)
     end_time = time.time()  # 程序结束时间
     print("\nRuntime Consumption:", "{0:.6f} mins = {1:.6f} seconds".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
