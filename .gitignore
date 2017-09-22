@@ -1,9 +1,4 @@
-snn-linux.py
-snn-k-fold.py
-snn-k-fold-multi.py
 SNN-INSTRUCTION.md
-fnn-relu-test.py
-SNNs.py
 *.log
 *.pyc
 /tmp
