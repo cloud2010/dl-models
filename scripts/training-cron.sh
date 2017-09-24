@@ -1,16 +1,28 @@
 #!/bin/bash
 # 完成所有数据集测试任务
 # default setting
-if [ $# -eq 1 ]
+
+# 暂存开始时间
+start=$(date +%s)
+
+if [ $# -eq 0 ]
 then
-    echo "default test datasets is 941."
-    datasets=941
-    # echo "Usage : $0 number"
-    # exit 1
+    # datasets=10
+    echo "Usage : $0 [number of datasets]"
+    echo "Example : $0 100"
+    exit 1
 fi
 
-for ((i=1; i<=$datasets; i++))
+# 循环进行数据集训练测试
+for i in `seq 1 $1`
 do
-    # gdbt caculate
-    # echo "md $i Process running...`python3.6 gdbt.py -cv 10 -md $i heart_scale 1>heart_scale-cv-10-md-$i.log 2>&1`"
+    # snn training
+    # echo "$i.csv"
+    `python3 snn-k-fold-run.py -c 2 -l 3 -u 512 -e 300 -d 0.1 --learningrate 1e-2 -k 10 --inputfile /home/liumin/citrullination_standard/$1.csv > /home/liumin/train_logs/f$1-train-c2-l3-u512-e300-lr001-d01.log`
+    echo "All datasets $i training finished at `date`"
 done
+
+# 暂存结束时间
+end=$(date +%s)
+
+echo "Runtime: $((end-start)) seconds"
