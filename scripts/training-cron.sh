@@ -19,7 +19,7 @@ do
     # snn training
     # echo "$i.csv"
     `python3 snn-k-fold-run.py -c 2 -l 3 -u 512 -e 300 -d 0.1 --learningrate 1e-2 -k 10 --inputfile /home/liumin/citrullination_standard/$1.csv > /home/liumin/train_logs/f$1-train-c2-l3-u512-e300-lr001-d01.log`
-    echo "All datasets $i training finished at `date`"
+    echo "Datasets $i training finished at `date`"
 done
 
 # 暂存结束时间
