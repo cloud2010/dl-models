@@ -1,6 +1,4 @@
 SNN-INSTRUCTION.md
 *.log
 *.pyc
-*.csv
 /tmp
-/logs
