@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--batchsize", type=int,
                         help="Subsampling size in training. If 0, all samples will be training.", default=0)
     parser.add_argument("-d", "--dropout", type=float,
-                        help="Hidden dropout rate (implies input-dropout of 0.2).", default=0.1)
+                        help="Hidden dropout rate (implies input-dropout of 0.2).", default=5e-2)
     parser.add_argument("-r", "--randomseed", type=int,
                         help="pseudo-random number generator state used for shuffling.", default=0)
     parser.add_argument("-g", "--gpuid", type=str,
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--inputfile", type=str,
                         help="The filename of training dataset.", required=True)
     parser.add_argument("--learningrate", type=float,
-                        help="Learning rate.", default=1e-5)
+                        help="Learning rate.", default=1e-2)
     parser.add_argument(
         "--logdir", type=str, help="The directory for TF logs and summaries.", default="logs")
 

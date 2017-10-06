@@ -286,7 +286,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
 
             # 完成一个fold训练，保存模型，权重偏置矩阵重新初始化
             # 模型各变量持久化
-            save_path = saver.save(sess, os.path.join(logs_path, "model-f{0}-l{1}-u{2}-lr{3}-dp{4:.1e}-kf{5}-e{6}.ckpt".format(
+            save_path = saver.save(sess, os.path.join(logs_path, "model-f{0}-l{1}-u{2}-lr{3:.0e}-dp{4:.0e}-kf{5}-e{6}.ckpt".format(
                 nums_features, h_nums, h_units, l_rate, d_rate, k_fold_step, epochs)), latest_filename="checkpoint-f{0}".format(nums_features))
             print("\nModel saved in file: %s" % save_path)
             sess.run(init)
