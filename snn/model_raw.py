@@ -22,6 +22,7 @@ import tensorflow as tf
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 from sklearn.metrics import accuracy_score  # 计算 ACC
+# from sklearn.metrics import matthews_corrcoef  #  sklearn MCC
 from sklearn.metrics import confusion_matrix  # 输出混淆矩阵
 from sklearn.metrics import classification_report  # 输出 recall f1等指标
 from sklearn.utils import resample  # 添加 subsampling 工具类
@@ -122,6 +123,9 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
 
     # 特征矩阵为去第一列之后数据
     n_features = train_set[:, 1:]
+    # 特征数和样本数
+    nums_features = n_features.shape[1]
+    nums_samples = n_features.shape[0]
 
     # 总样本数索引矩阵
     # total_index = np.arange(0, train_set.shape[0])
@@ -137,7 +141,8 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
         print("Sum of Class {0} : {1}".format(i, np.sum(n_target == i)))
 
     # 输出样本数
-    print("Number of Samples :", n_features.shape[0])
+    print("Number of Samples : {0}, Number of features : {1}".format(
+        nums_samples, nums_features))
 
     with tf.variable_scope('Inputs') as scope:
         # tf Graph input 建立TensorFlow占位符，用于存储输入输出矩阵
@@ -194,32 +199,32 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     init = tf.global_variables_initializer()
 
     # 添加模型保存器
-    # Add ops to save and restore all the variables.
-    saver = tf.train.Saver()
+    # `max_to_keep` if None or 0, all checkpoint files are kept.
+    saver = tf.train.Saver(max_to_keep=folds)
 
     # 创建TensorFlow统计图表(权重、偏置、loss、acc)
-    for i in range(1, h_nums + 1):
-        tf.summary.histogram("weights" + str(i), weights['h' + str(i)])
-        tf.summary.histogram("biases" + str(i), biases['b' + str(i)])
+    # for i in range(1, h_nums + 1):
+    #     tf.summary.histogram("weights" + str(i), weights['h' + str(i)])
+    #     tf.summary.histogram("biases" + str(i), biases['b' + str(i)])
 
     # Create a summary to monitor cost tensor
-    tf.summary.scalar("Loss", cost)
+    # tf.summary.scalar("Loss", cost)
     # Create a summary to monitor accuracy tensor
-    tf.summary.scalar("Accuracy", accuracy)
+    # tf.summary.scalar("Accuracy", accuracy)
     # 将所有统计信息汇总
-    merged_summary_op = tf.summary.merge_all()
+    # merged_summary_op = tf.summary.merge_all()
 
     # 启动会话
     with tf.Session() as sess:
         sess.run(init)
 
         # 记录训练工程数据至log文件，便于TensorBoard可视化
-        summary_writer = tf.summary.FileWriter(
-            logs_path, graph=tf.get_default_graph())
+        # summary_writer = tf.summary.FileWriter(
+        #     logs_path, graph=tf.get_default_graph())
 
         # 生成 k-fold 训练集、测试集索引
         cv_index_set = rs.split(new_target)
-        training_step = 1  # 初始化训练次数
+        # training_step = 1  # 初始化训练次数
         k_fold_step = 1  # 初始化折数
 
         # 暂存每次选中的测试集和对应预测结果
@@ -242,18 +247,21 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
                 batch_x = n_features[sample_index]  # 特征数据用于训练
                 batch_y = new_target[sample_index]  # 标记结果用于验证
                 # 运行优化器进行训练
-                _, costTrain, accTrain, summary = sess.run([optimizer, cost, accuracy, merged_summary_op], feed_dict={x: batch_x,
-                                                                                                                      y: batch_y,
-                                                                                                                      dropout_rate: d_rate,
-                                                                                                                      is_training: True})
+                # _, costTrain, accTrain, summary = sess.run([optimizer, cost, accuracy, merged_summary_op], feed_dict={x: batch_x,
+                #                                                                                                       y: batch_y,
+                #                                                                                                       dropout_rate: d_rate,
+                #                                                                                                       is_training: True})
+                # 关闭 TensorBoard
+                _, costTrain, accTrain = sess.run([optimizer, cost, accuracy], feed_dict={
+                                                  x: batch_x, y: batch_y, dropout_rate: d_rate, is_training: True})
                 # 输出训练结果
                 print("\nTraining Epoch:", '%06d' % (epoch + 1), "Train Accuracy:", "{:.6f}".format(accTrain),
                       "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", sample_index.shape[0])
 
                 # 记录日志
-                summary_writer.add_summary(summary, training_step)
+                # summary_writer.add_summary(summary, training_step)
                 # 训练次数累加
-                training_step += 1
+                # training_step += 1
 
             # 输入测试数据
             batch_test_x = n_features[test_index]
@@ -276,17 +284,18 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
 
-            # 每个fold训练结束后次数 +1
-            k_fold_step += 1
-            # 完成一个fold训练，权重偏置矩阵重新初始化
+            # 完成一个fold训练，保存模型，权重偏置矩阵重新初始化
+            # 模型各变量持久化
+            save_path = saver.save(sess, os.path.join(logs_path, "model-f{0}-l{1}-u{2}-lr{3}-dp{4:.1e}-kf{5}-e{6}.ckpt".format(
+                nums_features, h_nums, h_units, l_rate, d_rate, k_fold_step, epochs)), latest_filename="checkpoint-f{0}".format(nums_features))
+            print("\nModel saved in file: %s" % save_path)
             sess.run(init)
             print("\nVariable `Weights` and `Biases` reinitialize.")
             print(
                 "\n=========================================================================")
 
-        # 模型各变量持久化
-        save_path = saver.save(sess, os.path.join(
-            logs_path, "model-{0}.ckpt".format(get_timestamp())))
+            # 每个fold训练结束后次数 +1
+            k_fold_step += 1
 
     # 训练结束计算Precision、Recall、ACC、MCC等统计指标
     class_names = []
@@ -303,9 +312,8 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     df['Sum'] = df.sum(axis=1).values
 
     print("\nOptimization Finished!")
-    print("\nNumber of features:",
-          n_features.shape[1], ", Number of Samples :", n_features.shape[0])
-    print("\nModel saved in file: %s" % save_path)
+    print("Number of Samples : {0}, Number of features : {1}".format(
+        nums_samples, nums_features))
     # print("\nTest dataset actual values:")
     # print(test_cache)
     # print("\nPredicted values as One-hot matrix:")
