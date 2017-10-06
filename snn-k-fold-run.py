@@ -73,7 +73,7 @@ if __name__ == "__main__":
     # for TF to load, in case the arguments aren't ok
     from snn.model_raw import run
     run(args.inputfile, args.nclass, args.nlayers, args.nunits, args.epochs, args.kfolds,
-                      args.batchsize, args.dropout, args.learningrate, args.gpuid, args.logdir, args.randomseed)
+        args.batchsize, args.dropout, args.learningrate, args.gpuid, args.logdir, args.randomseed)
     end_time = time.time()  # 程序结束时间
-    print("\nRuntime Consumption:", "{0:.6f} mins = {1:.6f} seconds".format(
+    print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
