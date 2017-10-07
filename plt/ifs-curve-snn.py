@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 # import seaborn as sns
 
 # 数据集文件名
-MCC_SNN = "D:\\logs\\rate_SNN_10-fold_citrullination_standard.csv"
+# MCC_SNN = "D:\\logs\\rate_SNN_10-fold_citrullination_standard.csv"
+MCC_SNN = "logs/mcc-sum-c2-l4-u300-e300-lr1e-2-d005.csv"
 # 去读取数据
 mcc_datasets = np.genfromtxt(MCC_SNN, delimiter=',')
 # 纵坐标 MCC
