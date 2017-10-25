@@ -2,3 +2,4 @@ SNN-INSTRUCTION.md
 *.log
 *.pyc
 /tmp
+/datasets
