@@ -14,14 +14,21 @@ Author: Aymeric Damien
 """
 
 from __future__ import division, print_function, absolute_import
-
-import tensorflow as tf
 import os
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn.model_selection import KFold
+# 计算 ACC 混淆矩阵 输出 recall f1等指标
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.utils import resample  # 添加 subsampling 工具类
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Create some wrappers for simplicity
 # 卷积层实现函数
+
+
 def conv2d(x, W, b, strides=1):
     # Conv2D wrapper, with bias and relu activation
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
@@ -29,6 +36,8 @@ def conv2d(x, W, b, strides=1):
     return tf.nn.relu(x)
 
 # 池化层实现函数
+
+
 def maxpool2d(x, k=2):
     # MaxPool2D wrapper
     return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
@@ -36,6 +45,8 @@ def maxpool2d(x, k=2):
 
 # Create model
 # 创建卷积神经网络
+
+
 def conv_net(x, weights, biases, dropout):
     # MNIST data input is a 1-D vector of 784 features (28*28 pixels)
     # Reshape to match picture format [Height x Width x Channel]
@@ -68,7 +79,7 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 
-def model_run(l_rate, n_steps, b_size, k_prob):
+def model_run(l_rate, n_steps, b_size, k_prob, folds, seed=None):
     """运行CNN模型
     ----
     参数
@@ -77,11 +88,15 @@ def model_run(l_rate, n_steps, b_size, k_prob):
     n_steps: 训练次数
     b_size: 每次训练取样大小
     k_prob: 训练过程单元保留比例 (Dropout rate)
+    k_fold: 交叉验证次数
+    seed: 随机数种子
     """
     # Import MNIST data
     image_data_path = os.path.join(os.getcwd(), "datasets")
     from tensorflow.examples.tutorials.mnist import input_data
-    mnist = input_data.read_data_sets(image_data_path, one_hot=True)
+    # 验证集设为 0 便于实现自定义的 k-fold 交叉验证
+    mnist = input_data.read_data_sets(
+        image_data_path, one_hot=True, validation_size=0)
 
     # Training Parameters
     # 超参数（学习率、训练次数、显示步长等）
@@ -95,6 +110,14 @@ def model_run(l_rate, n_steps, b_size, k_prob):
     num_input = 784  # MNIST data input (img shape: 28*28)
     num_classes = 10  # MNIST total classes (0-9 digits)
     dropout = k_prob  # Dropout, probability to keep units
+
+    # 设定 K-fold 分割器
+    rs = KFold(n_splits=folds, shuffle=True, random_state=seed)
+    # 生成 k-fold 训练集、验证集索引
+    cv_index_set = rs.split(mnist.train.labels)
+    k_fold_step = 1  # 初始化折数
+    # 暂存每次选中的测试集和对应预测结果
+    test_cache = pred_cache = np.array([], dtype=np.int)
 
     # tf Graph input
     # 占位符
@@ -140,33 +163,81 @@ def model_run(l_rate, n_steps, b_size, k_prob):
 
     # Initialize the variables (i.e. assign their default value)
     init = tf.global_variables_initializer()
+    # k-fold cross-validation
+    for train_index, test_index in cv_index_set:
+        # Start training
+        with tf.Session() as sess:
 
-    # Start training
-    with tf.Session() as sess:
+            # Run the initializer
+            sess.run(init)
 
-        # Run the initializer
-        sess.run(init)
+            for step in range(1, num_steps + 1):
+                # 每次选取一定数量样本进行计算
+                # batch_x, batch_y = mnist.train.next_batch(batch_size)
+                sample_index = resample(
+                    train_index, replace=False, n_samples=batch_size)
+                batch_x = mnist.train.images[sample_index]
+                batch_y = mnist.train.labels[sample_index]
+                # Run optimization op (backprop)
+                sess.run(train_op, feed_dict={
+                         X: batch_x, Y: batch_y, keep_prob: dropout})
+                if step % display_step == 0 or step == 1:
+                    # Calculate batch loss and accuracy
+                    # 计算ACC时保留所有单元数
+                    loss, acc = sess.run([loss_op, accuracy], feed_dict={
+                                         X: batch_x, Y: batch_y, keep_prob: 1.0})
+                    print("\nTraining Step " + str(step) + ", Training Accuracy = " +
+                          "{:.6f}".format(acc) + ", Minibatch Loss = " +
+                          "{:.6f}".format(loss))
 
-        for step in range(1, num_steps + 1):
-            # 每次选取一定数量样本进行计算
-            batch_x, batch_y = mnist.train.next_batch(batch_size)
-            # Run optimization op (backprop)
-            sess.run(train_op, feed_dict={X: batch_x, Y: batch_y, keep_prob: dropout})
-            if step % display_step == 0 or step == 1:
-                # Calculate batch loss and accuracy
-                # 计算ACC时保留所有单元数
-                loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
-                                                                     Y: batch_y,
-                                                                     keep_prob: 1.0})
-                print("Step " + str(step) + ", Minibatch Loss= " +
-                      "{:.4f}".format(loss) + ", Training Accuracy= " +
-                      "{:.4f}".format(acc))
+            print("\nTraining Finished!")
 
-        print("\nOptimization Finished!")
+            # 测试集评估模型
+            batch_test_x = mnist.train.images[test_index]
+            batch_test_y = mnist.train.labels[test_index]
+            # print(batch_test_y)
 
-        # Calculate accuracy for 256 MNIST test images
-        # 用测试集进行验证，保留所有单元数
-        print("\n256 test images accuracy:",
-              sess.run(accuracy, feed_dict={X: mnist.test.images[:256],
-                                            Y: mnist.test.labels[:256],
-                                            keep_prob: 1.0}))
+            lossTest, accTest, predVal = sess.run([loss_op, accuracy, prediction], feed_dict={
+                                                  X: batch_test_x, Y: batch_test_y, keep_prob: 1.0})
+
+            print("\nFold:", k_fold_step, ", Test Accuracy =", "{:.6f}".format(
+                accTest), ", Test Loss =", "{:.6f}".format(lossTest), ", Test Size:", test_index.shape[0])
+            # print(predVal)
+
+            # One-hot 矩阵转换为原始分类矩阵
+            argmax_test = np.argmax(batch_test_y, axis=1)
+            argmax_pred = np.argmax(predVal, axis=1)
+            # 暂存每次选中的测试集和预测结果
+            test_cache = np.concatenate((test_cache, argmax_test))
+            pred_cache = np.concatenate((pred_cache, argmax_pred))
+
+        print("\n=================================================================================")
+
+        # 每个fold训练结束后次数 +1
+        k_fold_step += 1
+
+    # 训练结束计算Precision、Recall、ACC、MCC等统计指标
+    class_names = []
+    pred_names = []
+    for i in range(num_classes):
+        class_names.append('Class ' + str(i + 1))
+        pred_names.append('Pred C' + str(i + 1))
+
+    # 混淆矩阵生成
+    cm = confusion_matrix(test_cache, pred_cache)
+    df = pd.DataFrame(data=cm, index=class_names, columns=pred_names)
+
+    # 混淆矩阵添加一列代表各类求和
+    df['Sum'] = df.sum(axis=1).values
+
+    print("\n=== Model evaluation ===")
+    print("\n=== Accuracy classification score ===")
+    print("\nACC = {:.6f}".format(accuracy_score(test_cache, pred_cache)))
+    print("\n=== Matthews Correlation Coefficient ===")
+    from .utils import matthews_corrcoef
+    print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
+    print("\n=== Confusion Matrix ===\n")
+    print(df.to_string())
+    print("\n=== Detailed Accuracy By Class ===\n")
+    print(classification_report(test_cache, pred_cache,
+                                target_names=class_names, digits=6))
