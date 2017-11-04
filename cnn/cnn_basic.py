@@ -166,7 +166,7 @@ def model_run(l_rate, n_steps, b_size, k_prob, folds, seed=None):
     # k-fold cross-validation
     for train_index, test_index in cv_index_set:
         # Start training
-        with tf.Session() as sess:
+        with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
 
             # Run the initializer
             sess.run(init)
