@@ -1,27 +1,24 @@
 """ Build an Custom Dataset in TensorFlow.
 
-- From a root folder, that will have a sub-folder containing images for each class
+- From a root folder, that will have a sub-folder containing membrane file for each class
     ```
     ROOT_FOLDER
-       |-------- SUBFOLDER (CLASS 0)
-       |             |
-       |             | ----- image1.jpg
-       |             | ----- image2.jpg
-       |             | ----- etc...
-       |             
        |-------- SUBFOLDER (CLASS 1)
        |             |
-       |             | ----- image1.jpg
-       |             | ----- image2.jpg
+       |             | ----- membrane_A4D1S5
+       |             | ----- membrane_O00212
+       |             | ----- etc...
+       |             
+       |-------- SUBFOLDER (CLASS 2)
+       |             |
+       |             | ----- membrane_A0FGR8
+       |             | ----- membrane_A5D6W6
        |             | ----- etc...
     ```
 
-- From a plain text file, that will list all images with their class ID:
+- From a plain text file, that will list all membrane with their class ID:
     ```
-    /path/to/image/1.jpg CLASS_ID
-    /path/to/image/2.jpg CLASS_ID
-    /path/to/image/3.jpg CLASS_ID
-    /path/to/image/4.jpg CLASS_ID
+    /datasets/membrane/C2/membrane_A5D6W6 CLASS ID
     etc...
     ```
 
