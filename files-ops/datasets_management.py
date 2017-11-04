@@ -31,3 +31,16 @@ if __name__ == "__main__":
         labels[0].lstrip('>'), labels[1]))
     print("\nMatrix shape:", mat.shape)
     print("\nFirst line:", mat[1])
+    # padding array with 0, number of values padded to the footer
+    new_mat = np.lib.pad(
+        mat, ((0, 5000 - mat.shape[0]), (0, 0)), 'constant', constant_values=0)
+    print("\n", new_mat)
+    print("\n", new_mat.shape)
+
+# 矩阵 padding 测试，矩阵尾部以 0 代替
+a = np.arange(9).reshape((3,3))
+b = np.lib.pad(a, ((0, 5000 - 3), (0, 0)), 'constant', constant_values=0)
+print("\nBefore padding:", a.shape)
+print("\n", a)
+print("\nAfter padding:", b.shape)
+print("\n", b)

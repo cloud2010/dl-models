@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Raw Convolutional Neural Network.
 
 Build and train a convolutional neural network with TensorFlow.

@@ -1,206 +1,155 @@
-""" Build an Custom Dataset in TensorFlow.
+# -*- coding: utf-8 -*-
+""" Build an Basic ConvNet for training membrane dataset in TensorFlow.
 
-- From a root folder, that will have a sub-folder containing membrane file for each class
-    ```
-    ROOT_FOLDER
-       |-------- SUBFOLDER (CLASS 1)
-       |             |
-       |             | ----- membrane_A4D1S5
-       |             | ----- membrane_O00212
-       |             | ----- etc...
-       |             
-       |-------- SUBFOLDER (CLASS 2)
-       |             |
-       |             | ----- membrane_A0FGR8
-       |             | ----- membrane_A5D6W6
-       |             | ----- etc...
-    ```
-
-- From a plain text file, that will list all membrane with their class ID:
-    ```
-    /datasets/membrane/C2/membrane_A5D6W6 CLASS ID
-    etc...
-    ```
-
-Below, there are some parameters that you need to change (Marked 'CHANGE HERE'), 
-such as the dataset path.
+convolutional layer1 + max pooling;
+convolutional layer2 + max pooling;
+fully connected layer1 + dropout;
+fully connected layer2 to prediction.
 
 Derived from: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
 """
 from __future__ import print_function
 
-import tensorflow as tf
 import os
+import tensorflow as tf
 
-# Dataset Parameters - CHANGE HERE
-MODE = 'folder'  # or 'file', if you choose a plain text file (see above).
-DATASET_PATH = '/path/to/dataset/'  # the dataset file or root folder path.
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# Image Parameters
-N_CLASSES = 2  # CHANGE HERE, total number of classes
-IMG_HEIGHT = 64  # CHANGE HERE, the image height to be resized to
-IMG_WIDTH = 64  # CHANGE HERE, the image width to be resized to
-CHANNELS = 3  # The 3 color channels, change to 1 if grayscale
+# Membrane Parameters
+N_CLASSES = 5  # CHANGE HERE, total number of classes
+DATA_HEIGHT = 5000  # CHANGE HERE, the membrane's height
+DATA_WIDTH = 20  # CHANGE HERE, the membrane's width
+CHANNELS = 1  # change to 1 if grayscale
 
+def read_membrane_datasets(dataset_path):
+    """读取 Membrane 数据集
+    
+    Args:
+     dataset_path: 数据集路径
 
-# Reading the dataset
-# 2 modes: 'file' or 'folder'
-def read_images(dataset_path, mode, batch_size):
-    imagepaths, labels = list(), list()
-    if mode == 'file':
-        # Read dataset file
-        data = open(dataset_path, 'r').read().splitlines()
-        for d in data:
-            imagepaths.append(d.split(' ')[0])
-            labels.append(int(d.split(' ')[1]))
-    elif mode == 'folder':
-        # An ID will be affected to each sub-folders by alphabetical order
-        label = 0
-        # List the directory
-        try:  # Python 2
-            classes = sorted(os.walk(dataset_path).next()[1])
-        except Exception:  # Python 3
-            classes = sorted(os.walk(dataset_path).__next__()[1])
-        # List each sub-directory (the classes)
-        for c in classes:
-            c_dir = os.path.join(dataset_path, c)
-            try:  # Python 2
-                walk = os.walk(c_dir).next()
-            except Exception:  # Python 3
-                walk = os.walk(c_dir).__next__()
-            # Add each image to the training set
-            for sample in walk[2]:
-                # Only keeps jpeg images
-                if sample.endswith('.jpg') or sample.endswith('.jpeg'):
-                    imagepaths.append(os.path.join(c_dir, sample))
-                    labels.append(label)
-            label += 1
-    else:
-        raise Exception("Unknown mode.")
+    Returns:
+     返回 Membrane 文件列表及对应分类列表
+    """
+    membrane_paths, membrane_labels = list(), list()
+    # 获取文件夹下所有数据集文件名
+    files = os.listdir(dataset_path)
+    for filename in files:
+        filepath = os.path.join(dataset_path, filename)
+        if os.path.isfile(filepath):
+            f = open(filepath, 'r', encoding='utf-8')
+            # 读取样本首行分类信息
+            m_class_info = f.readline().split()
+            f.close()  #  Membrane 文件完整路径
+            # 登记相关信息至训练集列表
+            membrane_paths.append(filepath)
+            membrane_labels.append(m_class_info[1])
+    return membrane_paths, membrane_labels
 
-    # Convert to Tensor
-    imagepaths = tf.convert_to_tensor(imagepaths, dtype=tf.string)
-    labels = tf.convert_to_tensor(labels, dtype=tf.int32)
-    # Build a TF Queue, shuffle data
-    image, label = tf.train.slice_input_producer([imagepaths, labels],
-                                                 shuffle=True)
-
-    # Read images from disk
-    image = tf.read_file(image)
-    image = tf.image.decode_jpeg(image, channels=CHANNELS)
-
-    # Resize images to a common size
-    image = tf.image.resize_images(image, [IMG_HEIGHT, IMG_WIDTH])
-
-    # Normalize
-    image = image * 1.0 / 127.5 - 1.0
-
-    # Create batches
-    X, Y = tf.train.batch([image, label], batch_size=batch_size,
-                          capacity=batch_size * 8,
-                          num_threads=4)
-
-    return X, Y
-
-# -----------------------------------------------
-# THIS IS A CLASSIC CNN (see examples, section 3)
-# -----------------------------------------------
-# Note that a few elements have changed (usage of queues).
-
-
-# Parameters
-learning_rate = 0.001
-num_steps = 10000
-batch_size = 128
-display_step = 100
-
-# Network Parameters
-dropout = 0.75  # Dropout, probability to keep units
-
-# Build the data input
-X, Y = read_images(DATASET_PATH, MODE, batch_size)
-
-
-# Create model
 def conv_net(x, n_classes, dropout, reuse, is_training):
+    """ 基本卷积神经网络构建
+
+    Args:
+     x: 2d 输入矩阵
+     n_classes: 输出分类数
+     dropout: Dropout 概率
+     reuse: 是否应用同样的权重矩阵
+     is_training: 网络是否在训练状态
+    
+    Returns:
+     全连接层输出
+
+    """
     # Define a scope for reusing the variables
     with tf.variable_scope('ConvNet', reuse=reuse):
-
-        # Convolution Layer with 32 filters and a kernel size of 5
+        # data input is a 1-D vector of (DATA_HEIGHT*DATA_WIDTH) features
+        # Reshape to format [Height x Width x Channel]
+        # Tensor input become 4-D: [Batch Size, Height, Width, Channel]
+        # -1 代表每次可以自定义样本输入数量
+        # x = tf.reshape(x, shape=[-1, DATA_HEIGHT, DATA_WIDTH, 1])
+        
+        # Convolution Layer 1 with 32 filters and a kernel size of 5
+        # 卷积层1：卷积核大小为 5x5，卷积核数量为 32， 激活函数使用 RELU
         conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
+        # 采用 2x2 维度的最大化池化操作，步长为2
         conv1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
-        # Convolution Layer with 32 filters and a kernel size of 5
+        # Convolution Layer 2 with 64 filters and a kernel size of 3
+        # 卷积层2：卷积核大小为 3x3，卷积核数量为 64， 激活函数使用 RELU
         conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
+        # 采用 2x2 维度的最大化池化操作，步长为2
         conv2 = tf.layers.max_pooling2d(conv2, 2, 2)
 
         # Flatten the data to a 1-D vector for the fully connected layer
         fc1 = tf.contrib.layers.flatten(conv2)
 
         # Fully connected layer (in contrib folder for now)
+        # 全链接层具有1024神经元
         fc1 = tf.layers.dense(fc1, 1024)
         # Apply Dropout (if is_training is False, dropout is not applied)
+        # 对全链接层的数据加入dropout操作，防止过拟合
         fc1 = tf.layers.dropout(fc1, rate=dropout, training=is_training)
 
         # Output layer, class prediction
         out = tf.layers.dense(fc1, n_classes)
         # Because 'softmax_cross_entropy_with_logits' already apply softmax,
         # we only apply softmax to testing network
+        # 输出层 (Softmax层)，对dropout层的输出Tensor，执行分类操作
         out = tf.nn.softmax(out) if not is_training else out
 
     return out
 
+def run_model(d_path, l_rate, n_steps, b_size, k_prob, folds, seed=None):
+    """运行 CNN 模型
+    
+    Args:
+      d_path: 数据集路径
+      lr: 学习率
+      n_steps: 训练次数
+      b_size: 每次训练取样大小
+      k_prob: 训练过程单元保留比例 (Dropout rate)
+      k_fold: 交叉验证次数
+      seed: 随机数种子
+    """
+    # tf Graph input
+    # 占位符
+    X = tf.placeholder(tf.float32)
+    y = tf.placeholder(tf.int16)
+    keep_prob = tf.placeholder(tf.float32)  # dropout (keep probability)
+    
+    # Because Dropout have different behavior at training and prediction time, we
+    # need to create 2 distinct computation graphs that share the same weights.
+    # Create a graph for training
+    logits_train = conv_net(X, N_CLASSES, keep_prob, reuse=False, is_training=True)
+    # Create another graph for testing that reuse the same weights
+    logits_test = conv_net(X, N_CLASSES, keep_prob, reuse=True, is_training=False)
 
-# Because Dropout have different behavior at training and prediction time, we
-# need to create 2 distinct computation graphs that share the same weights.
+    # Define loss and optimizer (with train logits, for dropout to take effect)
+    # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
+    loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
+        logits=logits_train, labels=y))
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
+    train_op = optimizer.minimize(loss_op)
 
-# Create a graph for training
-logits_train = conv_net(X, N_CLASSES, dropout, reuse=False, is_training=True)
-# Create another graph for testing that reuse the same weights
-logits_test = conv_net(X, N_CLASSES, dropout, reuse=True, is_training=False)
+    # Evaluate model (with test logits, for dropout to be disabled)
+    correct_pred = tf.equal(tf.argmax(logits_test, 1), tf.cast(y, tf.int16))
+    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-# Define loss and optimizer (with train logits, for dropout to take effect)
-loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
-    logits=logits_train, labels=Y))
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-train_op = optimizer.minimize(loss_op)
+    # Initialize the variables (i.e. assign their default value)
+    init = tf.global_variables_initializer()
 
-# Evaluate model (with test logits, for dropout to be disabled)
-correct_pred = tf.equal(tf.argmax(logits_test, 1), tf.cast(Y, tf.int64))
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    # Saver object
+    # saver = tf.train.Saver()
 
-# Initialize the variables (i.e. assign their default value)
-init = tf.global_variables_initializer()
+    # Start training
+    with tf.Session() as sess:
 
-# Saver object
-saver = tf.train.Saver()
+        # Run the initializer
+        sess.run(init)
 
-# Start training
-with tf.Session() as sess:
+        
 
-    # Run the initializer
-    sess.run(init)
-
-    # Start the data queue
-    tf.train.start_queue_runners()
-
-    # Training cycle
-    for step in range(1, num_steps + 1):
-
-        if step % display_step == 0:
-            # Run optimization and calculate batch loss and accuracy
-            _, loss, acc = sess.run([train_op, loss_op, accuracy])
-            print("Step " + str(step) + ", Minibatch Loss= " +
-                  "{:.4f}".format(loss) + ", Training Accuracy= " +
-                  "{:.3f}".format(acc))
-        else:
-            # Only run the optimization op (backprop)
-            sess.run(train_op)
-
-    print("Optimization Finished!")
-
-    # Save your model
-    saver.save(sess, 'my_tf_model')
+        # Save your model
+        # saver.save(sess, 'membrane_tf_model')
