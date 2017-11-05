@@ -16,7 +16,7 @@ if __name__ == "__main__":
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-e", "--epochs", type=int,
-                        help="Number of training epochs.", default=50)
+                        help="Number of training epochs.", default=20)
     parser.add_argument("-k", "--kfolds", type=int,
                          help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-s", "--batchsize", type=int,
