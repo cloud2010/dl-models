@@ -18,13 +18,13 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=20)
     parser.add_argument("-k", "--kfolds", type=int,
-                         help="Number of folds. Must be at least 2.", default=10)
+                        help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-s", "--batchsize", type=int,
                         help="Subsampling size in training.", default=100)
     parser.add_argument("-d", "--dropout", type=float,
-                        help="The dropout rate, between 0 and 1. E.g. rate=0.1 would drop out 10% of input units.", default=0.1)
+                        help="The dropout rate, between 0 and 1. E.g. rate=0.1 would drop out 10%% of input units.", default=0.1)
     parser.add_argument("-r", "--randomseed", type=int,
-                         help="pseudo-random number generator state used for shuffling.", default=None)
+                        help="pseudo-random number generator state used for shuffling.", default=None)
     # parser.add_argument("-g", "--gpuid", type=str,
     #                     help='GPU to use (leave blank for CPU only)', default="")
     parser.add_argument("--datapath", type=str,
@@ -53,7 +53,8 @@ if __name__ == "__main__":
     # by parsing the arguments already, we can bail out now instead of waiting
     # for TF to load, in case the arguments aren't ok
     from cnn.cnn_bio import run_model
-    run_model(args.datapath, args.learningrate, args.epochs, args.batchsize, args.dropout, args.kfolds, args.randomseed)
+    run_model(args.datapath, args.learningrate, args.epochs,
+              args.batchsize, args.dropout, args.kfolds, args.randomseed)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
