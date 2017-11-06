@@ -92,15 +92,15 @@ def read_data(file_path):
     return new_mat
 
 
-def conv_net(x, n_classes, dropout, reuse, is_training):
+def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_training):
     """ 基本卷积神经网络构建
 
     Args:
-     x: 4-D 输入矩阵 [Batch Size, Height, Width, Channel] 在给定的 4-D input 与 filter下计算2D卷积
-     n_classes: 输出分类数
-     dropout: Dropout 概率
-     reuse: 是否应用同样的权重矩阵
-     is_training: 网络是否在训练状态
+     `x`: 4-D 输入矩阵 [Batch Size, Height, Width, Channel] 在给定的 4-D input 与 filter下计算2D卷积
+     `n_classes`: 输出分类数
+     `dropout`: Dropout 概率
+     `reuse`: 是否应用同样的权重矩阵
+     `is_training`: 网络是否在训练状态
 
     Returns:
      全连接层输出
@@ -119,14 +119,16 @@ def conv_net(x, n_classes, dropout, reuse, is_training):
 
         # Convolution Layer 1 with 32 filters and a kernel size of 5
         # 卷积层1：卷积核大小为 5x5，卷积核数量为 32， 激活函数使用 RELU
-        conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu)
+        conv1 = tf.layers.conv2d(
+            x, 32, kernel_size=[c1_k_h, c1_k_w], activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
         # 采用 2x2 维度的最大化池化操作，步长为2
         pool1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
         # Convolution Layer 2 with 64 filters and a kernel size of 3
         # 卷积层2：卷积核大小为 3x3，卷积核数量为 64， 激活函数使用 RELU
-        conv2 = tf.layers.conv2d(pool1, 64, 3, activation=tf.nn.relu)
+        conv2 = tf.layers.conv2d(
+            pool1, 64, kernel_size=[c2_k_h, c2_k_w], activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
         # 采用 2x2 维度的最大化池化操作，步长为2
         pool2 = tf.layers.max_pooling2d(conv2, 2, 2)
@@ -151,7 +153,7 @@ def conv_net(x, n_classes, dropout, reuse, is_training):
     return out
 
 
-def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, seed=None):
+def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, conv1_h, conv1_w, conv2_h, conv2_w, seed=None):
     """运行 CNN 模型
 
     Args:
@@ -171,29 +173,31 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, seed=None):
     # Because Dropout have different behavior at training and prediction time, we
     # need to create 2 distinct computation graphs that share the same weights.
     # Create a graph for training
-    logits_train = conv_net(X, N_CLASSES, dropout, reuse=False, is_training=True)
+    logits_train = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                            conv2_h, conv2_w, dropout, reuse=False, is_training=True)
     # Create another graph for testing that reuse the same weights
-    logits_test = conv_net(X, N_CLASSES, dropout, reuse=True, is_training=False)
+    logits_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                           conv2_h, conv2_w, dropout, reuse=True, is_training=False)
 
     # Define loss and optimizer (with train logits, for dropout to take effect)
     # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
-    loss_op=tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
+    loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
         logits=logits_train, labels=y))
-    optimizer=tf.train.AdamOptimizer(learning_rate=l_rate)
-    train_op=optimizer.minimize(loss_op)
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
+    train_op = optimizer.minimize(loss_op)
 
     # Evaluate model (with test logits, for dropout to be disabled)
-    correct_pred=tf.equal(tf.argmax(logits_train, 1), tf.cast(y, tf.int64))
-    accuracy=tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    correct_pred = tf.equal(tf.argmax(logits_train, 1), tf.cast(y, tf.int64))
+    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
     # Initialize the variables (i.e. assign their default value)
-    init=tf.global_variables_initializer()
+    init = tf.global_variables_initializer()
 
     # Saver object
     # saver = tf.train.Saver()
     # 读取数据
     traning_set, training_labels = get_datasets(d_path)
-    
+
     # 设定 K-fold 分割器
     rs = KFold(n_splits=folds, shuffle=True, random_state=seed)
     # 生成 k-fold 训练集、验证集索引
@@ -210,16 +214,23 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, seed=None):
             # Run the initializer
             sess.run(init)
             # 测试集矩阵初始化
-            batch_test_x = read_data(traning_set[test_index[0]]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)
+            batch_test_x = read_data(traning_set[test_index[0]]).reshape(
+                1, DATA_HEIGHT, DATA_WIDTH, 1)
             batch_test_y = training_labels[test_index[0]]
 
             for step in range(1, n_steps + 1):
                 # 每次选取一定数量样本进行计算
-                sample_index = resample(train_index, replace=False, n_samples=b_size)
-                batch_x = read_data(traning_set[sample_index[0]]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)
+                if b_size == 0:
+                    sample_index = train_index
+                else:
+                    sample_index = resample(
+                        train_index, replace=False, n_samples=b_size)
+                batch_x = read_data(traning_set[sample_index[0]]).reshape(
+                    1, DATA_HEIGHT, DATA_WIDTH, 1)
                 batch_y = training_labels[sample_index[0]]
                 for i in sample_index[1:]:
-                    batch_x = np.vstack((batch_x, read_data(traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
+                    batch_x = np.vstack(
+                        (batch_x, read_data(traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
                     batch_y = np.hstack((batch_y, training_labels[i]))
                 # Run optimization op (backprop)
                 sess.run(train_op, feed_dict={
@@ -227,14 +238,17 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, seed=None):
                 if step % DISPLAY_STEP == 0 or step == 1:
                     # Calculate batch loss and accuracy
                     # 计算ACC时保留所有单元数
-                    loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x, y: batch_y, dropout: 0})
-                    print("\nTraining Step: {0}, Training Accuracy = {1:.6f}, Batch Loss = {2:.6f}".format(step, acc, loss))
+                    loss, acc = sess.run([loss_op, accuracy], feed_dict={
+                                         X: batch_x, y: batch_y, dropout: 0})
+                    print("\nTraining Step: {0}, Training Accuracy = {1:.6f}, Batch Loss = {2:.6f}".format(
+                        step, acc, loss))
 
             print("\nTraining Finished!")
 
             # 测试集评估模型
             for i in test_index[1:]:
-                batch_test_x = np.vstack((batch_test_x, read_data(traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
+                batch_test_x = np.vstack((batch_test_x, read_data(
+                    traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
                 batch_test_y = np.hstack((batch_test_y, training_labels[i]))
 
             lossTest, accTest, predVal = sess.run([loss_op, accuracy, logits_test], feed_dict={
@@ -249,19 +263,21 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, seed=None):
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, batch_test_y))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
-        
+
         print("\n=================================================================================")
 
         # 每个fold训练结束后次数 +1
         k_fold_step += 1
-    
+
     # 模型评估结果输出
     model_evaluation(N_CLASSES, test_cache, pred_cache)
     # Save your model
     # saver.save(sess, 'membrane_tf_model')
+
+
 def model_evaluation(num_classes, y_true, y_pred):
     """每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
-    
+
     Args:
     num_classes : 分类数
     y_true : array, shape = [n_samples]
@@ -292,4 +308,5 @@ def model_evaluation(num_classes, y_true, y_pred):
     print("\n=== Confusion Matrix ===\n")
     print(df.to_string())
     print("\n=== Detailed Accuracy By Class ===\n")
-    print(classification_report(y_true, y_pred, target_names=class_names, digits=6))
+    print(classification_report(y_true, y_pred,
+                                target_names=class_names, digits=6))
