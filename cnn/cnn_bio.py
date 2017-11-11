@@ -13,12 +13,9 @@ from __future__ import print_function
 
 import os
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
-# 计算 ACC 混淆矩阵 输出 recall f1等指标
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.utils import resample  # 添加 subsampling 工具类
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -270,43 +267,7 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, conv1_h, conv1_w, 
         k_fold_step += 1
 
     # 模型评估结果输出
+    from .utils import model_evaluation
     model_evaluation(N_CLASSES, test_cache, pred_cache)
     # Save your model
     # saver.save(sess, 'membrane_tf_model')
-
-
-def model_evaluation(num_classes, y_true, y_pred):
-    """每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
-
-    Args:
-    num_classes : 分类数
-    y_true : array, shape = [n_samples]
-        Ground truth (correct) target values.
-
-    y_pred : array, shape = [n_samples]
-        Estimated targets as returned by a classifier.
-    """
-    class_names = []
-    pred_names = []
-    for i in range(num_classes):
-        class_names.append('Class ' + str(i + 1))
-        pred_names.append('Pred C' + str(i + 1))
-
-    # 混淆矩阵生成
-    cm = confusion_matrix(y_true, y_pred)
-    df = pd.DataFrame(data=cm, index=class_names, columns=pred_names)
-
-    # 混淆矩阵添加一列代表各类求和
-    df['Sum'] = df.sum(axis=1).values
-
-    print("\n=== Model evaluation ===")
-    print("\n=== Accuracy classification score ===")
-    print("\nACC = {:.6f}".format(accuracy_score(y_true, y_pred)))
-    print("\n=== Matthews Correlation Coefficient ===")
-    from .utils import matthews_corrcoef
-    print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
-    print("\n=== Confusion Matrix ===\n")
-    print(df.to_string())
-    print("\n=== Detailed Accuracy By Class ===\n")
-    print(classification_report(y_true, y_pred,
-                                target_names=class_names, digits=6))
