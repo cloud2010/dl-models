@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This a Basic ConvNet implementation for signal peptide.
+This a Basic ConvNet implementation for signal peptide(binary classification).
 """
 import sys
 import os

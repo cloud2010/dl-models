@@ -15,7 +15,7 @@ import os
 import random
 import numpy as np
 import tensorflow as tf
-from sklearn.preprocessing import StandardScaler
+# from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
 # from sklearn.utils import resample  # 添加 subsampling 工具类
 
@@ -49,24 +49,18 @@ def get_datasets(dataset_path, rate):
     for filename in files_p:
         filepath = os.path.join(dataset_path, "P", filename)
         if os.path.isfile(filepath):
-            f = open(filepath, 'r', encoding='utf-8')
-            # 读取样本首行分类信息
-            m_class_info = f.readline().split()
-            f.close()  # sample 文件完整路径
             # 登记相关信息至训练集列表
             sample_paths.append(filepath)
-            sample_labels.append(int(m_class_info[1]) - 1)
+            # 正样本分类为1
+            sample_labels.append(0)
     # 再获取抽样的负样本
     for filename in files_n:
-        filepath = os.path.join(dataset_path, "P", filename)
+        filepath = os.path.join(dataset_path, "N", filename)
         if os.path.isfile(filepath):
-            f = open(filepath, 'r', encoding='utf-8')
-            # 读取样本首行分类信息
-            m_class_info = f.readline().split()
-            f.close()  # sample 文件完整路径
             # 登记相关信息至训练集列表
             sample_paths.append(filepath)
-            sample_labels.append(int(m_class_info[1]) - 1)
+            # 正样本分类为0
+            sample_labels.append(1)
     # 返回正负样本数据集
     return sample_paths, sample_labels
 
@@ -92,11 +86,12 @@ def read_data(file_path):
     # 转换至 numpy array 格式
     mat = np.array(result, dtype=np.float)
     # 标准化处理
-    scale = StandardScaler()
+    # scale = StandardScaler()
     # 按列 Standardize features by removing the mean and scaling to unit variance
-    scale.fit(mat)
+    # scale.fit(mat)
     # 2-D array 转换为 3-D array [Height, Width, Channel]
-    new_mat = scale.transform(mat)[:, :, np.newaxis]
+    # new_mat = scale.transform(mat)[:, :, np.newaxis]
+    new_mat = mat.reshape((DATA_HEIGHT, DATA_WIDTH,1))
     return new_mat
 
 
@@ -279,7 +274,7 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
         k_fold_step += 1
 
     # 模型评估结果输出
-    from .utils import model_evaluation
-    model_evaluation(N_CLASSES, test_cache, pred_cache)
+    from .utils import bi_model_evaluation
+    bi_model_evaluation(test_cache, pred_cache)
     # Save your model
     # saver.save(sess, 'membrane_tf_model')

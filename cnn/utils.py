@@ -89,6 +89,39 @@ def model_evaluation(num_classes, y_true, y_pred):
                                 target_names=class_names, digits=6))
 
 
+def bi_model_evaluation(y_true, y_pred):
+    """二分类问题每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
+
+    Args:
+    num_classes : 分类数
+    y_true : array, shape = [n_samples]
+        Ground truth (correct) target values.
+
+    y_pred : array, shape = [n_samples]
+        Estimated targets as returned by a classifier.
+    """
+    class_names = ["Positive", "Negative"]
+    pred_names = ["Pred Positive", "Pred Negative"]
+
+    # 混淆矩阵生成
+    cm = confusion_matrix(y_true, y_pred)
+    df = pd.DataFrame(data=cm, index=class_names, columns=pred_names)
+
+    # 混淆矩阵添加一列代表各类求和
+    df['Sum'] = df.sum(axis=1).values
+
+    print("\n=== Model evaluation ===")
+    print("\n=== Accuracy classification score ===")
+    print("\nACC = {:.6f}".format(accuracy_score(y_true, y_pred)))
+    print("\n=== Matthews Correlation Coefficient ===")
+    print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
+    print("\n=== Confusion Matrix ===\n")
+    print(df.to_string())
+    print("\n=== Detailed Accuracy By Class ===\n")
+    print(classification_report(y_true, y_pred,
+                                target_names=class_names, digits=6))
+
+
 def get_timestamp(fmt='%y%m%d_%H%M'):
     '''Returns a string that contains the current date and time.
 
