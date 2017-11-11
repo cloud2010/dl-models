@@ -12,8 +12,7 @@ __author__ = "Min"
 
 
 def matthews_corrcoef(c_matrix):
-    """
-    多分类问题MCC计算
+    """多分类问题MCC计算
     MCC = cov(X, Y) / sqrt(cov(X, X)*cov(Y, Y))
     Ref: http://scikit-learn.org/stable/modules/model_evaluation.html
          https://en.wikipedia.org/wiki/Matthews_correlation_coefficient
