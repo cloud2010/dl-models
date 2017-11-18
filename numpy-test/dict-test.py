@@ -34,3 +34,7 @@ print(test0)
 print(test1)
 print(test2)
 print("\nAfter concatenate:", test3)
+
+# 列表操作
+a_list = ["f"+str(i) for i in range(1024)]
+print(a_list)

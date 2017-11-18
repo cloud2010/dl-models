@@ -147,7 +147,7 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_tr
         # 输出层 (Softmax层)，对dropout层的输出Tensor，执行分类操作
         out = tf.nn.softmax(out) if not is_training else out
 
-    return out
+    return fc1, out
 
 
 def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, conv1_h, conv1_w, conv2_h, conv2_w, seed=None):
@@ -170,11 +170,11 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, conv1_h, conv1_w, 
     # Because Dropout have different behavior at training and prediction time, we
     # need to create 2 distinct computation graphs that share the same weights.
     # Create a graph for training
-    logits_train = conv_net(X, N_CLASSES, conv1_h, conv1_w,
-                            conv2_h, conv2_w, dropout, reuse=False, is_training=True)
+    features_train, logits_train = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                                            conv2_h, conv2_w, dropout, reuse=False, is_training=True)
     # Create another graph for testing that reuse the same weights
-    logits_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
-                           conv2_h, conv2_w, dropout, reuse=True, is_training=False)
+    features_test, logits_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                                          conv2_h, conv2_w, dropout, reuse=True, is_training=False)
 
     # Define loss and optimizer (with train logits, for dropout to take effect)
     # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
@@ -248,9 +248,10 @@ def run_model(d_path, l_rate, n_steps, b_size, d_rate, folds, conv1_h, conv1_w, 
                     traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
                 batch_test_y = np.hstack((batch_test_y, training_labels[i]))
 
-            lossTest, accTest, predVal = sess.run([loss_op, accuracy, logits_test], feed_dict={
-                                                  X: batch_test_x, y: batch_test_y, dropout: 0})
+            lossTest, accTest, predVal, fData = sess.run([loss_op, accuracy, logits_test, features_test], feed_dict={
+                X: batch_test_x, y: batch_test_y, dropout: 0})
 
+            print("\n", fData)
             print("\nFold:", k_fold_step, ", Test Accuracy =", "{:.6f}".format(
                 accTest), ", Test Loss =", "{:.6f}".format(lossTest), ", Test Size:", test_index.shape[0])
 

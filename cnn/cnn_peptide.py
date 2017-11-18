@@ -14,6 +14,7 @@ from __future__ import print_function
 import os
 import random
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 # from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import KFold
@@ -91,7 +92,7 @@ def read_data(file_path):
     # scale.fit(mat)
     # 2-D array 转换为 3-D array [Height, Width, Channel]
     # new_mat = scale.transform(mat)[:, :, np.newaxis]
-    new_mat = mat.reshape((DATA_HEIGHT, DATA_WIDTH,1))
+    new_mat = mat.reshape((DATA_HEIGHT, DATA_WIDTH, 1))
     return new_mat
 
 
@@ -153,7 +154,7 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_tr
         # 输出层 (Softmax层)，对dropout层的输出Tensor，执行分类操作
         out = tf.nn.softmax(out) if not is_training else out
 
-    return out
+    return out, fc1
 
 
 def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, conv2_h, conv2_w, seed=None):
@@ -180,11 +181,11 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
     # Because Dropout have different behavior at training and prediction time, we
     # need to create 2 distinct computation graphs that share the same weights.
     # Create a graph for training
-    logits_train = conv_net(X, N_CLASSES, conv1_h, conv1_w,
-                            conv2_h, conv2_w, dropout, reuse=False, is_training=True)
+    logits_train, _ = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                               conv2_h, conv2_w, dropout, reuse=False, is_training=True)
     # Create another graph for testing that reuse the same weights
-    logits_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
-                           conv2_h, conv2_w, dropout, reuse=True, is_training=False)
+    logits_test, features_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
+                                          conv2_h, conv2_w, dropout, reuse=True, is_training=False)
 
     # Define loss and optimizer (with train logits, for dropout to take effect)
     # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
@@ -211,7 +212,8 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
     cv_index_set = rs.split(training_labels)
     k_fold_step = 1  # 初始化折数
     # 暂存每次选中的测试集和对应预测结果
-    test_cache = pred_cache = np.array([], dtype=np.int)
+    test_cache = pred_cache = test_index_cache = np.array([], dtype=np.int)
+    f_cache = np.zeros([1, 1024], dtype=np.float)
 
     # k-fold cross-validation
     for train_index, test_index in cv_index_set:
@@ -255,11 +257,12 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
                     traning_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
                 batch_test_y = np.hstack((batch_test_y, training_labels[i]))
 
-            lossTest, accTest, predVal = sess.run([loss_op, accuracy, logits_test], feed_dict={
-                                                  X: batch_test_x, y: batch_test_y, dropout: 0})
+            lossTest, accTest, predVal, fData = sess.run([loss_op, accuracy, logits_test, features_test], feed_dict={
+                X: batch_test_x, y: batch_test_y, dropout: 0})
 
             print("\nFold:", k_fold_step, ", Test Accuracy =", "{:.6f}".format(
                 accTest), ", Test Loss =", "{:.6f}".format(lossTest), ", Test Size:", test_index.shape[0])
+            # print("\n", fData)
 
             # One-hot 矩阵转换为原始分类矩阵
             # argmax_test = batch_test_y
@@ -267,6 +270,9 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, batch_test_y))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
+            test_index_cache = np.concatenate((test_index_cache, test_index))
+            # 暂存全连接层数据(1024个单元)
+            f_cache = np.vstack((f_cache, fData))
 
         print("\n=================================================================================")
 
@@ -276,5 +282,11 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, folds, conv1_h, conv1_w, 
     # 模型评估结果输出
     from .utils import bi_model_evaluation
     bi_model_evaluation(test_cache, pred_cache)
-    # Save your model
-    # saver.save(sess, 'membrane_tf_model')
+    # 输出全连接层特征数据
+    f_list = ["f" + str(i) for i in range(1024)]
+    df = pd.DataFrame(f_cache[1:, ], index=test_cache, columns=f_list)
+    samples_name = list()
+    for i in test_index_cache:
+        samples_name.append(traning_set[i])
+    df.insert(0, "Samples", samples_name)
+    df.to_csv("f_output.csv", index_label="Class")
