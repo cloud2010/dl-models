@@ -16,6 +16,7 @@ import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from sklearn.utils import resample
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -186,7 +187,7 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
     # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
     loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
         logits=logits_train, labels=y))
-    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=l_rate)
     train_op = optimizer.minimize(loss_op)
 
     # Evaluate model (with test logits, for dropout to be disabled)
@@ -199,20 +200,25 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
     # Saver object
     # saver = tf.train.Saver()
     # 读取数据
-    traning_set, training_labels = get_datasets(d_path, n_rate)
+    training_set, training_labels = get_datasets(d_path, n_rate)
+
+    print("\nThe training set size:", len(training_set))
 
     # Start training
     with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
 
         # Run the initializer
         sess.run(init)
-        # 训练集矩阵初始化
-        batch_x = read_data(traning_set[0]).reshape(
+        # 训练集矩阵初始化（乱序排列）
+        batch_x = read_data(training_set[0]).reshape(
             1, DATA_HEIGHT, DATA_WIDTH, 1)
-        for i in traning_set[1:]:
+        batch_y = training_labels[0]
+        train_index = np.arange(1, len(training_labels))
+        np.random.shuffle(train_index)
+        for i in train_index:
             batch_x = np.vstack(
-                (batch_x, read_data(i).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
-        batch_y = training_labels
+                (batch_x, read_data(training_set[i]).reshape(1, DATA_HEIGHT, DATA_WIDTH, 1)))
+            batch_y = np.hstack((batch_y, training_labels[i]))
 
         # Run optimization op (backprop)
         for step in range(1, n_steps + 1):
@@ -222,15 +228,20 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
                 # Calculate batch loss and accuracy
                 # 计算ACC时保留所有单元数
                 loss, acc = sess.run([loss_op, accuracy], feed_dict={
-                                     X: batch_x, y: batch_y, dropout: 0})
+                    X: batch_x, y: batch_y, dropout: 0})
                 print("\nTraining Step: {0}, Training Accuracy = {1:.6f}, Batch Loss = {2:.6f}".format(
                     step, acc, loss))
 
         print("\nTraining Finished!")
+        fdata = sess.run(features_train, feed_dict={
+                         X: batch_x, y: batch_y, dropout: 0})
+        print("\nFeatures:", fdata, "\nFeatures size:", fdata.shape)
 
-    # 输出全连接层特征数据
-    # f_list = ["f" + str(i) for i in range(1024)]
-    # df = pd.DataFrame(f_cache[1:, ], index=test_cache, columns=f_list)
-    # samples_name = list()
-    # df.insert(0, "Samples", samples_name)
-    # df.to_csv("f_output.csv", index_label="Class")
+        # 输出全连接层特征数据
+        f_list = ["f" + str(i) for i in range(fdata.shape[1])]
+        df = pd.DataFrame(fdata, index=batch_y, columns=f_list)
+        samples_name = [training_set[0]]
+        for i in train_index:
+            samples_name.append(training_set[i])
+        df.insert(0, "Samples", samples_name)
+        df.to_csv("f_output.csv", index_label="Class")

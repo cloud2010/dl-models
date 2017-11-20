@@ -33,6 +33,7 @@ test3 = np.concatenate((test0, test1, test2))
 print(test0)
 print(test1)
 print(test2)
+print(test2[1:,])
 print("\nAfter concatenate:", test3)
 
 # 列表操作
