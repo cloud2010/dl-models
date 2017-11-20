@@ -16,7 +16,6 @@ import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from sklearn.utils import resample
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
