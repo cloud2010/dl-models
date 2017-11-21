@@ -33,6 +33,8 @@ if __name__ == "__main__":
                         help="Specifying the height of the 2nd 2D convolution window.", default=3)
     parser.add_argument("--conv2w", type=int,
                         help="Specifying the width of the 2nd 2D convolution window.", default=3)
+    parser.add_argument("--conv2f", type=int,
+                        help="The number of filters in the 2nd 2D convolution.", default=64)
     # parser.add_argument("-g", "--gpuid", type=str,
     #                     help='GPU to use (leave blank for CPU only)', default="")
     parser.add_argument("--datapath", type=str,
@@ -49,10 +51,10 @@ if __name__ == "__main__":
     print("\nCNN HyperParameters:")
     print("\nTraining epochs:{0}, Negtive ratio:{1}, Learning rate:{2}, Dropout rate:{3}".format(
         args.epochs, args.ratio, args.learningrate, args.dropout))
-    print("\nThe kernel size of the 1st 2D convolution window: [{0}, {1}]".format(
+    print("\nThe kernel size of the 1st 2D convolution window: [{0}, {1}], The number of filters: 32".format(
         args.conv1h, args.conv1w))
-    print("\nThe kernel size of the 2nd 2D convolution window: [{0}, {1}]".format(
-        args.conv2h, args.conv2w))
+    print("\nThe kernel size of the 2nd 2D convolution window: [{0}, {1}], The number of filters: {2}".format(
+        args.conv2h, args.conv2w, args.conv2f))
     # print("\nCross-validation info:")
     # print("\nK-fold:", args.kfolds, ", Random seed is", args.randomseed)
     # print("\nThe directory for TF logs:",
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     # for TF to load, in case the arguments aren't ok
     from cnn.cnn_peptide_features import run_model
     run_model(args.datapath, args.learningrate, args.epochs, args.ratio,
-              args.dropout, args.conv1h, args.conv1w, args.conv2h, args.conv2w)
+              args.dropout, args.conv1h, args.conv1w, args.conv2h, args.conv2w, args.conv2f)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))

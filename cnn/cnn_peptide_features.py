@@ -93,7 +93,7 @@ def read_data(file_path):
     return new_mat
 
 
-def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_training):
+def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, c2_f, dropout, reuse, is_training):
     """ 基本卷积神经网络构建
 
     Args:
@@ -127,9 +127,9 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_tr
         pool1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
         # Convolution Layer 2 with 64 filters and a kernel size of 3
-        # 卷积层2：卷积核大小为 3x3，卷积核数量为 64， 激活函数使用 RELU
+        # 卷积层2：卷积核大小为 3x3，卷积核数量默认为 64， 激活函数使用 RELU
         conv2 = tf.layers.conv2d(
-            pool1, 64, kernel_size=[c2_k_h, c2_k_w], activation=tf.nn.relu)
+            pool1, c2_f, kernel_size=[c2_k_h, c2_k_w], activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
         # 采用 2x2 维度的最大化池化操作，步长为2
         pool2 = tf.layers.max_pooling2d(conv2, 2, 2)
@@ -151,10 +151,10 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, dropout, reuse, is_tr
         # 输出层 (Softmax层)，对dropout层的输出Tensor，执行分类操作
         out = tf.nn.softmax(out) if not is_training else out
 
-    return out, fc1
+    return out, fc1, fc2
 
 
-def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h, conv2_w):
+def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h, conv2_w, filter2):
     """运行 CNN 模型
 
     Args:
@@ -167,6 +167,7 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
       conv1_w: 卷积核1宽度
       conv2_h: 卷积核2高度
       conv2_w: 卷积核2宽度
+      filter2: 卷积层2卷积核数量
     """
     # 特征和分类矩阵占位符
     X = tf.placeholder(tf.float32, shape=[None, DATA_HEIGHT, DATA_WIDTH, 1])
@@ -176,8 +177,8 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
     # Because Dropout have different behavior at training and prediction time, we
     # need to create 2 distinct computation graphs that share the same weights.
     # Create a graph for training
-    logits_train, features_train = conv_net(X, N_CLASSES, conv1_h, conv1_w,
-                                            conv2_h, conv2_w, dropout, reuse=False, is_training=True)
+    logits_train, features_train, f1024_train = conv_net(
+        X, N_CLASSES, conv1_h, conv1_w, conv2_h, conv2_w, filter2, dropout, reuse=False, is_training=True)
     # Create another graph for testing that reuse the same weights
     # logits_test, features_test = conv_net(X, N_CLASSES, conv1_h, conv1_w,
     #                                       conv2_h, conv2_w, dropout, reuse=True, is_training=False)
@@ -232,15 +233,20 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
                     step, acc, loss))
 
         print("\nTraining Finished!")
-        fdata = sess.run(features_train, feed_dict={
-                         X: batch_x, y: batch_y, dropout: 0})
-        print("\nFeatures:", fdata, "\nFeatures size:", fdata.shape)
+        fdata, f1024 = sess.run([features_train, f1024_train], feed_dict={
+                                X: batch_x, y: batch_y, dropout: 0})
+        # print("\nFeatures:", fdata, "\nFeatures size:", fdata.shape)
 
-        # 输出全连接层特征数据
+        # 输出两类全连接层特征数据
         f_list = ["f" + str(i) for i in range(fdata.shape[1])]
+        f1024_list = ["f" + str(i) for i in range(f1024.shape[1])]
         df = pd.DataFrame(fdata, index=batch_y, columns=f_list)
+        df_1024 = pd.DataFrame(f1024, index=batch_y, columns=f1024_list)
         samples_name = [training_set[0]]
         for i in train_index:
             samples_name.append(training_set[i])
         df.insert(0, "Samples", samples_name)
+        df_1024.insert(0, "Samples", samples_name)
         df.to_csv("f_output.csv", index_label="Class")
+        df_1024.to_csv("f1024_output.csv", index_label="Class")
+        print("\nThe two features matrix have been saved to 'f_output.csv' and 'f1024_output.csv'")

@@ -1,5 +1,6 @@
 SNN-INSTRUCTION.md
 *.log
 *.pyc
+*output.csv
 /tmp
 /datasets
