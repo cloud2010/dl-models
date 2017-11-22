@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Build an Basic ConvNet for training singal peptide dataset in TensorFlow.
-Output fc1 
+Output fc1
 convolutional layer1 + max pooling;
 convolutional layer2 + max pooling;
 fully connected layer1 + dropout;
@@ -73,14 +73,15 @@ def read_data(file_path):
      numpy 格式矩阵
     """
     result = list()
-    with open(file_path, 'r', encoding='utf-8') as f:
-        # 读取首行分类信息
-        for line in f.readlines():
-            line = line.strip()
-            # 过滤首行分类信息和文件末尾空行
-            if len(line) > 0 and not line.startswith('>'):
-                # 逐行存入矩阵信息
-                result.append(line.split())
+    f = open(file_path, 'r', encoding='utf-8')
+    # 读取首行分类信息
+    for line in f.readlines():
+        line = line.strip()
+        # 过滤首行分类信息和文件末尾空行
+        if len(line) > 0 and not line.startswith('>'):
+            # 逐行存入矩阵信息
+            result.append(line.split())
+    f.close()
     # 转换至 numpy array 格式
     mat = np.array(result, dtype=np.float)
     # 标准化处理
@@ -120,16 +121,22 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, c2_f, dropout, reuse,
 
         # Convolution Layer 1 with 32 filters and a kernel size of 5
         # 卷积层1：卷积核大小为 5x5，卷积核数量为 32， 激活函数使用 RELU
-        conv1 = tf.layers.conv2d(
-            x, 32, kernel_size=[c1_k_h, c1_k_w], activation=tf.nn.relu)
+        conv1 = tf.layers.conv2d(x, 32,
+                                 kernel_size=[c1_k_h, c1_k_w],
+                                 kernel_initializer=tf.random_normal_initializer(stddev=0.001),
+                                 bias_initializer=tf.random_normal_initializer(stddev=0),
+                                 activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
         # 采用 2x2 维度的最大化池化操作，步长为2
         pool1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
         # Convolution Layer 2 with 64 filters and a kernel size of 3
         # 卷积层2：卷积核大小为 3x3，卷积核数量默认为 64， 激活函数使用 RELU
-        conv2 = tf.layers.conv2d(
-            pool1, c2_f, kernel_size=[c2_k_h, c2_k_w], activation=tf.nn.relu)
+        conv2 = tf.layers.conv2d(pool1, c2_f,
+                                 kernel_size=[c2_k_h, c2_k_w],
+                                 kernel_initializer=tf.random_normal_initializer(stddev=0.001),
+                                 bias_initializer=tf.random_normal_initializer(stddev=0),
+                                 activation=tf.nn.relu)
         # Max Pooling (down-sampling) with strides of 2 and kernel size of 2
         # 采用 2x2 维度的最大化池化操作，步长为2
         pool2 = tf.layers.max_pooling2d(conv2, 2, 2)
@@ -139,7 +146,10 @@ def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, c2_f, dropout, reuse,
 
         # Fully connected layer (in contrib folder for now)
         # 全链接层具有1024神经元
-        fc2 = tf.layers.dense(fc1, units=1024)
+        fc2 = tf.layers.dense(fc1,
+                              units=1024, 
+                              kernel_initializer=tf.random_normal_initializer(stddev=0.001),
+                              bias_initializer=tf.random_normal_initializer(stddev=0))
         # Apply Dropout (if is_training is False, dropout is not applied)
         # 对全链接层的数据加入dropout操作，防止过拟合
         fc2 = tf.layers.dropout(fc2, rate=dropout, training=is_training)
@@ -187,7 +197,7 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
     # sparse_softmax_cross_entropy_with_logits() do not use the one hot version of labels
     loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
         logits=logits_train, labels=y))
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=l_rate)
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
     train_op = optimizer.minimize(loss_op)
 
     # Evaluate model (with test logits, for dropout to be disabled)
@@ -234,7 +244,7 @@ def run_model(d_path, l_rate, n_steps, n_rate, d_rate, conv1_h, conv1_w, conv2_h
 
         print("\nTraining Finished!")
         fdata, f1024 = sess.run([features_train, f1024_train], feed_dict={
-                                X: batch_x, y: batch_y, dropout: 0})
+            X: batch_x, y: batch_y, dropout: 0})
         # print("\nFeatures:", fdata, "\nFeatures size:", fdata.shape)
 
         # 输出两类全连接层特征数据

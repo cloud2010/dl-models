@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("--learningrate", type=float,
-                        help="Learning rate.", default=1e-2)
+                        help="Learning rate.", default=1e-3)
     # parser.add_argument("--logdir", type=str, help="The directory for TF logs and summaries.", default="logs")
 
     args = parser.parse_args()
