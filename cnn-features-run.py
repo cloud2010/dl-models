@@ -55,8 +55,8 @@ if __name__ == "__main__":
 
     # 输出CNN模型相关训练参数
     print("\nCNN HyperParameters:")
-    print("\nTraining epochs:{0}, Learning rate:{1}, Dropout rate:{2}, Data size:[{3} * {4}]".format(
-        args.epochs, args.learningrate, args.dropout, args.dataw, args.datah))
+    print("\nN-classes:{0}, Training epochs:{1}, Learning rate:{2}, Dropout rate:{3}, Data shape:[{4}, {5}]".format(
+        args.nclass, args.epochs, args.learningrate, args.dropout, args.dataw, args.datah))
     print("\nThe kernel size of the 1st 2D convolution window: [{0}, {1}], The number of filters: 32".format(
         args.conv1h, args.conv1w))
     print("\nThe kernel size of the 2nd 2D convolution window: [{0}, {1}], The number of filters: {2}".format(
