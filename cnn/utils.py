@@ -122,7 +122,7 @@ def bi_model_evaluation(y_true, y_pred):
                                 target_names=class_names, digits=6))
 
 
-def get_timestamp(fmt='%Y / %m / %d %H:%M:%S'):
+def get_timestamp(fmt='%Y/%m/%d %H:%M:%S'):
     '''Returns a string that contains the current date and time.
 
     Suggested formats:
