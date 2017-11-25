@@ -122,12 +122,12 @@ def bi_model_evaluation(y_true, y_pred):
                                 target_names=class_names, digits=6))
 
 
-def get_timestamp(fmt='%y%m%d_%H%M'):
+def get_timestamp(fmt='%Y / %m / %d %H:%M:%S'):
     '''Returns a string that contains the current date and time.
 
     Suggested formats:
-        short_format=%y%m%d_%H%M  (default)
-        long format=%Y%m%d_%H%M%S
+        short_format=%y%m%d-%H%M
+        long format=%Y%m%d-%H%M%S  (default)
     '''
     import datetime
     now = datetime.datetime.now()
