@@ -25,8 +25,10 @@ from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 # 避免输出TensorFlow未编译CPU指令集信息
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+DISPLAY_STEP = 200
 
-def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, log_dir, random_s=None):
+
+def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=None):
     """
     RNN主程序
     参数
@@ -34,12 +36,10 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
     inputFile: 训练集文件路径
     n_class: 分类数，即输出层单元数，默认2分类问题
     h_units: 隐藏层单元数
-    timesteps: 步长
+    fragment: 序列片段长度
     epochs: 每个fold的训练次数
     folds: k-fold折数
     l_rate: Learning rate
-    gpu_id: 是否应用GPU加速
-    log_dir: 日志记录位置
     random_s: 随机种子
     """
     try:
@@ -56,23 +56,22 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
     # 设定 K-fold 分割器
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
 
-    # 设定神经网络参数，输入层神经元个数为 n_features 列数
-    n_input = train_set.shape[1] - 1  # features input 即为特征数
+    # 整个序列长度
+    seq_length = train_set.shape[1] - 1
 
-    # 如未设定隐藏层单元数则数目为输入特征数
+    # 片段分组 = 整个序列长度 / 片段长度
+    group = int(seq_length / fragment)
+
+    # 如未设定隐藏层单元数则数目为整个序列长度
     if h_units == -1:
-        h_units = n_input
-
-    # Tensorboard 记录位置
-    # logs_path = os.path.join(os.getcwd(), log_dir)
+        h_units = seq_length
 
     # 分类矩阵为第一列数据
     n_target = train_set[:, 0]
 
     # 特征矩阵为去第一列之后数据
     n_features = train_set[:, 1:]
-    # 特征数和样本数
-    nums_features = n_features.shape[1]
+    # 样本数
     nums_samples = n_features.shape[0]
 
     # 转换原始分类矩阵为 One-hot Vector
@@ -81,17 +80,17 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
     one_hot_mat = enc.fit(n_target.reshape(-1, 1))
     print("\nClass Info:{0}\n".format(one_hot_mat.active_features_))
     new_target = one_hot_mat.transform(n_target.reshape(-1, 1)).toarray()
-    
+
     # 不同 Class 统计
     for i in one_hot_mat.active_features_:
         print("Sum of Class {0} : {1}".format(i, np.sum(n_target == i)))
 
     # 输出样本数
-    print("Number of Samples : {0}, Number of features : {1}".format(
-        nums_samples, nums_features))
+    print("Number of Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(
+        nums_samples, seq_length, fragment, group))
 
     # tf Graph input
-    X = tf.placeholder("float", [None, timesteps, n_input])
+    X = tf.placeholder("float", [None, fragment, group])
     Y = tf.placeholder("float", [None, n_class])
 
     # Define weights
@@ -107,7 +106,7 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
     # Required shape: 'timesteps' tensors list of shape (batch_size, n_input)
 
     # Unstack to get a list of 'timesteps' tensors of shape (batch_size, n_input)
-    x = tf.unstack(X, timesteps, 1)
+    x = tf.unstack(X, fragment, 1)
 
     # Define a lstm cell with tensorflow
     lstm_cell = rnn.BasicLSTMCell(h_units, forget_bias=1.0)
@@ -120,7 +119,8 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
     prediction = tf.nn.softmax(logits)
 
     # Define loss and optimizer
-    loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
+    loss_op = tf.reduce_mean(
+        tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=l_rate)
     train_op = optimizer.minimize(loss_op)
 
@@ -148,42 +148,47 @@ def run(inputFile, n_class, h_units, timesteps, epochs, folds, l_rate, gpu_id, l
             print("\nFold:", k_fold_step)
             # print("\nTrain-index:\n", train_index, "\nTest-index:\n", test_index)
             # 开始每个 fold 的训练
-            for epoch in range(epochs):
+            for epoch in range(1, epochs + 1):
                 batch_x = n_features[train_index]  # 特征数据用于训练
                 batch_y = new_target[train_index]  # 标记结果用于验证
                 batch_size = train_index.shape[0]
                 # Reshape data to get N seq of N elements
-                batch_x = batch_x.reshape((batch_size, timesteps, n_input))
-                _, costTrain, accTrain = sess.run([train_op, loss_op, accuracy], feed_dict={X: batch_x, Y: batch_y})
+                batch_x = batch_x.reshape((batch_size, fragment, group))
+                _, costTrain, accTrain = sess.run(
+                    [train_op, loss_op, accuracy], feed_dict={X: batch_x, Y: batch_y})
                 # 输出训练结果
-                print("\nTraining Epoch:", '%06d' % (epoch + 1), "Train Accuracy:", "{:.6f}".format(accTrain),
-                      "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", batch_size)
-            
+                if epoch % DISPLAY_STEP == 0 or epoch == 1:
+                    print("\nTraining Epoch:", '%06d' % epoch, "Train Accuracy:", "{:.6f}".format(accTrain),
+                          "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", batch_size)
+
             # 输入测试数据
             batch_test_x = n_features[test_index]
             batch_test_y = new_target[test_index]
             batch_test_size = test_index.shape[0]
-            batch_test_x = batch_test_x.reshape((batch_test_size, timesteps, n_input))
+            batch_test_x = batch_test_x.reshape(
+                (batch_test_size, fragment, group))
 
             # 代入TensorFlow计算图验证测试集
-            accTest, costTest, predVal = sess.run([accuracy, loss_op, correct_pred], feed_dict={X: batch_test_x, Y: batch_test_y})
+            accTest, costTest, predVal = sess.run([accuracy, loss_op, prediction], feed_dict={
+                                                  X: batch_test_x, Y: batch_test_y})
 
             # One-hot 矩阵转换为原始分类矩阵
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
-            print("\nTest dataset Index:\n", test_index)
-            print("\nActual Values:\n", argmax_test)
-            print("\nPredicted Values:\n", argmax_pred)
+            # print("\nTest dataset Index:\n", test_index)
+            # print("\nActual Values:\n", argmax_test)
+            # print("\nPredicted Values:\n", argmax_pred)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
                 accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size:", batch_test_size)
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
-        
-            print("\n=========================================================================")
+
+            print(
+                "\n=========================================================================")
             # 每个fold训练结束后次数 +1
             k_fold_step += 1
-        
+
         # 模型评估结果输出
         from .utils import model_evaluation
         model_evaluation(n_class, test_cache, pred_cache)
