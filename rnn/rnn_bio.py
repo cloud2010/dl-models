@@ -25,7 +25,7 @@ from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 # 避免输出TensorFlow未编译CPU指令集信息
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-DISPLAY_STEP = 200
+DISPLAY_STEP = 10
 
 
 def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=None):
@@ -57,7 +57,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
 
     # 整个序列长度
-    seq_length = train_set.shape[1] - 1
+    seq_length = train_set.shape[1] - 2
 
     # 片段分组 = 整个序列长度 / 片段长度
     group = int(seq_length / fragment)
@@ -70,7 +70,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     n_target = train_set[:, 0]
 
     # 特征矩阵为去第一列之后数据
-    n_features = train_set[:, 1:]
+    n_features = train_set[:, 2:]
     # 样本数
     nums_samples = n_features.shape[0]
 
@@ -121,7 +121,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     # Define loss and optimizer
     loss_op = tf.reduce_mean(
         tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=l_rate)
+    optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
     train_op = optimizer.minimize(loss_op)
 
     # Evaluate model (with test logits, for dropout to be disabled)
