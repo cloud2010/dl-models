@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("--learningrate", type=float,
-                        help="Learning rate.", default=1e-3)
+                        help="Learning rate.", default=1e-2)
 
     args = parser.parse_args()
     # os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid

@@ -57,7 +57,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
 
     # 整个序列长度
-    seq_length = train_set.shape[1] - 2
+    seq_length = train_set.shape[1] - 1
 
     # 片段分组 = 整个序列长度 / 片段长度
     group = int(seq_length / fragment)
