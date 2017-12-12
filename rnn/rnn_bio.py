@@ -70,7 +70,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     n_target = train_set[:, 0]
 
     # 特征矩阵为去第一列之后数据
-    n_features = train_set[:, 2:]
+    n_features = train_set[:, 1:]
     # 样本数
     nums_samples = n_features.shape[0]
 

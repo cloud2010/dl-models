@@ -103,8 +103,7 @@ if __name__ == "__main__":
     df = n_df.append(p_df)
 
     # 将正负样本写入CSV
-    df.to_csv(
-        "D://peptide_sample_{0}.csv".format(args.ratio), index_label="Class")
+    df.to_csv("peptide-sample-ratio-{0}.csv".format(args.ratio), index_label="Class")
 
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
