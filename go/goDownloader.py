@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Download go id info
+Go Annotation AutoDownloader
 """
 import os
 import time
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
 
 __author__ = "Min"
 
@@ -18,8 +18,7 @@ print(filepath)
 
 profile = FirefoxProfile()
 profile.set_preference("browser.helperApps.neverAsk.saveToDisk", 'text/gpad')
-browser = webdriver.Firefox(
-    firefox_profile=profile, executable_path=r"C:\Program Files\Mozilla Firefox\geckodriver.exe")
+browser = webdriver.Firefox(firefox_profile=profile, executable_path=r"C:\Program Files\Mozilla Firefox\geckodriver.exe")
 
 with open(filepath, 'r', encoding='utf-8') as f:
     for line in f.readlines():
@@ -29,6 +28,6 @@ with open(filepath, 'r', encoding='utf-8') as f:
             browser.find_element_by_xpath('//button[contains(text(), "Export")]').click()
             element_go = browser.find_element_by_xpath('//button[contains(text(), "Go")]')
             element_go.click()
-        except ElementNotInteractableException:
+        except (ElementNotInteractableException, NoSuchElementException):
             pass
 # browser.quit()
