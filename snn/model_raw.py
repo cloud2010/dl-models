@@ -22,6 +22,7 @@ import tensorflow as tf
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 from sklearn.metrics import accuracy_score  # 计算 ACC
+from sklearn.metrics import roc_curve, roc_auc_score  # 计算 ROC
 # from sklearn.metrics import matthews_corrcoef  #  sklearn MCC
 from sklearn.metrics import confusion_matrix  # 输出混淆矩阵
 from sklearn.metrics import classification_report  # 输出 recall f1等指标
@@ -181,9 +182,11 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
         pred = multilayer_perceptron(
             x, weights, biases, h_nums, rate=dropout_rate, is_training=is_training)
 
+    # 定义交叉熵
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y)
+    
     # 定义成本函数
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
-        logits=pred, labels=y))  # 交叉熵
+    cost = tf.reduce_mean(cross_entropy)
 
     # 定义优化器(梯度下降)
     optimizer = tf.train.GradientDescentOptimizer(
@@ -195,12 +198,15 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     # 计算准确率
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
+    # 计算结果预测概率
+    score = tf.nn.softmax(cross_entropy)
+
     # 初始化所有变量
     init = tf.global_variables_initializer()
 
     # 添加模型保存器
     # `max_to_keep` if None or 0, all checkpoint files are kept.
-    saver = tf.train.Saver(max_to_keep=folds)
+    # saver = tf.train.Saver(max_to_keep=folds)
 
     # 创建TensorFlow统计图表(权重、偏置、loss、acc)
     # for i in range(1, h_nums + 1):
@@ -229,6 +235,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
 
         # 暂存每次选中的测试集和对应预测结果
         test_cache = pred_cache = np.array([], dtype=np.int)
+        score_cache = np.array([], dtype=np.float)
         # 迭代训练 k-fold 交叉验证
         for train_index, test_index in cv_index_set:
             print("\nFold:", k_fold_step)
@@ -268,27 +275,29 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
             batch_test_y = new_target[test_index]
 
             # 代入TensorFlow计算图验证测试集
-            accTest, costTest, predVal = sess.run([accuracy, cost, pred], feed_dict={x: batch_test_x,
-                                                                                     y: batch_test_y,
-                                                                                     dropout_rate: 0.0,
-                                                                                     is_training: False})
+            accTest, costTest, predVal, predScore = sess.run([accuracy, cost, pred, score], feed_dict={x: batch_test_x,
+                                                                                                        y: batch_test_y,
+                                                                                                        dropout_rate: 0.0,
+                                                                                                        is_training: False})
             # One-hot 矩阵转换为原始分类矩阵
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
             print("\nTest dataset Index:\n", test_index)
             print("\nActual Values:\n", argmax_test)
             print("\nPredicted Values:\n", argmax_pred)
+            print("\nPredicted Score:\n", predScore)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
                 accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size:", test_index.shape[0])
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
+            score_cache = np.concatenate((score_cache, predScore))
 
             # 完成一个fold训练，保存模型，权重偏置矩阵重新初始化
             # 模型各变量持久化
-            save_path = saver.save(sess, os.path.join(logs_path, "model-f{0}-l{1}-u{2}-lr{3:.0e}-dp{4:.0e}-kf{5}-e{6}.ckpt".format(
-                nums_features, h_nums, h_units, l_rate, d_rate, k_fold_step, epochs)), latest_filename="checkpoint-f{0}".format(nums_features))
-            print("\nModel saved in file: %s" % save_path)
+            # save_path = saver.save(sess, os.path.join(logs_path, "model-f{0}-l{1}-u{2}-lr{3:.0e}-dp{4:.0e}-kf{5}-e{6}.ckpt".format(
+            #     nums_features, h_nums, h_units, l_rate, d_rate, k_fold_step, epochs)), latest_filename="checkpoint-f{0}".format(nums_features))
+            # print("\nModel saved in file: %s" % save_path)
             sess.run(init)
             print("\nVariable `Weights` and `Biases` reinitialize.")
             print(
@@ -323,6 +332,14 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     print("\nACC = {:.6f}".format(accuracy_score(test_cache, pred_cache)))
     print("\n=== Matthews Correlation Coefficient ===")
     print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
+    print("\n=== Compute Receiver operating characteristic (ROC) ===")
+    tpr, fpr, thresholds = roc_curve(test_cache, score_cache)
+    print("\nTPR = {0}".format(tpr))
+    print("\nFPR = {0}".format(fpr))
+    print("\nThresholds = {0}".format(thresholds))
+    print("\n=== Compute Area Under the Receiver Operating Characteristic Curve (ROC AUC) ===")
+    auc = roc_auc_score(test_cache, score_cache)
+    print("\nAUC = {:.6f}".format(auc))
     print("\n=== Confusion Matrix ===\n")
     print(df)
     print("\n=== Detailed Accuracy By Class ===\n")
