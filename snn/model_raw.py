@@ -117,7 +117,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
         h_units = n_input
 
     # Tensorboard 记录位置
-    logs_path = os.path.join(os.getcwd(), log_dir)
+    # logs_path = os.path.join(os.getcwd(), log_dir)
 
     # 分类矩阵为第一列数据
     n_target = train_set[:, 0]
@@ -183,8 +183,9 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
             x, weights, biases, h_nums, rate=dropout_rate, is_training=is_training)
 
     # 定义交叉熵
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y)
-    
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
+        logits=pred, labels=y)
+
     # 定义成本函数
     cost = tf.reduce_mean(cross_entropy)
 
@@ -198,8 +199,8 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     # 计算准确率
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
-    # 计算结果预测概率
-    score = tf.nn.softmax(cross_entropy)
+    # 计算正样本预测概率
+    score = tf.nn.softmax(pred)
 
     # 初始化所有变量
     init = tf.global_variables_initializer()
@@ -276,22 +277,22 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
 
             # 代入TensorFlow计算图验证测试集
             accTest, costTest, predVal, predScore = sess.run([accuracy, cost, pred, score], feed_dict={x: batch_test_x,
-                                                                                                        y: batch_test_y,
-                                                                                                        dropout_rate: 0.0,
-                                                                                                        is_training: False})
+                                                                                                       y: batch_test_y,
+                                                                                                       dropout_rate: 0.0,
+                                                                                                       is_training: False})
             # One-hot 矩阵转换为原始分类矩阵
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
             print("\nTest dataset Index:\n", test_index)
             print("\nActual Values:\n", argmax_test)
             print("\nPredicted Values:\n", argmax_pred)
-            print("\nPredicted Score:\n", predScore)
+            print("\nPredicted Score:\n", predScore[:, 1])
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
                 accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size:", test_index.shape[0])
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
-            score_cache = np.concatenate((score_cache, predScore))
+            score_cache = np.concatenate((score_cache, predScore[:, 1]))
 
             # 完成一个fold训练，保存模型，权重偏置矩阵重新初始化
             # 模型各变量持久化
@@ -333,7 +334,7 @@ def run(inputFile, n_class, h_nums, h_units, epochs, folds, batch_size, d_rate, 
     print("\n=== Matthews Correlation Coefficient ===")
     print("\nMCC = {:.6f}".format(matthews_corrcoef(cm)))
     print("\n=== Compute Receiver operating characteristic (ROC) ===")
-    tpr, fpr, thresholds = roc_curve(test_cache, score_cache)
+    fpr, tpr, thresholds = roc_curve(test_cache, score_cache)
     print("\nTPR = {0}".format(tpr))
     print("\nFPR = {0}".format(fpr))
     print("\nThresholds = {0}".format(thresholds))
