@@ -26,3 +26,9 @@ print("Sum of vector length:", nums_features)
 # 不同 Class 统计
 for i in [1, 2]:
     print("Sum of Class {0}: {1}".format(i, np.sum(n_target == i)))
+
+pos_target = n_target[np.where(n_target == 1)]
+neg_target = n_target[np.where(n_target == 2)]
+
+print("Positive sample indexes:\n", np.where(n_target == 1))
+print("Negative sample indexes:\n", np.where(n_target == 2))

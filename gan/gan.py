@@ -21,21 +21,55 @@ Project: https://github.com/aymericdamien/TensorFlow-Examples/
 
 from __future__ import absolute_import, division, print_function
 
-import matplotlib.pyplot as plt
-import numpy as np
-import tensorflow as tf
-# Import MNIST data
-from tensorflow.examples.tutorials.mnist import input_data
+import os
+import sys
+import time
 
-mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+# 避免输出TensorFlow未编译CPU指令集信息
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+# Import MNIST data
+# from tensorflow.examples.tutorials.mnist import input_data
+
+# mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+
+# 导入CSV数据
+TRAIN_CSV = os.path.join(os.path.dirname(
+    __file__), "../datasets/train_nitration_941_standard.csv")
+# 去掉CSV文件标题行
+train_set = np.genfromtxt(TRAIN_CSV, delimiter=',', skip_header=1)
+# 分类矩阵为第一列数据
+n_target = train_set[:, 0]
+# 特征矩阵为去第一列之后数据
+n_features = train_set[:, 1:]
+# 样本数
+nums_samples = n_target.shape[0]
+# 特征数
+nums_features = n_features.shape[1]
+# 获取正负样本数据集
+pos_samples = n_features[np.where(n_target == 1)]
+nums_pos = np.sum(n_target == 1)
+neg_samples = n_features[np.where(n_target == 2)]
+nums_neg = np.sum(n_target == 2)
+
+print("Sum of samples:", nums_samples)
+print("Sum of features:", nums_features)
+
+# 不同 Class 统计
+for i in [1, 2]:
+    print("Sum of Class {0}: {1}".format(i, np.sum(n_target == i)))
 
 # Training Params
-num_steps = 100000
+num_steps = 10000
 batch_size = 128
 learning_rate = 0.0002
 
+# image_dim = 784  # 28*28 pixels
 # Network Params
-image_dim = 784  # 28*28 pixels
+features_dim = nums_features
 gen_hidden_dim = 256
 disc_hidden_dim = 256
 noise_dim = 100  # Noise data points
@@ -50,13 +84,13 @@ def glorot_init(shape):
 # Store layers weight & bias
 weights = {
     'gen_hidden1': tf.Variable(glorot_init([noise_dim, gen_hidden_dim])),
-    'gen_out': tf.Variable(glorot_init([gen_hidden_dim, image_dim])),
-    'disc_hidden1': tf.Variable(glorot_init([image_dim, disc_hidden_dim])),
+    'gen_out': tf.Variable(glorot_init([gen_hidden_dim, features_dim])),
+    'disc_hidden1': tf.Variable(glorot_init([features_dim, disc_hidden_dim])),
     'disc_out': tf.Variable(glorot_init([disc_hidden_dim, 1])),
 }
 biases = {
     'gen_hidden1': tf.Variable(tf.zeros([gen_hidden_dim])),
-    'gen_out': tf.Variable(tf.zeros([image_dim])),
+    'gen_out': tf.Variable(tf.zeros([features_dim])),
     'disc_hidden1': tf.Variable(tf.zeros([disc_hidden_dim])),
     'disc_out': tf.Variable(tf.zeros([1])),
 }
@@ -89,7 +123,7 @@ def discriminator(x):
 gen_input = tf.placeholder(
     tf.float32, shape=[None, noise_dim], name='input_noise')
 disc_input = tf.placeholder(
-    tf.float32, shape=[None, image_dim], name='disc_input')
+    tf.float32, shape=[None, features_dim], name='disc_input')
 
 # Build Generator Network
 gen_sample = generator(gen_input)
@@ -123,6 +157,9 @@ train_disc = optimizer_disc.minimize(disc_loss, var_list=disc_vars)
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
 
+start_time = time.time()
+print("\nUse %d real positive samples as training input" % (nums_pos))
+print("\nStart training...\n")
 # Start training
 with tf.Session() as sess:
 
@@ -130,35 +167,37 @@ with tf.Session() as sess:
     sess.run(init)
 
     for i in range(1, num_steps+1):
-        # Prepare Data
-        # Get the next batch of MNIST data (only images are needed, not labels)
-        batch_x, _ = mnist.train.next_batch(batch_size)
+        # Prepare Negative Data
+        # Get the next batch of Negative data (only features are needed, not labels)
+        batch_x = pos_samples
         # Generate noise to feed to the generator
-        z = np.random.uniform(-1., 1., size=[batch_size, noise_dim])
+        # 噪声数据样本数和训练集样本数一致
+        z = np.random.uniform(-1., 1., size=[nums_pos, noise_dim])
 
         # Train
         feed_dict = {disc_input: batch_x, gen_input: z}
         _, _, gl, dl = sess.run([train_gen, train_disc, gen_loss, disc_loss],
                                 feed_dict=feed_dict)
         if i % 1000 == 0 or i == 1:
-            print('Step %i: Generator Loss: %f, Discriminator Loss: %f' %
-                  (i, gl, dl))
+            print('Step %i: Time: %4.4fs Generator Loss: %f, Discriminator Loss: %f' % (
+                i, time.time() - start_time, gl, dl))
 
-    # Generate images from noise, using the generator network.
-    f, a = plt.subplots(4, 10, figsize=(10, 4))
-    for i in range(10):
-        # Noise input.
-        z = np.random.uniform(-1., 1., size=[4, noise_dim])
-        g = sess.run([gen_sample], feed_dict={gen_input: z})
-        g = np.reshape(g, newshape=(4, 28, 28, 1))
-        # Reverse colours for better display
-        g = -1 * (g - 1)
-        for j in range(4):
-            # Generate image from noise. Extend to 3 channels for matplot figure.
-            img = np.reshape(np.repeat(g[j][:, :, np.newaxis], 3, axis=2),
-                             newshape=(28, 28, 3))
-            a[j][i].imshow(img)
-
-    f.show()
-    plt.draw()
-    plt.waitforbuttonpress()
+    # After training generate fake data from noise, using the generator network.
+    # Noise input.
+    z = np.random.uniform(-1., 1., size=[100, noise_dim])
+    # gen_sample is trained generator network
+    g = sess.run([gen_sample], feed_dict={gen_input: z})
+    g_data = np.array(g[0])
+    # output fake negative data
+    print("\nFake data shape:", g_data.shape)
+    print("\n----- Export generated positive data to CSV -----")
+    # print(g)
+    # print(len(g))
+    # export generated data to CSV file
+    # 特征编号及labels
+    f_list = ["f" + str(i) for i in range(1, nums_features+1)]
+    labels = np.full(100, 1)
+    # 将所有生成的负样本矩阵写入DataFrame
+    df = pd.DataFrame(g_data, index=labels, columns=f_list)
+    # 将数据库写入CSV
+    df.to_csv("g_pos_data.csv", index_label="Class")
