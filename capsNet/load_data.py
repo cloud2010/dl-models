@@ -9,7 +9,8 @@ Reference: https://github.com/naturomics/CapsNet-Tensorflow
 import numpy as np
 import pandas as pd
 
-DATASETS = "d://datasets//peptide_caps_net.csv"  # 数据集地址
+# DATASETS = "d://datasets//peptide_caps_net.csv"  # 数据集地址
+DATASETS = "d://datasets//peptide-samples-ratio-1.csv"  # 数据集地址
 df = pd.read_csv(DATASETS)  # 读取数据
 
 labels = df.values[:, 0]  # 第一列为分类标注名称
