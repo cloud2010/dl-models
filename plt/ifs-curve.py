@@ -6,12 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 # import seaborn as sns
 
-MCC_LR1E_1_D5 = "logs/mcc-sum-c2-l5-u512-e500-lr1e-1-d01.csv"
-MCC_LR1E_2_D5 = "logs/mcc-sum-c2-l5-u512-e800-lr1e-2-d01.csv"
-MCC_LR1E_3_D5 = "logs/mcc-sum-c2-l5-u512-e600-lr1e-3-d01.csv"
-MCC_LR1E_1_D3 = "logs/mcc-sum-c2-l3-u512-e500-lr1e-1-d01.csv"
-MCC_LR1E_2_D3 = "logs/mcc-sum-c2-l3-u512-e300-lr1e-2-d01.csv"
-MCC_LR1E_3_D3 = "logs/mcc-sum-c2-l3-u512-e400-lr1e-3-d01.csv"
+MCC_LR1E_1_D5 = "../logs/mcc-sum-c2-l5-u512-e500-lr1e-1-d01.csv"
+MCC_LR1E_2_D5 = "../logs/mcc-sum-c2-l5-u512-e800-lr1e-2-d01.csv"
+MCC_LR1E_3_D5 = "../logs/mcc-sum-c2-l5-u512-e600-lr1e-3-d01.csv"
+MCC_LR1E_1_D3 = "../logs/mcc-sum-c2-l3-u512-e500-lr1e-1-d01.csv"
+MCC_LR1E_2_D3 = "../logs/mcc-sum-c2-l3-u512-e300-lr1e-2-d01.csv"
+MCC_LR1E_3_D3 = "../logs/mcc-sum-c2-l3-u512-e400-lr1e-3-d01.csv"
 # 去读取数据
 mcc_datasets_lr1e_1_d5 = np.genfromtxt(MCC_LR1E_1_D5, delimiter=',')
 mcc_datasets_lr1e_2_d5 = np.genfromtxt(MCC_LR1E_2_D5, delimiter=',')
