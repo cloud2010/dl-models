@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 sns.set()
+
+
 # iris = datasets.load_iris()
 # 打印第6行数据
 # print(iris.data[5, :])

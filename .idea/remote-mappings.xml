@@ -3,13 +3,7 @@
   <component name="RemoteMappingsManager">
     <list>
       <list>
-        <remote-mappings server-id="python@sftp://liumin@10.72.51.130:22/usr/bin/python3">
-          <settings>
-            <list>
-              <mapping local-root="$PROJECT_DIR$" remote-root="/home/liumin/dl-models" />
-            </list>
-          </settings>
-        </remote-mappings>
+        <remote-mappings server-id="python@sftp://liumin@10.72.51.130:22/usr/bin/python3" />
       </list>
     </list>
   </component>
