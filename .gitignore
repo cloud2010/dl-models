@@ -4,3 +4,6 @@ SNN-INSTRUCTION.md
 *.csv
 /tmp
 /datasets
+
+# PyCharm
+workspace.xml
