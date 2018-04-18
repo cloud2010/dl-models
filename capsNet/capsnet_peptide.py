@@ -243,7 +243,7 @@ if __name__ == "__main__":
         os.makedirs(args.save_dir)
 
     # load data
-    train_loader, test_loader = load_mnist(args.data_dir, download=False, batch_size=args.batch_size)
+    train_loader, test_loader = load_mnist(args.data_dir, download=True, batch_size=args.batch_size)
 
     # define model
     model = CapsuleNet(input_size=[1, 28, 28], classes=10, routings=3)
