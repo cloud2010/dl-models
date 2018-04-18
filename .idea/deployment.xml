@@ -5,7 +5,7 @@
       <paths name="liumin@10.72.51.130:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/liumin/dl-models" local="$PROJECT_DIR$" web="" />
+            <mapping deploy="/home/liumin/dl-models" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
