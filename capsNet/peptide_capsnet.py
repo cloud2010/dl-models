@@ -12,8 +12,10 @@ import torch
 import torch.utils.data as Data
 from torch import nn
 from torch.optim import Adam, lr_scheduler
+from sklearn.model_selection import KFold
 from torch.autograd import Variable
 from capsulelayers import DenseCapsule, PrimaryCapsule
+from utils import bi_model_evaluation
 
 
 class CapsuleNet(nn.Module):
@@ -34,10 +36,10 @@ class CapsuleNet(nn.Module):
         self.routings = routings
 
         # Layer 1: Just a conventional Conv2D layer
-        self.conv1 = nn.Conv2d(input_size[0], 256, kernel_size=9, stride=1, padding=0)
+        self.conv1 = nn.Conv2d(input_size[0], 256, kernel_size=5, stride=1, padding=0)
 
         # Layer 2: Conv2D layer with `squash` activation, then reshape to [None, num_caps, dim_caps]
-        self.primarycaps = PrimaryCapsule(256, 256, 8, kernel_size=9, stride=2, padding=0)
+        self.primarycaps = PrimaryCapsule(256, 256, 8, kernel_size=5, stride=2, padding=0)
 
         # Layer 3: Capsule layer. Routing algorithm works here.
         self.digitcaps = DenseCapsule(in_num_caps=32*6*6, in_dim_caps=8,
@@ -91,7 +93,6 @@ def test(model, test_loader, args):
     test_loss = 0
     correct = 0
     for x, y in test_loader:
-        # y = torch.zeros(y.size(0), 2).scatter_(1, y.view(-1, 1), 1.)
         x, y = Variable(x, volatile=True), Variable(y)
         y_pred, x_recon = model(x)
         test_loss += caps_loss(y, y_pred, x, x_recon,
@@ -104,7 +105,7 @@ def test(model, test_loader, args):
     return test_loss, correct / len(test_loader.dataset)
 
 
-def train(model, train_loader, test_loader, args):
+def train(model, train_loader, args):
     """
     Training a CapsuleNet
     :param model: the CapsuleNet model
@@ -113,12 +114,8 @@ def train(model, train_loader, test_loader, args):
     :param args: arguments
     :return: The trained model
     """
-    print('Begin Training' + '-'*70)
+    print('-'*6 + ' Begin Training ' + '-'*6)
     from time import time
-    import csv
-    logfile = open(os.path.join(args.save_dir, 'log.csv'), 'w')
-    logwriter = csv.DictWriter(logfile, fieldnames=['epoch', 'loss', 'val_loss', 'val_acc'])
-    logwriter.writeheader()
 
     t0 = time()
     optimizer = Adam(model.parameters(), lr=args.lr)
@@ -130,9 +127,7 @@ def train(model, train_loader, test_loader, args):
         ti = time()
         training_loss = 0.0
         for i, (x, y) in enumerate(train_loader):  # batch training
-            # y = torch.zeros(y.size(0), 10).scatter_(1, y.view(-1, 1), 1.)  # change to one-hot coding
             x, y = Variable(x), Variable(y)
-
             optimizer.zero_grad()  # set gradients of optimizer to zero
             y_pred, x_recon = model(x, y)  # forward
             loss = caps_loss(y, y_pred, x, x_recon, args.lam_recon)  # compute loss
@@ -141,25 +136,25 @@ def train(model, train_loader, test_loader, args):
             optimizer.step()  # update the trainable parameters with computed gradients
 
         # compute validation loss and acc
-        val_loss, val_acc = test(model, test_loader, args)
-        logwriter.writerow(dict(epoch=epoch, loss=training_loss / len(train_loader.dataset),
-                                val_loss=val_loss, val_acc=val_acc))
+        # val_loss, val_acc = test(model, test_loader, args)
+        val_loss, val_acc = 0., 100.
+        
         print("==> Epoch %02d: loss=%.5f, val_loss=%.5f, val_acc=%.4f, time=%ds"
               % (epoch, training_loss / len(train_loader.dataset),
                  val_loss, val_acc, time() - ti))
-        if val_acc > best_val_acc:  # update best validation acc and save model
-            best_val_acc = val_acc
-            torch.save(model.state_dict(), os.path.join(args.save_dir, '/epoch%d.pkl' % epoch))
-            print("best val_acc increased to %.4f" % best_val_acc)
-    logfile.close()
-    torch.save(model.state_dict(), os.path.join(args.save_dir, 'trained_model.pkl'))
-    print('Trained model saved to \'%s/trained_model.h5\'' % args.save_dir)
-    print("Total time = %ds" % (time() - t0))
-    print('End Training' + '-' * 70)
+        # if val_acc > best_val_acc:  # update best validation acc and save model
+        #     best_val_acc = val_acc
+        #     torch.save(model.state_dict(), os.path.join(args.savepath, '/epoch%d.pkl' % epoch))
+        #     print("best val_acc increased to %.4f" % best_val_acc)
+    
+    torch.save(model.state_dict(), os.path.join(args.savepath, 'trained_model.pkl'))
+    print('Trained model saved to \'%s/trained_model.pkl\'' % args.savepath)
+    print('-'*6 + ' End Training ' + '-'*6)
+    print("[Total time: {0:.6f} mins = {1:.6f} seconds]".format(((time() - t0) / 60), (time() - t0)))
     return model
 
 
-def load_datasets(path, bs=1000):
+def load_datasets(path, bs=100):
     """
     Construct dataloaders for peptide training and test data. Data augmentation is also done here.
     :param path: file path of the dataset
@@ -194,7 +189,8 @@ def load_datasets(path, bs=1000):
     -Input:  (batch, channels, width, height), optional (batch, classes)
     -Output: ((batch, classes), (batch, channels, width, height))
     """
-    t_features = torch.from_numpy(features).contiguous().view(-1, 1, 20, 20)  # 4-D Tensor
+    t_features = torch.from_numpy(features).contiguous(
+    ).view(-1, 1, 20, 20).type(torch.FloatTensor)  # 4-D Tensor
 
     # Using PyTorch DataLoader
     # 构建 pytorch 数据集
@@ -213,24 +209,20 @@ if __name__ == "__main__":
     # setting the hyper parameters
     parser = argparse.ArgumentParser(description="Capsule Network on Peptide datasets.")
     parser.add_argument('--epochs', default=2, type=int)
-    parser.add_argument('--batch_size', default=1000, type=int)
+    parser.add_argument('--batch_size', default=100, type=int)
     parser.add_argument('--lr', default=0.001, type=float,
                         help="Initial learning rate")
     parser.add_argument('--lr_decay', default=0.9, type=float,
                         help="The value multiplied by lr at each epoch. Set a larger value for larger epochs")
-    parser.add_argument('--lam_recon', default=0.0005 * 784, type=float,
+    parser.add_argument('--lam_recon', default=0.0005 * 400, type=float,
                         help="The coefficient for the loss of decoder")
     parser.add_argument('-r', '--routings', default=3, type=int,
                         help="Number of iterations used in routing algorithm. should > 0")  # num_routing should > 0
-    parser.add_argument('--shift_pixels', default=2, type=int,
-                        help="Number of pixels to shift at most in each direction.")
+    parser.add_argument("-k", "--kfolds", type=int,
+                        help="Number of kfolds. Must be at least 2.", default=10)
     parser.add_argument('--datapath', required=True, help="Path of dataset.")
     parser.add_argument('--savepath', default='./result',
                         help="The directory for logs and summaries.")
-    # parser.add_argument('-t', '--testing', action='store_true',
-    #                     help="Test the trained model on testing dataset")
-    # parser.add_argument('-w', '--weights', default=None,
-    #                     help="The path of the saved weights. Should be specified when testing")
     args = parser.parse_args()
     print(args)
     if not os.path.exists(args.savepath):
@@ -247,12 +239,15 @@ if __name__ == "__main__":
     # output CapsNet structure
     print(model)
 
+    # start training
+    train(model, train_datasets, args)
+
     # train and validate
     # 迭代输出DataLoader相关信息
-    for epoch in range(args.epochs):
-        for step, (batch_x, batch_y) in enumerate(train_datasets):
-            # print('Epoch: ', epoch, '| Step: ', step, '| Batch x: ', batch_x.numpy(), '| Batch y: ', batch_y.numpy())
-            print('Epoch: ', epoch, '| Step: ', step, '| Batch y: ', batch_y.numpy())
+    # for epoch in range(args.epochs):
+    #     for step, (batch_x, batch_y) in enumerate(train_datasets):
+    #         # print('Epoch: ', epoch, '| Step: ', step, '| Batch x: ', batch_x.numpy(), '| Batch y: ', batch_y.numpy())
+    #         print('Epoch: ', epoch, '| Step: ', step, '| Batch y: ', batch_y.numpy())
 
     # train or test
     # if args.weights is not None:  # init the model weights with provided one
