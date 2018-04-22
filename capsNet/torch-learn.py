@@ -32,7 +32,8 @@ print(t_labels.size())
 # DataLoader Learn
 # 构建 pytorch 数据集
 t_dataset = Data.TensorDataset(data_tensor=t_features, target_tensor=t_labels)
-t_loader = Data.DataLoader(dataset=t_dataset, shuffle=True, batch_size=1000, num_workers=2) # 线程数2
+# remove num_workers settings
+t_loader = Data.DataLoader(dataset=t_dataset, shuffle=True, batch_size=1000)
 
 # 迭代输出DataLoader相关信息
 for epoch in range(2):
