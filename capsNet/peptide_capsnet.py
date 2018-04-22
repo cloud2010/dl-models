@@ -15,7 +15,7 @@ from torch.optim import Adam, lr_scheduler
 
 from torch.autograd import Variable
 from capsulelayers import DenseCapsule, PrimaryCapsule
-from utils import bi_model_evaluation
+
 
 
 class CapsuleNet(nn.Module):
@@ -102,7 +102,7 @@ def test(model, test_loader, args):
         correct += y_pred.eq(y_true).sum()
 
     test_loss /= len(test_loader.dataset)
-    return test_loss, correct / len(test_loader.dataset)
+    return test_loss, correct / len(test_loader.dataset), y_pred, y_true
 
 
 def train(model, train_loader, test_loader, args):
@@ -112,7 +112,7 @@ def train(model, train_loader, test_loader, args):
     :param train_loader: torch.utils.data.DataLoader for training data
     :param test_loader: torch.utils.data.DataLoader for test data
     :param args: arguments
-    :return: The trained model
+    :return: The test predicted and true values
     """
     print('-'*6 + ' Begin Training ' + '-'*6)
     from time import time
@@ -136,7 +136,7 @@ def train(model, train_loader, test_loader, args):
             optimizer.step()  # update the trainable parameters with computed gradients
 
         # compute test datasets loss and acc
-        test_loss, test_acc = test(model, test_loader, args)
+        test_loss, test_acc, test_pred, test_true = test(model, test_loader, args)
 
         print("\n==> Epoch {0}: train_loss={1:.5f}, test_loss={2:.5f}, test_acc={3:.4%}, num_test_dataset={4}, time={5:.2f}s".format(
             epoch, training_loss / len(train_loader.dataset), test_loss, test_acc, len(test_loader.dataset), time() - ti))
@@ -150,7 +150,7 @@ def train(model, train_loader, test_loader, args):
     print('\n' + '-'*6 + ' End Training ' + '-'*6)
     print("\n[Total time: {0:.6f} mins = {1:.6f} seconds]".format(
         ((time() - t0) / 60), (time() - t0)))
-    return model
+    return test_pred, test_true
 
 def weights_init(m):
     """
@@ -266,6 +266,8 @@ if __name__ == "__main__":
     # 生成 k-fold 训练集、验证集索引
     cv_index_set = rs.split(labels)
     k_fold_step = 1  # 初始化折数
+    # 暂存每次选中的测试集和对应预测结果
+    test_cache = pred_cache = np.array([], dtype=np.int)
 
     # Start training and K-fold cross-validation
     for train_index, test_index in cv_index_set:
@@ -273,7 +275,14 @@ if __name__ == "__main__":
         train_datasets, test_datasets = load_peptide(
             t_features, t_targets, train_index.tolist(), test_index.tolist(), bs=args.batch_size)
         print("\nFold: {0}\n".format(k_fold_step))
-        train(model, train_datasets, test_datasets, args)
+        t_pred, t_true = train(model, train_datasets, test_datasets, args)
+        # 暂存每次选中的测试集和预测结果
+        test_cache = np.concatenate((test_cache, t_true.numpy()))
+        pred_cache = np.concatenate((pred_cache, t_pred.numpy()))
         # 每个fold训练结束后次数 +1, Model初始化
         k_fold_step += 1
         model.apply(weights_init)
+    
+    # k-fold 交叉验证后进行模型评估
+    from utils import bi_model_evaluation
+    bi_model_evaluation(test_cache, pred_cache)
