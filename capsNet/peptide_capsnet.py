@@ -12,7 +12,7 @@ import torch
 import torch.utils.data as Data
 from torch import nn
 from torch.optim import Adam, lr_scheduler
-from sklearn.model_selection import KFold
+
 from torch.autograd import Variable
 from capsulelayers import DenseCapsule, PrimaryCapsule
 from utils import bi_model_evaluation
@@ -63,7 +63,7 @@ class CapsuleNet(nn.Module):
         x = self.digitcaps(x)
         length = x.norm(dim=-1)
         if y is None:  # during testing, no label given. create one-hot coding using `length`
-            index = length.max(dim=1)[1]
+            index = length.data.max(dim=1)[1]
             y = Variable(torch.zeros(length.size()).scatter_(1, index.view(-1, 1), 1.))
         reconstruction = self.decoder((x * y[:, :, None]).view(x.size(0), -1))
         return length, reconstruction.view(-1, *self.input_size)
@@ -105,7 +105,7 @@ def test(model, test_loader, args):
     return test_loss, correct / len(test_loader.dataset)
 
 
-def train(model, train_loader, args):
+def train(model, train_loader, test_loader, args):
     """
     Training a CapsuleNet
     :param model: the CapsuleNet model
@@ -120,7 +120,7 @@ def train(model, train_loader, args):
     t0 = time()
     optimizer = Adam(model.parameters(), lr=args.lr)
     lr_decay = lr_scheduler.ExponentialLR(optimizer, gamma=args.lr_decay)
-    best_val_acc = 0.
+    best_test_acc = 0.
     for epoch in range(args.epochs):
         model.train()  # set to training mode
         lr_decay.step()  # decrease the learning rate by multiplying a factor `gamma`
@@ -135,39 +135,46 @@ def train(model, train_loader, args):
             training_loss += loss.data[0] * x.size(0)  # record the batch loss
             optimizer.step()  # update the trainable parameters with computed gradients
 
-        # compute validation loss and acc
-        # val_loss, val_acc = test(model, test_loader, args)
-        val_loss, val_acc = 0., 100.
-        
-        print("==> Epoch %02d: loss=%.5f, val_loss=%.5f, val_acc=%.4f, time=%ds"
-              % (epoch, training_loss / len(train_loader.dataset),
-                 val_loss, val_acc, time() - ti))
-        # if val_acc > best_val_acc:  # update best validation acc and save model
-        #     best_val_acc = val_acc
-        #     torch.save(model.state_dict(), os.path.join(args.savepath, '/epoch%d.pkl' % epoch))
-        #     print("best val_acc increased to %.4f" % best_val_acc)
-    
-    torch.save(model.state_dict(), os.path.join(args.savepath, 'trained_model.pkl'))
-    print('Trained model saved to \'%s/trained_model.pkl\'' % args.savepath)
-    print('-'*6 + ' End Training ' + '-'*6)
-    print("[Total time: {0:.6f} mins = {1:.6f} seconds]".format(((time() - t0) / 60), (time() - t0)))
+        # compute test datasets loss and acc
+        test_loss, test_acc = test(model, test_loader, args)
+
+        print("\n==> Epoch {0}: train_loss={1:.5f}, test_loss={2:.5f}, test_acc={3:.4%}, num_test_dataset={4}, time={5:.2f}s".format(
+            epoch, training_loss / len(train_loader.dataset), test_loss, test_acc, len(test_loader.dataset), time() - ti))
+        if test_acc > best_test_acc:  # update best test acc
+            best_test_acc = test_acc
+            # torch.save(model.state_dict(), os.path.join(args.savepath, '/epoch%d.pkl' % epoch))
+            print("Best test_acc increased to {0:.4%}".format(best_test_acc))
+
+    # torch.save(model.state_dict(), os.path.join(args.savepath, 'trained_model.pkl'))
+    # print('Trained model saved to \'%s/trained_model.pkl\'' % args.savepath)
+    print('\n' + '-'*6 + ' End Training ' + '-'*6)
+    print("\n[Total time: {0:.6f} mins = {1:.6f} seconds]".format(
+        ((time() - t0) / 60), (time() - t0)))
     return model
 
-
-def load_datasets(path, bs=100):
+def weights_init(m):
     """
-    Construct dataloaders for peptide training and test data. Data augmentation is also done here.
+    Model weights initialization
+    """
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+def load_datasets(path):
+    """
+    Return peptide datasets.
+
     :param path: file path of the dataset
-    :param bs: batch size
-    :return: train_loader, test_loader
+    :return: labels(ndarray), t_labels(tensor), t_features(tensor)
     """
-    # kwargs = {'num_workers': 0, 'pin_memory': True}
-
     # FILE = "peptide_caps_net.csv"  # 数据集名称
     # DATASETS = os.path.abspath(os.path.join(os.getcwd(), os.path.pardir, "datasets", FILE))  # 构建路径
     # print(os.getcwd())
     DATASETS = os.path.abspath(path)
-    print("Dataset Name:", DATASETS)
+    print("\nDataset Name:", DATASETS)
 
     df = pd.read_csv(DATASETS)
     # 第1列为分类标注名称
@@ -189,18 +196,32 @@ def load_datasets(path, bs=100):
     -Input:  (batch, channels, width, height), optional (batch, classes)
     -Output: ((batch, classes), (batch, channels, width, height))
     """
-    t_features = torch.from_numpy(features).contiguous(
-    ).view(-1, 1, 20, 20).type(torch.FloatTensor)  # 4-D Tensor
+    t_features = torch.from_numpy(features).contiguous().view(-1, 1, 20, 20).type(torch.FloatTensor)
 
+    return labels, t_onehot, t_features
+
+
+def load_peptide(features, targets, train_i, test_i, bs=100):
+    """
+    Construct dataloaders for peptide training and test data for each fold.
+    :param features: features tensor
+    :param targets: labels tensor
+    :param train_i: train dataset index
+    :param test_i: test dataset index
+    :param bs: batch size of training dataset
+    """
+    # kwargs = {'num_workers': 0, 'pin_memory': True}
     # Using PyTorch DataLoader
     # 构建 pytorch 数据集
-    train_dataset = Data.TensorDataset(data_tensor=t_features, target_tensor=t_onehot)
+    train_dataset = Data.TensorDataset(
+        data_tensor=features[train_i], target_tensor=targets[train_i])
+    test_dataset = Data.TensorDataset(data_tensor=features[test_i], target_tensor=targets[test_i])
     # remove num_workers settings
-    train_loader = Data.DataLoader(dataset=train_dataset, shuffle=True, batch_size=bs)
+    train_loader = Data.DataLoader(dataset=train_dataset, batch_size=bs)
+    # test datasets do not use batch process
+    test_loader = Data.DataLoader(dataset=test_dataset, batch_size=len(test_i))
 
-    return train_loader
-
-    # return train_loader, test_loader
+    return train_loader, test_loader
 
 
 if __name__ == "__main__":
@@ -220,43 +241,39 @@ if __name__ == "__main__":
                         help="Number of iterations used in routing algorithm. should > 0")  # num_routing should > 0
     parser.add_argument("-k", "--kfolds", type=int,
                         help="Number of kfolds. Must be at least 2.", default=10)
+    parser.add_argument("--randomseed", type=int,
+                        help="pseudo-random number generator state used for shuffling.", default=None)
     parser.add_argument('--datapath', required=True, help="Path of dataset.")
     parser.add_argument('--savepath', default='./result',
                         help="The directory for logs and summaries.")
     args = parser.parse_args()
-    print(args)
+    print("\n", args)
     if not os.path.exists(args.savepath):
         os.makedirs(args.savepath)
 
-    # load data
-    # train_loader, test_loader = load_datasets(args.datapath, batch_size=args.batch_size)
-    train_datasets = load_datasets(args.datapath, bs=args.batch_size)
-
     # define training model
-    # peptide 数据集为两分类问题，样本矩阵大小 20 * 20，即 data size = [1, 20, 20]
+    # peptide 数据集为两分类问题, 样本矩阵大小 20 * 20, 即 data size = [1, 20, 20]
     model = CapsuleNet(input_size=[1, 20, 20], classes=2, routings=3)
-    # model.cuda()
-    # output CapsNet structure
-    print(model)
+    # 输出 CapsNet structure
+    print("\n", model)
 
-    # start training
-    train(model, train_datasets, args)
+    # 获取数据集的特征矩阵和分类矩阵
+    labels, t_targets, t_features = load_datasets(args.datapath)
 
-    # train and validate
-    # 迭代输出DataLoader相关信息
-    # for epoch in range(args.epochs):
-    #     for step, (batch_x, batch_y) in enumerate(train_datasets):
-    #         # print('Epoch: ', epoch, '| Step: ', step, '| Batch x: ', batch_x.numpy(), '| Batch y: ', batch_y.numpy())
-    #         print('Epoch: ', epoch, '| Step: ', step, '| Batch y: ', batch_y.numpy())
+    from sklearn.model_selection import KFold
+    # 设定 K-fold 分割器
+    rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
+    # 生成 k-fold 训练集、验证集索引
+    cv_index_set = rs.split(labels)
+    k_fold_step = 1  # 初始化折数
 
-    # train or test
-    # if args.weights is not None:  # init the model weights with provided one
-    #     model.load_state_dict(torch.load(args.weights))
-    # if not args.testing:
-    #     train(model, train_loader, test_loader, args)
-    # else:  # testing
-    #     if args.weights is None:
-    #         print('No weights are provided. Will test using random initialized weights.')
-    #     test_loss, test_acc = test(model=model, test_loader=test_loader, args=args)
-    #     print('test acc = %.4f, test loss = %.5f' % (test_acc, test_loss))
-    #     show_reconstruction(model, test_loader, 50, args)
+    # Start training and K-fold cross-validation
+    for train_index, test_index in cv_index_set:
+        # get peptide dataloader
+        train_datasets, test_datasets = load_peptide(
+            t_features, t_targets, train_index.tolist(), test_index.tolist(), bs=args.batch_size)
+        print("\nFold: {0}\n".format(k_fold_step))
+        train(model, train_datasets, test_datasets, args)
+        # 每个fold训练结束后次数 +1, Model初始化
+        k_fold_step += 1
+        model.apply(weights_init)
