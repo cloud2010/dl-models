@@ -12,6 +12,9 @@
     "--ignore=E501" //忽略pep8 E501错误
   ],
   "python.linting.pylintArgs": [
-    "--max-line-length=120" //单行最长文字数
+    "--max-line-length=100" //单行最长文字数
+  ],
+  "python.formatting.autopep8Args": [
+    "--max-line-length=100" //格式化单行最长文字数
   ]
 }
