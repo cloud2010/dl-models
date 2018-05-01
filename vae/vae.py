@@ -19,48 +19,56 @@ class VAE(nn.Module):
     VAE Model
 
     Args:
-        decode_size: Input size of original feature vector
-        h_units: Number of hidden layer units
-        encode_size: Length of encoded feature vector 
+        input_size: Input size of original feature vector
+        h_dim: Number of hidden layer units
+        z_dim: Length of encoded feature vector 
 
     """
 
-    def __init__(self, decode_size, h_units, encode_size):
+    def __init__(self, input_size, h_dim, z_dim):
         super(VAE, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(decode_size, h_units),
-            nn.LeakyReLU(0.2),
-            nn.Linear(h_units, encode_size*2))  # 2 for mean and variance.
+        self.x_dim = input_size
+        self.fc1 = nn.Linear(input_size, h_dim)
+        self.fc21 = nn.Linear(h_dim, z_dim)
+        self.fc22 = nn.Linear(h_dim, z_dim)
+        self.fc3 = nn.Linear(z_dim, h_dim)
+        self.fc4 = nn.Linear(h_dim, input_size)
 
-        self.decoder = nn.Sequential(
-            nn.Linear(encode_size, h_units),
-            nn.ReLU(),
-            nn.Linear(h_units, decode_size),
-            nn.Sigmoid())
+    def encode(self, x):
+        h1 = F.relu(self.fc1(x))
+        return self.fc21(h1), self.fc22(h1)
 
-    def reparameterize(self, mu, log_var):
-        """"z = mean + eps * sigma where eps is sampled from N(0, 1)."""
-        eps = torch.randn(mu.size(0), mu.size(1))
-        z = mu + eps * torch.exp(log_var/2)    # 2 for convert var to std
-        return z
+    def reparameterize(self, mu, logvar):
+        if self.training:
+            std = logvar.mul(0.5).exp_()
+            eps = std.data.new(std.size()).normal_()
+            return eps.mul(std).add_(mu)
+        else:
+            return mu
+
+    def decode(self, z):
+        h3 = F.relu(self.fc3(z))
+        return F.sigmoid(self.fc4(h3))
 
     def forward(self, x):
-        h = self.encoder(x)
-        mu, log_var = torch.chunk(h, 2, dim=1)  # mean and log variance.
-        z = self.reparameterize(mu, log_var)
-        out = self.decoder(z)
-        return out, mu, log_var
-
-    def sample(self, z):
-        return self.decoder(z)
+        mu, logvar = self.encode(x.view(-1, self.x_dim))
+        z = self.reparameterize(mu, logvar)
+        return self.decode(z), mu, logvar
 
 
 # Reconstruction + KL divergence losses summed over all elements and batch
-def loss_function(recon_x, x, mu, logvar, decode_size):
+def loss_function(recon_x, x, mu, logvar, input_size):
     """
     Loss Function of VAE
+    
+    Args:
+        recon_x: generating data
+        x: origin data
+        mu: latent mean
+        logvar: latent log variance
+        input_size: length of feature vector
     """
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, decode_size), size_average=False)
+    BCE = F.binary_cross_entropy(recon_x, x.view(-1, input_size), size_average=False)
 
     # see Appendix B from VAE paper:
     # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
@@ -85,26 +93,18 @@ def train(epoch, model, train_loader, input_size):
     train_loss = 0
     for batch_idx, (data, _) in enumerate(train_loader):
         data = data.to(device)
-        out, mu, log_var = model(data)
-        # Compute reconstruction loss and kl divergence
-        # see Appendix B from VAE paper:
-        # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-        # https://arxiv.org/abs/1312.6114
-        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-        reconst_loss = F.binary_cross_entropy(out, data.view(-1, input_size), size_average=False)
-        kl_divergence = torch.sum(0.5 * (mu**2 + torch.exp(log_var) - log_var - 1))
-
-        # Backprop + Optimize
-        total_loss = reconst_loss + kl_divergence
         optimizer.zero_grad()
-        total_loss.backward()
-        train_loss += total_loss.item()
+        recon_batch, mu, logvar = model(data)
+        loss = loss_function(recon_batch, data, mu, logvar, input_size)
+        loss.backward()
+        train_loss += loss.item()
         optimizer.step()
-        if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader),
-                total_loss.item() / len(data)))
+        # if batch_idx % 2 == 0:
+        #     # print('\nBatch_X:', data.numpy(), data.shape)
+        #     print('\nTrain Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+        #         epoch, batch_idx * len(data), len(train_loader.dataset),
+        #         100. * batch_idx / len(train_loader),
+        #         loss.item() / len(data)))
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
@@ -140,7 +140,11 @@ class CustomDataset(Data.Dataset):
         self.target_tensor.scatter_(1, t_labels.type(torch.LongTensor), 1)
         # 第2列之后为特征矩阵
         features = df.values[:, 1:].astype(np.float)
-        self.data_tensor = torch.from_numpy(features).type(torch.FloatTensor)
+        # 特征矩阵数值缩放 (0, 1) 区间
+        from sklearn.preprocessing import MinMaxScaler
+        min_max_scaler = MinMaxScaler()
+        features_minmax = min_max_scaler.fit_transform(features)
+        self.data_tensor = torch.from_numpy(features_minmax).type(torch.FloatTensor)
 
     def __len__(self):
         return self.data_tensor.size(0)
@@ -163,12 +167,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description='VAE for citrullination')
-    parser.add_argument('-b', '--batchsize', type=int, default=128, metavar='N',
-                        help='input batch size for training (default: 128)')
+    parser.add_argument('-b', '--batchsize', type=int, default=256, metavar='N',
+                        help='input batch size for training.')
     parser.add_argument('-u', '--nunits', type=int,
-                        help="number of hidden layer units.", default=512)
+                        help="number of hidden layer units", default=512)
     parser.add_argument('-o', '--encode', type=int,
-                        help="Length of encoded feature-vector.", default=128)
+                        help="Length of encoded feature-vector", default=128)
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--no-cuda', action='store_true',
@@ -197,7 +201,7 @@ if __name__ == "__main__":
     vae_model = VAE(t_dataset.get_len_feature(), args.nunits, args.encode).to(device)
     print("\n", vae_model)
     # 设定优化器
-    optimizer = optim.Adam(vae_model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(vae_model.parameters(), lr=1e-2)
 
     # 构建 PyTorch DataLoader, VAE 不需要测试集和标注集
     train_loader = Data.DataLoader(dataset=t_dataset, batch_size=args.batchsize, shuffle=True)
@@ -213,3 +217,7 @@ if __name__ == "__main__":
 
     for epoch in range(1, args.epochs + 1):
         train(epoch, vae_model, train_loader, l_feature)
+    
+    # Output encoded features matrix
+    encoded_martrix, _ = vae_model.encode(t_dataset.data_tensor)
+    # print(encoded_martrix)
