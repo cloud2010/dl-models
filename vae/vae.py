@@ -79,7 +79,7 @@ def loss_function(recon_x, x, mu, logvar, input_size):
     return BCE + KLD
 
 
-def train(epoch, model, train_loader, input_size):
+def train(epoch, model, train_loader, input_size, test_data):
     """
     Training a VAE
 
@@ -106,9 +106,12 @@ def train(epoch, model, train_loader, input_size):
         #         100. * batch_idx / len(train_loader),
         #         loss.item() / len(data)))
 
-    print('====> Epoch: {} Average loss: {:.4f}'.format(
+    print('====> Epoch: {} Training loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-
+    
+    # 整体数据集进入 VAE 输出压缩后的特征矩阵
+    test_recon, test_mu, test_logvar = model(test_data)
+    # print(test_mu)
 
 # New DataSet access method in PyTorch 0.40 (Custom DataSet)
 class CustomDataset(Data.Dataset):
@@ -131,6 +134,7 @@ class CustomDataset(Data.Dataset):
         df = pd.read_csv(DATASETS)
         # 第1列为分类标注名称
         labels = df.values[:, 0].astype(np.int32)
+        self.target = labels
         # 调整 label 2为1(N样本), 1为0(P样本), 便于转换为 One-hot Vector
         labels[labels == 1] = 0
         labels[labels == 2] = 1
@@ -164,7 +168,9 @@ class CustomDataset(Data.Dataset):
 
 
 if __name__ == "__main__":
-    import argparse
+    import argparse, time
+
+    start_time = time.time()
 
     parser = argparse.ArgumentParser(description='VAE for citrullination')
     parser.add_argument('-b', '--batchsize', type=int, default=256, metavar='N',
@@ -216,8 +222,18 @@ if __name__ == "__main__":
     # print("\nFeatures Matrix:", t_dataset.data_tensor)
 
     for epoch in range(1, args.epochs + 1):
-        train(epoch, vae_model, train_loader, l_feature)
+        train(epoch, vae_model, train_loader, l_feature, t_dataset.data_tensor)
     
-    # Output encoded features matrix
+    # 原始数据集进入训练完成的 VAE 输出压缩后的特征矩阵
+    vae_model.eval()
     encoded_martrix, _ = vae_model.encode(t_dataset.data_tensor)
-    # print(encoded_martrix)
+    # 输出至 CSV 文件
+    f_list = ["f" + str(i) for i in range(args.encode)]
+    new_labels = t_dataset.target
+    new_labels[new_labels == 1] = 2
+    new_labels[new_labels == 0] = 1
+    df = pd.DataFrame(encoded_martrix.detach().numpy(), index=new_labels, columns=f_list)
+    df.to_csv("encoded_f{0}_output.csv".format(args.encode), index_label="Class")
+    print("\nThe encoded features matrix is saved to 'encoded_f{0}_output.csv'".format(args.encode))
+    end_time = time.time()
+    print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(((end_time - start_time) / 60), (end_time - start_time)))
