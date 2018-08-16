@@ -12,7 +12,7 @@ def model_batch_predictor(model, X, batch_size):
     while counter < n_samples // batch_size:
         _, curr_pred = \
             model.predict(X[batch_size * counter:batch_size * (counter + 1),
-                            :].toarray())
+                          :].toarray())
         if counter:
             pred = np.vstack((pred, curr_pred))
         else:
