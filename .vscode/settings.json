@@ -7,6 +7,7 @@
   "editor.lineHeight": 24,
   "editor.fontWeight": "500",
   "terminal.integrated.fontFamily": "'Fira Code'",
+  "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
   "python.linting.pep8Args": [
     "--ignore=E501" //忽略pep8 E501错误

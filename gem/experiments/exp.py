@@ -6,11 +6,11 @@ from time import time
 from argparse import ArgumentParser
 import importlib
 import json
-import cPickle
-import networkx as nx
+# import cPickle
 import itertools
 import pdb
 import sys
+import networkx as nx
 sys.path.insert(0, './')
 
 from gem.utils import graph_util, plot_util
@@ -32,12 +32,12 @@ def learn_emb(MethObj, di_graph, params, res_pre, m_summ):
     if params["experiments"] == ["lp"]:
         X = None
     else:
-        print 'Learning Embedding: %s' % m_summ
+        print('Learning Embedding: %s' % m_summ)
         if not bool(int(params["load_emb"])):
             X, learn_t = MethObj.learn_embedding(graph=di_graph,
                                                  edge_f=None,
                                                  no_python=True)
-            print '\tTime to learn embedding: %f sec' % learn_t
+            print('\tTime to learn embedding: %f sec' % learn_t)
             pickle.dump(X, open('%s_%s.emb' % (res_pre, m_summ), 'wb'))
             pickle.dump(learn_t,
                         open('%s_%s.learnT' % (res_pre, m_summ), 'wb'))
@@ -47,9 +47,9 @@ def learn_emb(MethObj, di_graph, params, res_pre, m_summ):
             try:
                 learn_t = pickle.load(open('%s_%s.learnT' % (res_pre, m_summ),
                                            'rb'))
-                print '\tTime to learn emb.: %f sec' % learn_t
+                print('\tTime to learn emb.: %f sec' % learn_t)
             except IOError:
-                print '\tTime info not found'
+                print('\tTime info not found')
     return X
 
 
@@ -90,7 +90,7 @@ def call_exps(params, data_set):
         open('gem/experiments/config/%s.conf' % data_set, 'r')
     )
     if bool(params["node_labels"]):
-        node_labels = cPickle.load(
+        node_labels = pickle.load(
             open('gem/data/%s/node_labels.pickle' % data_set, 'rb')
         )
     else:

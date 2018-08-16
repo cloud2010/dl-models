@@ -230,12 +230,14 @@ class SDNE(StaticGraphEmbedding):
                     open('decoder_model_' + filesuffix + '.json').read()
                 )
             except:
-                print('Error reading file: {0}. Cannot load previous model'.format('decoder_model_'+filesuffix+'.json'))
+                print('Error reading file: {0}. Cannot load previous model'.format(
+                    'decoder_model_'+filesuffix+'.json'))
                 exit()
             try:
                 decoder.load_weights('decoder_weights_' + filesuffix + '.hdf5')
             except:
-                print('Error reading file: {0}. Cannot load previous weights'.format('decoder_weights_'+filesuffix+'.hdf5'))
+                print('Error reading file: {0}. Cannot load previous weights'.format(
+                    'decoder_weights_'+filesuffix+'.hdf5'))
                 exit()
             if node_l is not None:
                 return decoder.predict(embed, batch_size=self._n_batch)[:, node_l]
