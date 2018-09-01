@@ -1,4 +1,4 @@
-# TensorFlow Deep Learning model collections
+# TensorFlow and PyTorch Deep Learning model collections
 
 * Based on TensorFlow 1.2+ / PyTorch 0.4+ and Python 3.5 / 3.6
 * Tutorial [https://github.com/tensorflow/models](https://github.com/tensorflow/models)
@@ -14,3 +14,4 @@
 2. GAN From [https://github.com/hwalsuklee/tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)
 3. SNN From [bioinfo-jku](https://github.com/bioinf-jku/SNNs/blob/master/README.md)
 4. SDNE From [GEM: Graph Embedding Methods](https://github.com/palash1992/GEM)
+5. GCN From [Graph Convolutional Networks](https://github.com/tkipf/gcn)
