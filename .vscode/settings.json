@@ -18,5 +18,5 @@
   "python.formatting.autopep8Args": [
     "--max-line-length=100" //格式化单行最长文字数
   ],
-  "python.pythonPath": "d:\\dev\\Miniconda3\\envs\\dl\\python.exe"
+  "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe"
 }
