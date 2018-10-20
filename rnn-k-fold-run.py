@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This a Basic RNN implementation for training bio datasets.
+This a Basic RNN implementation with SMOTE for training bio datasets.
+Date: 2018-10-21
 """
 import sys
 import os
@@ -12,7 +13,7 @@ __author__ = 'Min'
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="This a Basic RNN implementation for training bio datasets",
+    parser = ArgumentParser(description="This a Basic RNN implementation with SMOTE for training bio datasets.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-c", "--nclass", type=int,
@@ -51,7 +52,8 @@ if __name__ == "__main__":
     # 执行 CNN 训练模型并验证
     # by parsing the arguments already, we can bail out now instead of waiting
     # for TF to load, in case the arguments aren't ok
-    from rnn.rnn_bio import run
+    from rnn.rnn_smote import run
+    # from rnn.rnn_bio import run
     run(args.datapath, args.nclass, args.nunits, args.fragment,
         args.epochs, args.kfolds, args.learningrate, args.randomseed)
     end_time = time.time()  # 程序结束时间
