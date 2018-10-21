@@ -21,7 +21,6 @@ import sys
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-# from tensorflow.contrib import rnn
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
 from imblearn.over_sampling import SMOTE
@@ -65,12 +64,12 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     # 样本数
     nums_samples = n_target.size
 
-        # 设定 K-fold 分割器
+    # 设定 K-fold 分割器
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
 
     # 整个序列长度(特征矩阵维度)
     seq_length = n_features.shape[1]
-    
+
     # 如未设定隐藏层单元数则数目为整个序列长度
     if h_units == -1:
         h_units = seq_length
@@ -79,7 +78,8 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     group = int(seq_length / fragment)
 
     # 输出数据基本信息
-    print("\nNumber of Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(nums_samples, seq_length, fragment, group))
+    print("\nNumber of Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(
+        nums_samples, seq_length, fragment, group))
     # 不同 Class 统计
     print('\n', df.groupby('class').size())
     # print("\nDataset summray:{0}\n".format(np.unique(n_target, return_counts=True)))
@@ -88,15 +88,17 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     sm = SMOTE(k_neighbors=2)
     x_resampled, y_resampled = sm.fit_sample(n_features, n_target)
     # after over sampleing numpy 读取分类信息并返回数量
-    print("\nAfter over sampleing dataset summray:\n{0}".format(np.unique(y_resampled, return_counts=True)))
+    print("\nAfter over sampleing dataset summray:\n{0}".format(
+        np.unique(y_resampled, return_counts=True)))
 
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
-    enc = OneHotEncoder(sparse=True, dtype=np.int)
+    enc = OneHotEncoder(categorical_features='all', sparse=True, dtype=np.int)
     one_hot_mat = enc.fit(n_target.reshape(-1, 1))
     # print("\nClass Info:{0}\n".format(one_hot_mat.active_features_))
-    new_target = one_hot_mat.transform(n_target.reshape(-1, 1)).toarray() # 真实数据
-    new_resampled_target = one_hot_mat.transform(y_resampled.reshape(-1, 1)).toarray() # 含 fake data
+    new_target = one_hot_mat.transform(n_target.reshape(-1, 1)).toarray()  # 真实数据
+    new_resampled_target = one_hot_mat.transform(
+        y_resampled.reshape(-1, 1)).toarray()  # 含 fake data
 
     # tf Graph input
     X = tf.placeholder("float", [None, fragment, group])
@@ -144,17 +146,14 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     # 启动会话
     with tf.Session() as sess:
 
-        # 生成 k-fold 训练集(含 fake data)、测试集(不含 fake data)索引
-        real_index_set = rs.split(n_target)
+        # 生成 k-fold 索引
         resampled_index_set = rs.split(y_resampled)
-        # 获取对应 k-fold 次数的真实数据集
-        real_test_index = []
-        for train_i, test_i in real_index_set:
-            real_test_index.append(test_i.tolist())
         # 初始化折数
         k_fold_step = 0
         # 暂存每次选中的测试集和对应预测结果
         test_cache = pred_cache = np.array([], dtype=np.int)
+        # 暂存每次测试集特征矩阵
+        x_resampled_cache = np.ones([1, seq_length])
 
         # 迭代训练 k-fold 交叉验证
         for train_index, test_index in resampled_index_set:
@@ -174,10 +173,13 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
                     print("\nTraining Epoch:", '%06d' % epoch, "Train Accuracy:", "{:.6f}".format(accTrain),
                           "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", batch_size)
 
-            # 输入真实数据集中的测试数据
-            batch_test_x = n_features[real_test_index[k_fold_step]]
-            batch_test_y = new_target[real_test_index[k_fold_step]]
-            batch_test_size = len(real_test_index[k_fold_step])
+            # 验证测试集
+            batch_test_x = x_resampled[test_index]
+            batch_test_y = new_resampled_target[test_index]
+            batch_test_size = len(test_index)
+            # 暂存每次测试集特征矩阵
+            x_resampled_cache = np.concatenate((x_resampled_cache, batch_test_x))
+            # 测试转换
             batch_test_x = batch_test_x.reshape((batch_test_size, fragment, group))
 
             # 代入TensorFlow计算图验证测试集
@@ -196,11 +198,17 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
 
-            print(
-                "\n=========================================================================")
+            print("\n=========================================================================")
             # 每个fold训练结束后次数 +1
             k_fold_step += 1
 
-        # 模型评估结果输出
+        # 取反操作剔除测试集中所有 fake data
+        # first ndarray convert to dataframe
+        df_x = pd.DataFrame(n_features)
+        df_x_resampled = pd.DataFrame(x_resampled_cache)
+        # 通过特征矩阵第一列进行筛选，获取真实数据所在的索引位置
+        real_indexes = df_x_resampled.iloc[:,0].isin(df_x.iloc[:, 0])
+        idx = real_indexes.index[real_indexes].tolist()
+        # 筛选出原始真实数据进行模型评估
         from .utils import model_evaluation
-        model_evaluation(n_class, test_cache, pred_cache)
+        model_evaluation(n_class, test_cache[idx], pred_cache[idx])
