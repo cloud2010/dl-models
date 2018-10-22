@@ -3,7 +3,7 @@
 A Recurrent Neural Network (LSTM) with SMOTE implementation based on TensorFlow and sklearn-kit library.
 Author: liumin@shmtu.edu.cn
 Date: 2018-10-21
-Tested under: Python3.5 / Python3.6 and TensorFlow 1.1 / 1.2 / 1.3
+Tested under: Python3.6 and TensorFlow 1.10+
 Derived from: Aymeric Damien
 Source: https://github.com/aymericdamien/TensorFlow-Examples/
 Cross-validation: k-fold using sklearn.model_selection.KFold
@@ -47,8 +47,6 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     """
     try:
         # 导入CSV数据
-        # TRAIN_CSV = os.path.join(os.path.dirname(__file__), inputFile)
-        # TRAIN_CSV = inputFile
         df = pd.read_csv(inputFile, encoding='utf8')
         # 去掉CSV文件标题行
         # train_set = np.genfromtxt(TRAIN_CSV, delimiter=',', skip_header=1)
@@ -205,7 +203,8 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
         # 取反操作剔除测试集中所有 fake data
         # first ndarray convert to dataframe
         df_x = pd.DataFrame(n_features)
-        df_x_resampled = pd.DataFrame(x_resampled_cache)
+        # 去掉第一行无效数据避免索引错位
+        df_x_resampled = pd.DataFrame(x_resampled_cache[1:])
         # 通过特征矩阵第一列进行筛选，获取真实数据所在的索引位置
         real_indexes = df_x_resampled.iloc[:,0].isin(df_x.iloc[:, 0])
         idx = real_indexes.index[real_indexes].tolist()
