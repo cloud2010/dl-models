@@ -85,9 +85,10 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     # Apply SMOTE 生成 fake data
     sm = SMOTE(k_neighbors=2)
     x_resampled, y_resampled = sm.fit_sample(n_features, n_target)
-    # after over sampleing numpy 读取分类信息并返回数量
-    print("\nAfter over sampleing dataset summray:\n{0}".format(
-        np.unique(y_resampled, return_counts=True)))
+    # after over sampleing 读取分类信息并返回数量
+    np_resampled_y = np.asarray(np.unique(y_resampled, return_counts=True))
+    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['class', 'sum'])
+    print("\nNumber of samples after over sampleing:\n{0}".format(df_resampled_y))
 
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
