@@ -3,7 +3,7 @@
 A Recurrent Neural Network (LSTM) with SMOTE implementation based on TensorFlow and sklearn-kit library.
 Author: liumin@shmtu.edu.cn
 Date: 2018-10-21
-Tested under: Python3.6 and TensorFlow 1.10+
+Tested under: Python3.6 / TensorFlow 1.10+ / Scikit-learn 0.20.0
 Derived from: Aymeric Damien
 Source: https://github.com/aymericdamien/TensorFlow-Examples/
 Cross-validation: k-fold using sklearn.model_selection.KFold
@@ -91,7 +91,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
 
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
-    enc = OneHotEncoder(categorical_features='all', sparse=True, dtype=np.int)
+    enc = OneHotEncoder(categories='auto', sparse=True, dtype=np.int)
     one_hot_mat = enc.fit(n_target.reshape(-1, 1))
     # print("\nClass Info:{0}\n".format(one_hot_mat.active_features_))
     new_target = one_hot_mat.transform(n_target.reshape(-1, 1)).toarray()  # 真实数据
