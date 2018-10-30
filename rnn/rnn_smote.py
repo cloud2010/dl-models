@@ -143,7 +143,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     init = tf.global_variables_initializer()
 
     # 启动会话
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(log_device_placement=False)) as sess:
 
         # 生成 k-fold 索引
         resampled_index_set = rs.split(y_resampled)
@@ -172,10 +172,11 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
                     print("\nTraining Epoch:", '%06d' % epoch, "Train Accuracy:", "{:.6f}".format(accTrain),
                           "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", batch_size)
 
-            # 验证测试集
-            batch_test_x = x_resampled[test_index]
-            batch_test_y = new_resampled_target[test_index]
-            batch_test_size = len(test_index)
+            # 验证测试集 (通过 index 去除 fake data)
+            real_test_index = test_index[test_index < nums_samples]
+            batch_test_x = x_resampled[real_test_index]
+            batch_test_y = new_resampled_target[real_test_index]
+            batch_test_size = len(real_test_index)
             # 暂存每次测试集特征矩阵
             x_resampled_cache = np.concatenate((x_resampled_cache, batch_test_x))
             # 测试转换
@@ -192,7 +193,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             # print("\nActual Values:\n", argmax_test)
             # print("\nPredicted Values:\n", argmax_pred)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
-                accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size:", batch_test_size)
+                accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size (excluded fake samples):", batch_test_size)
             # 暂存每次选中的测试集和预测结果
             test_cache = np.concatenate((test_cache, argmax_test))
             pred_cache = np.concatenate((pred_cache, argmax_pred))
@@ -201,14 +202,14 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             # 每个fold训练结束后次数 +1
             k_fold_step += 1
 
+        # 原始真实数据进行模型评估
+        from .utils import model_evaluation
+        model_evaluation(n_class, test_cache, pred_cache)
         # 取反操作剔除测试集中所有 fake data
         # first ndarray convert to dataframe
-        df_x = pd.DataFrame(n_features)
+        # df_x = pd.DataFrame(n_features)
         # 去掉第一行无效数据避免索引错位
-        df_x_resampled = pd.DataFrame(x_resampled_cache[1:])
+        # df_x_resampled = pd.DataFrame(x_resampled_cache[1:])
         # 通过特征矩阵第一列进行筛选，获取真实数据所在的索引位置
-        real_indexes = df_x_resampled.iloc[:,0].isin(df_x.iloc[:, 0])
-        idx = real_indexes.index[real_indexes].tolist()
-        # 筛选出原始真实数据进行模型评估
-        from .utils import model_evaluation
-        model_evaluation(n_class, test_cache[idx], pred_cache[idx])
+        # real_indexes = df_x_resampled.iloc[:, 0].isin(df_x.iloc[:, 0])
+        # idx = real_indexes.index[real_indexes].tolist()

@@ -3,7 +3,6 @@
 This a Basic RNN implementation with SMOTE for training bio datasets.
 Date: 2018-10-21
 """
-import sys
 import os
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -32,9 +31,11 @@ if __name__ == "__main__":
                         help="The path of dataset.", required=True)
     parser.add_argument("--learningrate", type=float,
                         help="Learning rate.", default=1e-2)
+    parser.add_argument("-g", "--gpuid", type=str,
+                        help='GPU to use (leave blank for CPU only)', default="")
 
     args = parser.parse_args()
-    # os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid
     # logdir_base = os.getcwd()  # 获取当前目录
 
     # 输出RNN模型相关训练参数
@@ -45,11 +46,10 @@ if __name__ == "__main__":
     print("\nK-fold:", args.kfolds, ", Random seed is", args.randomseed)
     # print("\nThe directory for TF logs:",
     #       os.path.join(logdir_base, args.logdir))
-    # print("\nGPU to use:", "No GPU support" if args.gpuid ==
-    #       "" else "/gpu:{0}".format(args.gpuid))
+    print("\nGPU to use:", "No GPU support" if args.gpuid == "" else "/gpu:{0}".format(args.gpuid))
     print("\nTraining Start...")
 
-    # 执行 CNN 训练模型并验证
+    # 执行 RNN 训练模型并验证
     # by parsing the arguments already, we can bail out now instead of waiting
     # for TF to load, in case the arguments aren't ok
     from rnn.rnn_smote import run
