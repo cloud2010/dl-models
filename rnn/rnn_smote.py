@@ -16,7 +16,7 @@ Source: https://github.com/scikit-learn-contrib/imbalanced-learn
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import os
+# import os
 import sys
 import numpy as np
 import pandas as pd
@@ -27,7 +27,7 @@ from imblearn.over_sampling import SMOTE
 
 # 避免输出TensorFlow未编译CPU指令集信息
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 DISPLAY_STEP = 10
 
 
