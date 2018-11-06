@@ -56,7 +56,6 @@ def run(i_features, i_adj, n_class, h_units, epochs, folds, l_rate, d_rate, seed
     tf.set_random_seed(seed)
 
     # GCN 默认参数设置
-    model = 'gcn'
     weight_decay = 5e-4 # Weight for L2 loss on embedding matrix.
     early_stopping = 10 # Tolerance for early stopping (# of epochs).
     max_degree = 3 # Maximum Chebyshev polynomial degree.
@@ -66,10 +65,9 @@ def run(i_features, i_adj, n_class, h_units, epochs, folds, l_rate, d_rate, seed
     edge_dict = {key: df_adj[df_adj[0] == key].loc[:, 1].values.tolist() for key in keys} # 根据第一列的 key 来过滤出所有第二列的值并转换为 dict
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(edge_dict)) # 构建邻接矩阵
     
-    if model == 'gcn':
-        support = [preprocess_adj(adj)]
-        num_supports = 1
-        model_func = GCN
+    support = [preprocess_adj(adj)]
+    num_supports = 1
+    model_func = GCN
 
     # Define placeholders
     placeholders = {
