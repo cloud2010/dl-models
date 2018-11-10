@@ -57,8 +57,9 @@ def pandas2arff(df, filename, wekaname="pandasdata", cleanstringdata=True, clean
     for i in range(dfcopy.shape[0]):  # instances
         _instanceString = ""
         for j in range(df.shape[1]):  # features
-            if dfcopy.dtypes[j] == 'O':
-                _instanceString += "\"" + str(dfcopy.iloc[i, j]) + "\""
+            if dfcopy.dtypes[j] == 'O': # 文字内容是否需要加引号
+                # _instanceString += "\"" + str(dfcopy.iloc[i, j]) + "\""
+                _instanceString += str(dfcopy.iloc[i, j])
             else:
                 _instanceString += str(dfcopy.iloc[i, j])
             if j != dfcopy.shape[1]-1:  # if it's not the last feature, add a comma
