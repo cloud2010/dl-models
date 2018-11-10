@@ -2,6 +2,7 @@ SNN-INSTRUCTION.md
 *.log
 *.pyc
 *.csv
+*.arff
 *.pkl
 /tmp
 /datasets
