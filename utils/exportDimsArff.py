@@ -37,7 +37,7 @@ def pandas2arff(df, filename, wekaname="pandasdata", cleanstringdata=True, clean
 
     f = open(filename, "w")
     arffList = []
-    arffList.append("@relation " + wekaname + "\n")
+    arffList.append("@relation " + wekaname + "\n\n")
     # look at each column's dtype. If it's an "object", make it "nominal" under Weka for now (can be changed in source for dates.. etc)
     for i in range(df.shape[1]):
         if dfcopy.dtypes[i] == 'O' or (df.columns[i] in ["Class", "CLASS", "class"]):
@@ -49,12 +49,12 @@ def pandas2arff(df, filename, wekaname="pandasdata", cleanstringdata=True, clean
             _uniqueNominalVals = ",".join(_uniqueNominalVals)
             _uniqueNominalVals = _uniqueNominalVals.replace("[", "")
             _uniqueNominalVals = _uniqueNominalVals.replace("]", "")
-            _uniqueValuesString = "{" + _uniqueNominalVals + "}"
+            _uniqueValuesString = " {" + _uniqueNominalVals + "}"
             arffList.append("@attribute " + df.columns[i] + _uniqueValuesString + "\n")
         else:
             arffList.append("@attribute " + df.columns[i] + " real\n")
             # even if it is an integer, let's just deal with it as a real number for now
-    arffList.append("@data\n")
+    arffList.append("\n@data\n")
     for i in range(dfcopy.shape[0]):  # instances
         _instanceString = ""
         for j in range(df.shape[1]):  # features
