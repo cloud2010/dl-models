@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Export a custom dims feature matrix in ARFF format
 """
