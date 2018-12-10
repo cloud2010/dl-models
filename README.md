@@ -10,9 +10,10 @@
 
 ## Models
 
-1. RNN From [https://github.com/kjw0612/awesome-rnn](https://github.com/kjw0612/awesome-rnn)
-2. GAN From [https://github.com/hwalsuklee/tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)
-3. SNN From [bioinfo-jku](https://github.com/bioinf-jku/SNNs/blob/master/README.md)
-4. SDNE From [GEM: Graph Embedding Methods](https://github.com/palash1992/GEM)
-5. GCN From [Graph Convolutional Networks](https://github.com/tkipf/gcn)
-6. imbalanced-learn From [https://github.com/scikit-learn-contrib/imbalanced-learn](https://github.com/scikit-learn-contrib/imbalanced-learn)
+1. RNN from [https://github.com/kjw0612/awesome-rnn](https://github.com/kjw0612/awesome-rnn)
+2. GAN from [https://github.com/hwalsuklee/tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)
+3. SNN from [bioinfo-jku](https://github.com/bioinf-jku/SNNs/blob/master/README.md)
+4. SDNE from [GEM: Graph Embedding Methods](https://github.com/palash1992/GEM)
+5. GCN from [Graph Convolutional Networks](https://github.com/tkipf/gcn)
+6. imbalanced-learn from [https://github.com/scikit-learn-contrib/imbalanced-learn](https://github.com/scikit-learn-contrib/imbalanced-learn)
+7. rulefit from[https://github.com/christophM/rulefit](https://github.com/christophM/rulefit)
