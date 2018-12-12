@@ -51,7 +51,8 @@ if __name__ == "__main__":
     features = df.columns[1:]
     print("\nDataset shape: ", df.shape, " Number of features: ", features.size)
     # 不同 Class 统计 (根据第1列)
-    print('\n', df.groupby(df.columns[0]).size())
+    class_info = df.groupby(df.columns[0]).size()
+    print('\n', class_info)
     print("\nTraining Start...")
 
     # 交叉验证
@@ -86,7 +87,11 @@ if __name__ == "__main__":
     print("\nTree generator:{0}, \n\nMax rules:{1}, Tree size:{2}, Random state:{3}, K-fold:{4}".format(
         rf.tree_generator, rf.max_rules, rf.tree_size, rf.random_state, args.kfolds))
     # 输出统计结果
-    utils.bi_model_evaluation(test_cache, pred_cache)
+    num_categories = class_info.values.size
+    if(num_categories > 2):
+        utils.model_evaluation(num_categories, test_cache, pred_cache)
+    else:
+        utils.bi_model_evaluation(test_cache, pred_cache)
     # 输出 rules
     # rules = rf.get_rules()
     # rules = rules[rules.coef != 0].sort_values("support", ascending=False)

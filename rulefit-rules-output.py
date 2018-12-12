@@ -49,7 +49,8 @@ if __name__ == "__main__":
     features = dataset.columns[1:]
     print("\nDataset shape: ", dataset.shape, " Number of features: ", features.size)
     # 不同 Class 统计 (根据第1列)
-    print('\n', dataset.groupby(dataset.columns[0]).size())
+    class_info = dataset.groupby(dataset.columns[0]).size()
+    print('\n', class_info)
     # print("\nClass info:", np.unique(y, return_counts=True))
     print("\nTraining Start...")
 
@@ -65,7 +66,11 @@ if __name__ == "__main__":
     # 验证
     y_pred = rf.predict(X)
     # 输出统计结果
-    utils.bi_model_evaluation(y, y_pred)
+    num_categories = class_info.values.size
+    if(num_categories > 2):
+        utils.model_evaluation(num_categories, y, y_pred)
+    else:
+        utils.bi_model_evaluation(y, y_pred)
     # 输出 rules
     rules = rf.get_rules()
     rules = rules[rules.coef != 0].sort_values("support", ascending=False)
