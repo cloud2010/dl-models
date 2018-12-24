@@ -52,8 +52,12 @@ if __name__ == "__main__":
     sum_y = np.asarray(np.unique(y.astype(int), return_counts=True))
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
-    print("\nTraining Start...")
 
+    # 初始化 classifier
+    clf = SVC(kernel=args.kernel, gamma=args.gamma,
+              max_iter=args.max_iter, random_state=args.randomseed)
+    print("\nClassifier parameters:")
+    print(clf.get_params())
     # 交叉验证
     rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
     # 生成 k-fold 训练集、测试集索引
@@ -64,9 +68,6 @@ if __name__ == "__main__":
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in cv_index_set:
         print("\nFold:", k_fold_step)
-        # 初始化 classifier
-        clf = SVC(kernel=args.kernel, gamma=args.gamma,
-                  max_iter=args.max_iter, random_state=args.randomseed)
         clf.fit(X[train_index], y[train_index])
         # 测试集验证
         y_pred = clf.predict(X[test_index])
