@@ -23,6 +23,7 @@ if __name__ == "__main__":
                         help="Specifies the kernel type to be used in the algorithm. It must be one of ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable.", default='rbf')
     parser.add_argument("-g", "--gamma", type=str,
                         help="Kernel coefficient for ‘rbf’, ‘poly’ and ‘sigmoid’.", default='auto')
+    parser.add_argument("-c", help="Penalty parameter C of the error term.", type=float, default=1)
     parser.add_argument("-e", "--max_iter", type=int,
                         help="Hard limit on iterations within solver, or -1 for no limit.", default=-1)
     parser.add_argument("-k", "--kfolds", type=int,
@@ -54,7 +55,7 @@ if __name__ == "__main__":
     print('\n', df_sum_y)
 
     # 初始化 classifier
-    clf = SVC(kernel=args.kernel, gamma=args.gamma,
+    clf = SVC(kernel=args.kernel, gamma=args.gamma, C=args.c,
               max_iter=args.max_iter, random_state=args.randomseed)
     print("\nClassifier parameters:")
     print(clf.get_params())
