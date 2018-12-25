@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-The implementation is based on ThunderSVM for predict bio datasets with kfold cross-validation.
+The implementation is based on ThunderSVM for predict bio datasets with kfold cross-validation and SMOTE.
 ThunderSVM exploits GPUs and multi-core CPUs to achieve high efficiency
 Derived from: Xtra Computing Group
 Project: https://github.com/Xtra-Computing/thundersvm
-Date: 2018-12-24
+Ref: https://github.com/scikit-learn-contrib/imbalanced-learn
+Date: 2018-12-25
 """
 import time
 import numpy as np
 import pandas as pd
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from imblearn.over_sampling import SMOTE
 
 __author__ = 'Min'
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="The implementation is based on ThunderSVM for predict bio datasets with kfold cross-validation.",
+    parser = ArgumentParser(description="The implementation is based on ThunderSVM for predict bio datasets with kfold cross-validation and SMOTE.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-t", "--kernel", type=str,
                         help="Specifies the kernel type to be used in the algorithm. It must be one of ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable.", default='rbf')
@@ -53,6 +55,14 @@ if __name__ == "__main__":
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
 
+    # Apply SMOTE 生成 fake data
+    sm = SMOTE(k_neighbors=2)
+    x_resampled, y_resampled = sm.fit_sample(X, y)
+    # after over sampleing 读取分类信息并返回数量
+    np_resampled_y = np.asarray(np.unique(y_resampled.astype(int), return_counts=True))
+    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['Class', 'Sum'])
+    print("\nNumber of samples after over sampleing:\n{0}".format(df_resampled_y))
+
     # 初始化 classifier
     clf = SVC(kernel=args.kernel, gamma=args.gamma, C=args.c,
               max_iter=args.max_iter, random_state=args.randomseed)
@@ -61,22 +71,29 @@ if __name__ == "__main__":
     # 交叉验证
     rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
     # 生成 k-fold 训练集、测试集索引
-    cv_index_set = rs.split(y)
+    resampled_index_set = rs.split(y_resampled)
     k_fold_step = 1  # 初始化折数
     # 暂存每次选中的测试集和对应预测结果
     test_cache = pred_cache = np.array([], dtype=np.int)
+    # 暂存每次测试集特征矩阵
+    # x_resampled_cache = np.ones([1, X.shape[1]])
     # 迭代训练 k-fold 交叉验证
-    for train_index, test_index in cv_index_set:
+    for train_index, test_index in resampled_index_set:
         print("\nFold:", k_fold_step)
-        clf.fit(X[train_index], y[train_index])
+        clf.fit(x_resampled[train_index], y_resampled[train_index])
         # 测试集验证
-        y_pred = clf.predict(X[test_index])
+        # 验证测试集 (通过 index 去除 fake data)
+        real_test_index = test_index[test_index < X.shape[0]]
+        batch_test_x = x_resampled[real_test_index]
+        batch_test_y = y_resampled[real_test_index]
+        batch_test_size = len(real_test_index)
+        y_pred = clf.predict(batch_test_x)
         # 计算测试集 ACC
-        accTest = accuracy_score(y[test_index], y_pred)
+        accTest = accuracy_score(batch_test_y, y_pred)
         print("\nFold:", k_fold_step, "Test Accuracy:",
-              "{:.6f}".format(accTest), "Test Size:", test_index.size)
+              "{:.6f}".format(accTest), "Test Size:", batch_test_size)
         # 暂存每次选中的测试集和预测结果
-        test_cache = np.concatenate((test_cache, y[test_index]))
+        test_cache = np.concatenate((test_cache, batch_test_y))
         pred_cache = np.concatenate((pred_cache, y_pred))
         print("\n=========================================================================")
         # 每个fold训练结束后次数 +1
