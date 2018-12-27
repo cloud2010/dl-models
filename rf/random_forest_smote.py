@@ -11,6 +11,7 @@ import tensorflow as tf
 import pandas as pd
 import numpy as np
 import sys
+import os
 from sklearn.model_selection import KFold
 from tensorflow.contrib.tensor_forest.python import tensor_forest
 from tensorflow.python.ops import resources
@@ -19,6 +20,7 @@ from imblearn.over_sampling import SMOTE
 __author__ = 'Min'
 
 DISPLAY_STEP = 50
+NUM_PARALLEL_EXEC_UNITS = 4
 
 
 def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors):
@@ -112,10 +114,19 @@ def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors):
     # 暂存每次选中的测试集和对应预测结果
     test_cache = pred_cache = np.array([], dtype=np.int)
 
+    # Change the parallelism threads and OpenMP* make use of all the cores available in the machine.
+    # https://software.intel.com/en-us/articles/tips-to-improve-performance-for-popular-deep-learning-frameworks-on-multi-core-cpus
+    config = tf.ConfigProto(intra_op_parallelism_threads=NUM_PARALLEL_EXEC_UNITS, inter_op_parallelism_threads=2,
+                            allow_soft_placement=True, device_count={'CPU': NUM_PARALLEL_EXEC_UNITS})
+    os.environ["OMP_NUM_THREADS"] = "NUM_PARALLEL_EXEC_UNITS"
+    os.environ["KMP_BLOCKTIME"] = "30"
+    os.environ["KMP_SETTINGS"] = "1"
+    os.environ["KMP_AFFINITY"] = "granularity=fine,verbose,compact,1,0"
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in resampled_index_set:
         # Start TensorFlow session
-        sess = tf.train.MonitoredSession()
+        # sess = tf.train.MonitoredSession()
+        sess = tf.Session(config=config)
         # Set random seed
         tf.set_random_seed(random_s)
         # Run the initializer
