@@ -20,10 +20,9 @@ from imblearn.over_sampling import SMOTE
 __author__ = 'Min'
 
 DISPLAY_STEP = 50
-NUM_PARALLEL_EXEC_UNITS = 4 
 
 
-def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors):
+def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors, cores):
     """
     Random Forest 主程序
     参数
@@ -35,7 +34,10 @@ def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors):
     epochs: 每个fold的训练次数
     folds: k-fold折数
     kneighbors: k邻近点数
+    cores: CPU核心数
     """
+    # The number of cores per socket in the machine
+    NUM_PARALLEL_EXEC_UNITS = cores
     try:
         # 导入训练数据
         df = pd.read_csv(inputFile, encoding='utf8')

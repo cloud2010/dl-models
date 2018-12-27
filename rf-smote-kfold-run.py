@@ -32,8 +32,8 @@ if __name__ == "__main__":
                         help="pseudo-random number generator state used for shuffling.", default=0)
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
-    parser.add_argument("-g", "--gpuid", type=str,
-                        help='GPU to use (leave blank for CPU only)', default="")
+    parser.add_argument("-c", "--cpu", type=int,
+                        help='The number of cores per socket in the machine', default="4")
 
     args = parser.parse_args()
     # Ignore all GPUs, tf random forest does not benefit from it.
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # for TF to load, in case the arguments aren't ok
     from rf.random_forest_smote import run
     run(args.datapath, args.ntrees, args.mnodes, args.randomseed,
-        args.epochs, args.kfolds, args.kneighbors)
+        args.epochs, args.kfolds, args.kneighbors, args.cpu)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
