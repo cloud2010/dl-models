@@ -20,7 +20,7 @@ from imblearn.over_sampling import SMOTE
 __author__ = 'Min'
 
 DISPLAY_STEP = 50
-NUM_PARALLEL_EXEC_UNITS = 4
+NUM_PARALLEL_EXEC_UNITS = 4 
 
 
 def run(inputFile, n_trees, m_nodes, random_s, epochs, folds, kneighbors):
