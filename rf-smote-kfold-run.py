@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # 执行 Random Forest 训练模型并验证
     # by parsing the arguments already, we can bail out now instead of waiting
     # for TF to load, in case the arguments aren't ok
-    from rf.random_forest_smote import run
+    from rf.random_forest_smote_new import run
     run(args.datapath, args.ntrees, args.mnodes, args.randomseed,
         args.epochs, args.kfolds, args.kneighbors, args.cpu)
     end_time = time.time()  # 程序结束时间
