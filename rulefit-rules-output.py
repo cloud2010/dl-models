@@ -36,6 +36,7 @@ if __name__ == "__main__":
 
     # 构建 estimator
     from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
+    from sklearn.preprocessing import StandardScaler
     from rulefit import RuleFit
     from rulefit import utils
 
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     dataset = pd.read_csv(args.datapath)
 
     # 设定分类信息和特征矩阵
-    X = dataset.iloc[:, 1:].values
+    X_origin = dataset.iloc[:, 1:].values
     y = dataset.iloc[:, 0].values
     # 读取特征名称
     features = dataset.columns[1:]
@@ -53,6 +54,10 @@ if __name__ == "__main__":
     print('\n', class_info)
     # print("\nClass info:", np.unique(y, return_counts=True))
     print("\nTraining Start...")
+
+    # 标准化处理
+    scaler = StandardScaler().fit(X_origin)
+    X = scaler.transform(X_origin)
 
     # 初始化 estimator
     rf = RuleFit(tree_size=args.treesize, rfmode=args.rfmode,

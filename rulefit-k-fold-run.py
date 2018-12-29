@@ -38,6 +38,7 @@ if __name__ == "__main__":
     from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
     from sklearn.metrics import accuracy_score
     from sklearn.model_selection import KFold
+    from sklearn.preprocessing import StandardScaler
     from rulefit import RuleFit
     from rulefit import utils
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     df = pd.read_csv(args.datapath)
 
     # 设定分类信息和特征矩阵
-    X = df.iloc[:, 1:].values
+    X_origin = df.iloc[:, 1:].values
     y = df.iloc[:, 0].values
     # 读取特征名称
     features = df.columns[1:]
@@ -54,6 +55,10 @@ if __name__ == "__main__":
     class_info = df.groupby(df.columns[0]).size()
     print('\n', class_info)
     print("\nTraining Start...")
+
+    # 标准化处理
+    scaler = StandardScaler().fit(X_origin)
+    X = scaler.transform(X_origin)
 
     # 交叉验证
     rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
