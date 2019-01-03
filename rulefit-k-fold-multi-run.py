@@ -21,23 +21,19 @@ from rulefit import utils
 __author__ = 'Min'
 
 
-def train_job(train_idx, test_idx, t_size, rf_mode, m_rules, r_seed, X, y, feas):
+def train_job(train_idx, test_idx, estimator, X, y, feas):
     """
     每个 fold 中进行训练和验证
     """
     p = current_process()
     print('process counter:', p._identity[0], 'pid:', os.getpid())
-    # 初始化 estimator 训练集进入模型
-    rf = RuleFit(tree_size=t_size, rfmode=rf_mode,
-                 max_rules=m_rules, random_state=r_seed)
-    print("\nTree generator:{0}, \n\nMax rules:{1}, Tree size:{2}, Random state:{3}".format(
-        rf.tree_generator, rf.max_rules, rf.tree_size, rf.random_state))
-    rf.fit(X[train_idx], y[train_idx], feas)
+    # 训练
+    estimator.fit(X[train_idx], y[train_idx], feas)
     # 验证测试集
     batch_test_x = X[test_idx]
     batch_test_y = y[test_idx]
     batch_test_size = len(test_idx)
-    y_pred = rf.predict(batch_test_x)
+    y_pred = estimator.predict(batch_test_x)
     # 计算测试集 ACC
     accTest = accuracy_score(batch_test_y, y_pred)
     print("\nTest Accuracy:", "{:.6f}".format(accTest), "Test Size:", batch_test_size)
@@ -91,13 +87,20 @@ if __name__ == "__main__":
     cv_index_set = rs.split(y)
     # 暂存每次选中的测试集和对应预测结果
     test_cache = pred_cache = np.array([], dtype=np.int)
-    print("\nTraining Start...")
     # 构建进程池并行训练
     pool = Pool(processes=args.kfolds)
     res = []
+    # 初始化 estimator 训练集进入模型
+    rf = RuleFit(tree_size=args.treesize, rfmode=args.rfmode,
+                 max_rules=args.maxrules, random_state=args.randomseed)
+    # 输出rulefit模型参数
+    print("\n=== Model parameters ===")
+    print("\nTree generator:{0}, \n\nMax rules:{1}, Tree size:{2}, Random state:{3}".format(
+        rf.tree_generator, rf.max_rules, rf.tree_size, rf.random_state))
+    print("\nTraining Start...")
     for train_index, test_index in cv_index_set:
-        result = pool.apply_async(train_job, args=(train_index, test_index), kwds=dict(t_size=args.treesize, rf_mode=args.rfmode,
-                                                                                       m_rules=args.maxrules, r_seed=args.randomseed, X=X, y=y, feas=features))
+        result = pool.apply_async(train_job, args=(train_index, test_index),
+                                  kwds=dict(estimator=rf, X=X, y=y, feas=features))
         res.append(result)
     pool.close()
     pool.join()
@@ -113,8 +116,6 @@ if __name__ == "__main__":
         # predicted label
         pred_cache = np.concatenate((pred_cache, np.array(y_res[1])))
 
-    # 末尾输出rulefit模型参数
-    # print("\n=== Model parameters ===")
     # 输出统计结果
     if(num_categories > 2):
         utils.model_evaluation(num_categories, test_cache, pred_cache)
