@@ -106,11 +106,16 @@ if __name__ == "__main__":
     for train_index, test_index in resampled_index_set:
         result = pool.apply_async(train_job, args=(train_index, test_index), kwds=dict(t_size=args.treesize, rf_mode=args.rfmode,
                                                                                        m_rules=args.maxrules, r_seed=args.randomseed, X=x_resampled, y=y_resampled, feas=features, n_samples=X.shape[0]))
-        res = res.append(result.get())
+        res.append(result)
     pool.close()
     pool.join()
-    # 汇总每次选中的测试集和预测结果
-    for y_res in res:
+    for _ in res:
+        """ 
+        https://jingsam.github.io/2015/12/31/multiprocessing.html
+        获取返回值的过程最好放在进程池回收之后进行，避免阻塞后面的语句
+        汇总每次选中的测试集和预测结果
+        """
+        y_res = _.get()
         # real label
         test_cache = np.concatenate((test_cache, np.array(y_res[0])))
         # predicted label
