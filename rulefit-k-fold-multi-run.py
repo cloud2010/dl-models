@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This a implementation of the rulefit algorithm for predict bio datasets with kfold cross-validation and SMOTE.
+This a implementation of the rulefit algorithm for predict bio datasets with kfold cross-validation.
 Derived from: Christoph Molnar
 Source: https://github.com/christophM/rulefit
 Date: 2019-01-03
@@ -17,12 +17,11 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from rulefit import RuleFit
 from rulefit import utils
-from imblearn.over_sampling import SMOTE
 
 __author__ = 'Min'
 
 
-def train_job(train_idx, test_idx, t_size, rf_mode, m_rules, r_seed, X, y, feas, n_samples):
+def train_job(train_idx, test_idx, t_size, rf_mode, m_rules, r_seed, X, y, feas):
     """
     每个 fold 中进行训练和验证
     """
@@ -34,11 +33,10 @@ def train_job(train_idx, test_idx, t_size, rf_mode, m_rules, r_seed, X, y, feas,
     print("\nTree generator:{0}, \n\nMax rules:{1}, Tree size:{2}, Random state:{3}".format(
         rf.tree_generator, rf.max_rules, rf.tree_size, rf.random_state))
     rf.fit(X[train_idx], y[train_idx], feas)
-    # 验证测试集 (通过 index 去除 fake data)
-    real_test_index = test_idx[test_idx < n_samples]
-    batch_test_x = X[real_test_index]
-    batch_test_y = y[real_test_index]
-    batch_test_size = len(real_test_index)
+    # 验证测试集
+    batch_test_x = X[test_idx]
+    batch_test_y = y[test_idx]
+    batch_test_size = len(test_idx)
     y_pred = rf.predict(batch_test_x)
     # 计算测试集 ACC
     accTest = accuracy_score(batch_test_y, y_pred)
@@ -75,12 +73,9 @@ if __name__ == "__main__":
     # 设定分类信息和特征矩阵
     X = df.iloc[:, 1:].values
     y = df.iloc[:, 0].values
-    # Apply SMOTE 生成 fake data
-    sm = SMOTE(k_neighbors=2)
-    x_resampled, y_resampled = sm.fit_sample(X, y)
     # 标准化处理
-    scaler = StandardScaler().fit(x_resampled)
-    x_resampled = scaler.transform(x_resampled)
+    scaler = StandardScaler().fit(X)
+    X = scaler.transform(X)
     # 读取特征名称
     features = df.columns[1:]
     print("\nDataset shape: ", df.shape, " Number of features: ", features.size)
@@ -89,23 +84,20 @@ if __name__ == "__main__":
     sum_y = np.asarray(np.unique(y.astype(int), return_counts=True))
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
-    # after over sampleing 读取分类信息并返回数量
-    np_resampled_y = np.asarray(np.unique(y_resampled.astype(int), return_counts=True))
-    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['Class', 'Sum'])
-    print("\nNumber of samples after over sampleing:\n\n{0}".format(df_resampled_y))
+
     # 交叉验证
     rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
     # 生成 k-fold 训练集、测试集索引
-    resampled_index_set = rs.split(y_resampled)
+    cv_index_set = rs.split(y)
     # 暂存每次选中的测试集和对应预测结果
     test_cache = pred_cache = np.array([], dtype=np.int)
     print("\nTraining Start...")
     # 构建进程池并行训练
     pool = Pool(processes=args.kfolds)
     res = []
-    for train_index, test_index in resampled_index_set:
+    for train_index, test_index in cv_index_set:
         result = pool.apply_async(train_job, args=(train_index, test_index), kwds=dict(t_size=args.treesize, rf_mode=args.rfmode,
-                                                                                       m_rules=args.maxrules, r_seed=args.randomseed, X=x_resampled, y=y_resampled, feas=features, n_samples=X.shape[0]))
+                                                                                       m_rules=args.maxrules, r_seed=args.randomseed, X=X, y=y, feas=features))
         res.append(result)
     pool.close()
     pool.join()
@@ -122,7 +114,7 @@ if __name__ == "__main__":
         pred_cache = np.concatenate((pred_cache, np.array(y_res[1])))
 
     # 末尾输出rulefit模型参数
-    print("\n=== Model parameters ===")
+    # print("\n=== Model parameters ===")
     # 输出统计结果
     if(num_categories > 2):
         utils.model_evaluation(num_categories, test_cache, pred_cache)
