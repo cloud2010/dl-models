@@ -29,8 +29,9 @@ if __name__ == "__main__":
                         help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-r", "--randomseed", type=int,
                         help="The seed of the pseudo random number generator used when shuffling the data for probability estimates.", default=None)
-    parser.add_argument("--datapath", type=str,
-                        help="The path of dataset.", required=True)
+    parser.add_argument("--datapath", type=str, help="The path of dataset.", required=True)
+    parser.add_argument("--ftype", type=str,
+                        help="The file type of dataset. It must be ‘svm’ or ‘csv’.", default='svm')
 
     args = parser.parse_args()
 
@@ -42,12 +43,18 @@ if __name__ == "__main__":
     from thundersvm.utils import model_evaluation, bi_model_evaluation
 
     # 读取数据
-    data = load_svmlight_file(args.datapath)
+    if(args.ftype == 'svm'):
+        data = load_svmlight_file(args.datapath)
+        # 设定分类信息和特征矩阵
+        X, y = data[0], data[1]
+    else:
 
-    # 设定分类信息和特征矩阵
-    X, y = data[0], data[1]
-    print("\nDataset shape: ", X.shape, " Number of features: ", X.shape[1])
+        df = pd.read_csv(args.datapath)
+        # 设定分类信息和特征矩阵
+        X = df.iloc[:, 1:].values
+        y = df.iloc[:, 0].values
     # 不同 Class 统计 (根据 Target 列)
+    print("\nDataset shape: ", X.shape, " Number of features: ", X.shape[1])
     num_categories = np.unique(y).size
     sum_y = np.asarray(np.unique(y.astype(int), return_counts=True))
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
