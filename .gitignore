@@ -6,6 +6,7 @@ SNN-INSTRUCTION.md
 *.pkl
 /tmp
 /datasets
+/.idea
 
 # PyCharm
 workspace.xml

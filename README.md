@@ -16,5 +16,5 @@
 4. SDNE from [GEM: Graph Embedding Methods](https://github.com/palash1992/GEM)
 5. GCN from [Graph Convolutional Networks](https://github.com/tkipf/gcn)
 6. imbalanced-learn from [https://github.com/scikit-learn-contrib/imbalanced-learn](https://github.com/scikit-learn-contrib/imbalanced-learn)
-7. rulefit from[https://github.com/christophM/rulefit](https://github.com/christophM/rulefit)
-8. thunderSVM from[https://github.com/Xtra-Computing/thundersvm](https://github.com/Xtra-Computing/thundersvm)
+7. rulefit from [https://github.com/christophM/rulefit](https://github.com/christophM/rulefit)
+8. thunderSVM from [https://github.com/Xtra-Computing/thundersvm](https://github.com/Xtra-Computing/thundersvm)
