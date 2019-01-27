@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Pytorch Implementation of the Scaled ELU function and Dropout.
+Pytorch Implementation of the Scaled ELU function and Alpha Dropout.
 
 Author: Liu Min
 Date: 2019-1-27
@@ -31,10 +31,12 @@ class SNNs(nn.Module):
     def __init__(self, input_size, hidden_size, dropout_rate, num_classes):
         super(SNNs, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.dp1 = nn.Dropout(dropout_rate)
+        # Alpha Dropout is a type of Dropout that maintains the self-normalizing property.
+        # Ref: `https://pytorch.org/docs/stable/nn.html?highlight=dropout#torch.nn.AlphaDropout`
+        self.dp1 = nn.AlphaDropout(dropout_rate)
         self.selu1 = nn.SELU()
         self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.dp2 = nn.Dropout(dropout_rate)
+        self.dp2 = nn.AlphaDropout(dropout_rate)
         self.selu2 = nn.SELU()
         self.output = nn.Linear(hidden_size, num_classes)
 
@@ -58,7 +60,7 @@ def init_model(m):
         m.bias.data.fill_(0)
 
 
-def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s=None):
+def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s):
     """RNN主程序
     参数
     ----
@@ -94,6 +96,8 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s=None):
 
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # Sets the seed for generating random numbers to all devices
+    torch.manual_seed(random_s)
     print('\nTraining Device:', device)
 
     # numpy dataset trasform to Tensor
@@ -134,7 +138,7 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s=None):
             optimizer.step()
 
             if (epoch+1) % 10 == 0:
-                print('Epoch [{}/{}], Train size: {}, Acc: {:.6%}, Loss: {:.6f}'.format(
+                print('Epoch [{}/{}], Train size: {}, Acc: {:.4%}, Loss: {:.6f}'.format(
                     epoch+1, epochs, train_index.size, correct/train_index.size, loss.item()))
         # 测试集验证
         # In test phase, we don't need to compute gradients (for memory efficiency)
@@ -144,7 +148,7 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s=None):
             # 计算测试集 ACC
             accTest = accuracy_score(y[test_index], y_pred.data.numpy())
             print("\nFold:", k_fold_step, "Test Accuracy:",
-                  "{:.6%}".format(accTest), "Test Size:", test_index.size)
+                  "{:.4%}".format(accTest), "Test Size:", test_index.size)
 
         # 暂存每次选中的测试集和预测结果
         test_cache = np.concatenate((test_cache, y[test_index]))
