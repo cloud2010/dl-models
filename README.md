@@ -18,3 +18,4 @@
 6. imbalanced-learn from [https://github.com/scikit-learn-contrib/imbalanced-learn](https://github.com/scikit-learn-contrib/imbalanced-learn)
 7. rulefit from [https://github.com/christophM/rulefit](https://github.com/christophM/rulefit)
 8. thunderSVM from [https://github.com/Xtra-Computing/thundersvm](https://github.com/Xtra-Computing/thundersvm)
+9. XGBoost from [https://github.com/dmlc/xgboost](https://github.com/dmlc/xgboost)
