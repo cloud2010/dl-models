@@ -5,7 +5,7 @@ XGBoost is an optimized distributed gradient boosting library designed to be hig
 Project: `https://github.com/dmlc/xgboost`
 Date: 2019-01-28
 """
-# import os
+import os
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
@@ -34,6 +34,7 @@ if __name__ == "__main__":
         raise ImportError("Unable to import multiprocessing.set_start_method."
                           " This example only runs on Python 3.4")
     set_start_method("forkserver")
+    os.environ["OMP_NUM_THREADS"] = "10"
 
     # 导入相关库
     import numpy as np
