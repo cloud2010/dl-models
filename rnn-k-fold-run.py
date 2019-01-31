@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--randomseed", type=int,
                         help="pseudo-random number generator state used for shuffling.", default=0)
     parser.add_argument("-f", "--fragment", type=int,
-                        help="Specifying the `length` of sequences fragment.", default=20)
+                        help="Specifying the `length` of sequences fragment.", default=1)
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("--learningrate", type=float,

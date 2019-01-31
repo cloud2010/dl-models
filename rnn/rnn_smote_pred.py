@@ -141,7 +141,7 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
         for epoch in range(1, epochs + 1):
             batch_x = x_resampled  # 特征数据用于训练
             batch_y = new_resampled_target  # 标记结果用于验证
-            batch_size = nums_samples
+            batch_size = batch_x.shape[0]
             # Reshape data to get N seq of N elements
             batch_x = batch_x.reshape((batch_size, fragment, group))
             _, costTrain, accTrain = sess.run(
@@ -151,6 +151,14 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
                 print("\nTraining Epoch:", '%06d' % epoch, "Train Accuracy:", "{:.6f}".format(accTrain),
                       "Train Loss:", "{:.6f}".format(costTrain), "Train Size:", batch_size)
         print("\n=========================================================================")
+        # 输出数据基本信息
+        print("\nNumber of Test Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(
+            nums_t_samples, seq_length, fragment, group))
+        # 不同 Class 统计
+        sum_y_t = np.asarray(np.unique(y_t.astype(int), return_counts=True))
+        df_sum_y_t = pd.DataFrame(sum_y_t.T, columns=['Class', 'Sum'], index=None)
+        print('\n', df_sum_y_t)
+        print('\nTesting Start...')
         # 测试集数据读取开始验证
         batch_test_size = nums_t_samples
         # Reshape data to get N seq of N elements
