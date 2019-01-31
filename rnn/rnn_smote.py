@@ -48,13 +48,12 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     try:
         # 导入CSV数据
         df = pd.read_csv(inputFile, encoding='utf8')
-        # 去掉CSV文件标题行
-        # train_set = np.genfromtxt(TRAIN_CSV, delimiter=',', skip_header=1)
     except (OSError) as e:
         print("\n\t", e)
         print("\nPlease make sure you input correct filename of training dataset!")
         sys.exit(1)
-
+    # 设置图级别的seed
+    tf.set_random_seed(random_s)
     # 分类矩阵为第一列数据
     n_target = df.iloc[:, 0].values
     # 特征矩阵为去第一列之后数据
@@ -79,15 +78,17 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     print("\nNumber of Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(
         nums_samples, seq_length, fragment, group))
     # 不同 Class 统计
-    print('\n', df.groupby('class').size())
-    # print("\nDataset summray:{0}\n".format(np.unique(n_target, return_counts=True)))
+    num_categories = np.unique(n_target).size
+    sum_y = np.asarray(np.unique(n_target.astype(int), return_counts=True))
+    df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
+    print('\n', df_sum_y)
 
     # Apply SMOTE 生成 fake data
     sm = SMOTE(k_neighbors=2)
     x_resampled, y_resampled = sm.fit_sample(n_features, n_target)
     # after over sampleing 读取分类信息并返回数量
     np_resampled_y = np.asarray(np.unique(y_resampled, return_counts=True))
-    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['class', 'sum'])
+    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['class', 'sum'], index=None)
     print("\nNumber of samples after over sampleing:\n{0}".format(df_resampled_y))
 
     # 转换原始分类矩阵为 One-hot Vector
@@ -189,9 +190,9 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             # One-hot 矩阵转换为原始分类矩阵
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
-            # print("\nTest dataset Index:\n", test_index)
-            # print("\nActual Values:\n", argmax_test)
-            # print("\nPredicted Values:\n", argmax_pred)
+            print("\nTest dataset Index:\n", test_index)
+            print("\nActual Values:\n", argmax_test)
+            print("\nPredicted Values:\n", argmax_pred)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
                 accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size (excluded fake samples):", batch_test_size)
             # 暂存每次选中的测试集和预测结果
@@ -205,11 +206,3 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
         # 原始真实数据进行模型评估
         from .utils import model_evaluation
         model_evaluation(n_class, test_cache, pred_cache)
-        # 取反操作剔除测试集中所有 fake data
-        # first ndarray convert to dataframe
-        # df_x = pd.DataFrame(n_features)
-        # 去掉第一行无效数据避免索引错位
-        # df_x_resampled = pd.DataFrame(x_resampled_cache[1:])
-        # 通过特征矩阵第一列进行筛选，获取真实数据所在的索引位置
-        # real_indexes = df_x_resampled.iloc[:, 0].isin(df_x.iloc[:, 0])
-        # idx = real_indexes.index[real_indexes].tolist()
