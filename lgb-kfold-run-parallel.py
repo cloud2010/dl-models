@@ -20,7 +20,9 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--ntrees", type=int,
                         help="Number of boosted trees to fit.", default=100)
     parser.add_argument("-d", "--depth", type=int,
-                        help="Maximum tree depth for base learners.", default=3)
+                        help="Maximum tree depth for base learners, -1 means no limit.", default=-1)
+    parser.add_argument("-b", "--btype", type=str,
+                        help="Boosting type (default='gbdt'), 'rf', Random Forest, 'dart', Dropouts meet Multiple Additive Regression Trees, 'goss', Gradient-based One-Side Sampling.", default="gbdt")
     parser.add_argument("-k", "--kfolds", type=int,
                         help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-r", "--randomseed", type=int,
@@ -52,7 +54,8 @@ if __name__ == "__main__":
     print('\n', df_sum_y)
 
     # 初始化 classifier
-    clf = lgb.LGBMClassifier(n_estimators=args.ntrees, max_depth=args.depth, random_state=args.randomseed)
+    clf = lgb.LGBMClassifier(boosting_type=args.btype, n_estimators=args.ntrees,
+                             max_depth=args.depth, random_state=args.randomseed)
     print("\nClassifier parameters:")
     print(clf.get_params())
     # 交叉验证
@@ -73,7 +76,7 @@ if __name__ == "__main__":
         print("\nFold:", k_fold_step, "Test Accuracy:",
               "{:.6f}".format(accTest), "Test Size:", test_index.size)
         # eval
-        print('\nThe RMSE of test prediction is:', mean_squared_error(y[test_index], y_pred) ** 0.5)
+        print('\nThe RMSE of test prediction is: {0:.6f}'.format(mean_squared_error(y[test_index], y_pred) ** 0.5))
         # feature importances
         # print('\nFeature importances:', list(clf.feature_importances_))
         # 暂存每次选中的测试集和预测结果
