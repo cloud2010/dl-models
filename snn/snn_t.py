@@ -108,8 +108,8 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
     print('\nTraining Device:', device)
 
     # numpy dataset trasform to Tensor
-    X_t = torch.from_numpy(X).float()
-    y_t = torch.from_numpy(y).long()
+    X_t = torch.from_numpy(X).float().to(device)
+    y_t = torch.from_numpy(y).long().to(device)
 
     # Create SNN Neural Net (Depth: 2)
     model = SNNs(f_size, h_units, d_rate, num_categories).to(device)
@@ -119,6 +119,7 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
     criterion = nn.CrossEntropyLoss()
     # add the weights and bias with L2 weight decay
     optimizer = torch.optim.Adam(model.parameters(), lr=l_rate, weight_decay=w_rate)
+    print("\nOptimizer Parameters:", optimizer)
 
     # 交叉验证
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
@@ -153,6 +154,8 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
         with torch.no_grad():
             test_outputs = model(X_t[test_index])
             _, y_pred = test_outputs.max(1)
+            # ensure copy the tensor from cuda to host memory
+            y_pred = y_pred.cpu()
             # 计算测试集 ACC
             accTest = accuracy_score(y[test_index], y_pred.data.numpy())
             print("\nFold:", k_fold_step, "Test Accuracy:",
