@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score  # 计算 ACC
-from sklearn.metrics import roc_curve, roc_auc_score  # 计算 ROC
+# from sklearn.metrics import roc_curve, roc_auc_score  # 计算 ROC
 from .utils import model_evaluation, bi_model_evaluation
 
 
@@ -38,6 +38,9 @@ class SNNs(nn.Module):
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.dp2 = nn.AlphaDropout(dropout_rate)
         self.selu2 = nn.SELU()
+        self.fc3 = nn.Linear(hidden_size, hidden_size)
+        self.dp3 = nn.AlphaDropout(dropout_rate)
+        self.selu3 = nn.SELU()
         self.output = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
@@ -47,6 +50,9 @@ class SNNs(nn.Module):
         out = self.fc2(out)
         out = self.dp2(out)
         out = self.selu2(out)
+        out = self.fc3(out)
+        out = self.dp3(out)
+        out = self.selu3(out)
         out = self.output(out)
         return out
 
@@ -60,7 +66,7 @@ def init_model(m):
         m.bias.data.fill_(0)
 
 
-def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s):
+def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
     """RNN主程序
     参数
     ----
@@ -70,6 +76,7 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s):
     folds: k-fold折数
     l_rate: Learning rate
     d_rate: Dropout rate
+    w_rate: weight decay (L2 penalty) (default: 0)
     random_s: 随机种子
     """
     try:
@@ -110,7 +117,8 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, random_s):
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=l_rate)
+    # add the weights and bias with L2 weight decay
+    optimizer = torch.optim.Adam(model.parameters(), lr=l_rate, weight_decay=w_rate)
 
     # 交叉验证
     rs = KFold(n_splits=folds, shuffle=True, random_state=random_s)
