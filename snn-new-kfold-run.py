@@ -6,7 +6,7 @@ Author: Liu Min
 Email: liumin@shmtu.edu.cn
 Date: 2019-01-27
 """
-import sys
+# import sys
 import os
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -26,6 +26,8 @@ if __name__ == "__main__":
                         help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-d", "--dropout", type=float,
                         help="Hidden layer dropout rate.", default=5e-2)
+    parser.add_argument("-w", "--weight", type=float,
+                        help="Weight decay (L2 penalty).", default=0.)
     parser.add_argument("-r", "--randomseed", type=int,
                         help="pseudo-random number generator state used for shuffling.", default=0)
     parser.add_argument("-g", "--gpuid", type=str,
@@ -46,7 +48,8 @@ if __name__ == "__main__":
 
     # 执行 SNN 训练模型并验证
     from snn.snn_t import run
-    run(args.datapath, args.nunits, args.epochs, args.kfolds, args.learningrate, args.dropout, args.randomseed)
+    run(args.datapath, args.nunits, args.epochs, args.kfolds,
+        args.learningrate, args.dropout, args.weight, args.randomseed)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))

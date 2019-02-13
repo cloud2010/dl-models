@@ -6,7 +6,7 @@ Author: Liu Min
 Date: 2019-1-27
 Github: `https://github.com/cloud2010/dl-models`
 """
-import os
+# import os
 import sys
 import numpy as np
 import pandas as pd
