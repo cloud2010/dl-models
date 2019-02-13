@@ -1,4 +1,4 @@
-# TensorFlow and PyTorch Deep Learning model collections
+# TensorFlow and PyTorch Tutorial collections
 
 * Based on TensorFlow 1.2+ / PyTorch 0.4+ and Python 3.5 / 3.6
 * Tutorial [https://github.com/tensorflow/models](https://github.com/tensorflow/models)
@@ -8,7 +8,7 @@
 * PyTorch Tutorial for Deep Learning Researchers[https://github.com/yunjey/pytorch-tutorial](https://github.com/yunjey/pytorch-tutorial)
 * An Open-Source Package for Network Embedding (NE)[https://github.com/thunlp/OpenNE](https://github.com/thunlp/OpenNE)
 
-## Models
+## Classifier and Models
 
 1. RNN from [https://github.com/kjw0612/awesome-rnn](https://github.com/kjw0612/awesome-rnn)
 2. GAN from [https://github.com/hwalsuklee/tensorflow-generative-model-collections](https://github.com/hwalsuklee/tensorflow-generative-model-collections)
@@ -19,3 +19,4 @@
 7. rulefit from [https://github.com/christophM/rulefit](https://github.com/christophM/rulefit)
 8. thunderSVM from [https://github.com/Xtra-Computing/thundersvm](https://github.com/Xtra-Computing/thundersvm)
 9. XGBoost from [https://github.com/dmlc/xgboost](https://github.com/dmlc/xgboost)
+10. LightGBM from [https://github.com/Microsoft/lightgbm/](https://github.com/Microsoft/lightgbm/)
