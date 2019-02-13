@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--depth", type=int,
                         help="Maximum tree depth for base learners, -1 means no limit.", default=-1)
     parser.add_argument("-b", "--btype", type=str,
-                        help="Boosting type (default='gbdt'), 'rf', Random Forest, 'dart', Dropouts meet Multiple Additive Regression Trees, 'goss', Gradient-based One-Side Sampling.", default="gbdt")
+                        help="Boosting type: 'gbdt', traditional Gradient Boosting Decision Tree, 'rf', Random Forest, 'dart', Dropouts meet Multiple Additive Regression Trees, 'goss', Gradient-based One-Side Sampling.", default="gbdt")
     parser.add_argument("-k", "--kfolds", type=int,
                         help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-r", "--randomseed", type=int,
