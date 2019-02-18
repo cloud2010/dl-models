@@ -17,6 +17,7 @@ from __future__ import print_function
 import os
 import sys
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow.contrib import rnn
 from sklearn.model_selection import KFold
@@ -76,18 +77,18 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
 
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
-    enc = OneHotEncoder(sparse=True, dtype=np.int)
+    enc = OneHotEncoder(categories='auto', sparse=True, dtype=np.int)
     one_hot_mat = enc.fit(n_target.reshape(-1, 1))
-    print("\nClass Info:{0}\n".format(one_hot_mat.active_features_))
     new_target = one_hot_mat.transform(n_target.reshape(-1, 1)).toarray()
-
-    # 不同 Class 统计
-    for i in one_hot_mat.active_features_:
-        print("Sum of Class {0} : {1}".format(i, np.sum(n_target == i)))
 
     # 输出样本数
     print("Number of Samples: {0}, Length of sequence: {1}, Length of fragment: {2}, Group: {3}".format(
         nums_samples, seq_length, fragment, group))
+    # 不同 Class 统计
+    num_categories = np.unique(n_target).size
+    sum_y = np.asarray(np.unique(n_target.astype(int), return_counts=True))
+    df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
+    print('\n', df_sum_y)
 
     # tf Graph input
     X = tf.placeholder("float", [None, fragment, group])
@@ -109,7 +110,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     x = tf.unstack(X, fragment, 1)
 
     # Define a lstm cell with tensorflow
-    lstm_cell = rnn.BasicLSTMCell(h_units, forget_bias=1.0)
+    lstm_cell = tf.nn.rnn_cell.LSTMCell(h_units, forget_bias=1.0)
 
     # Get lstm cell output
     outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
@@ -119,8 +120,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
     prediction = tf.nn.softmax(logits)
 
     # Define loss and optimizer
-    loss_op = tf.reduce_mean(
-        tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
+    loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=Y))
     optimizer = tf.train.AdamOptimizer(learning_rate=l_rate)
     train_op = optimizer.minimize(loss_op)
 
@@ -175,7 +175,7 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             # One-hot 矩阵转换为原始分类矩阵
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
-            # print("\nTest dataset Index:\n", test_index)
+            print("\nTest dataset Index:\n", test_index)
             # print("\nActual Values:\n", argmax_test)
             # print("\nPredicted Values:\n", argmax_pred)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
@@ -190,5 +190,9 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             k_fold_step += 1
 
         # 模型评估结果输出
+        print("\nTest Values: '{0}-test.vals.out'".format(inputFile))
+        np.savetxt('{0}-test.vals.out'.format(inputFile), test_cache, fmt='%d', delimiter=',', header='Test Values without SMOTE')
+        print("\nPredicted Values: '{0}-test.pred.out'".format(inputFile))
+        np.savetxt('{0}-test.pred.out'.format(inputFile), pred_cache, fmt='%d', delimiter=',', header='Predicted Values without SMOTE')
         from .utils import model_evaluation
         model_evaluation(n_class, test_cache, pred_cache)

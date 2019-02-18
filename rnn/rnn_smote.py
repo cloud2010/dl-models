@@ -191,8 +191,8 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             argmax_test = np.argmax(batch_test_y, axis=1)
             argmax_pred = np.argmax(predVal, axis=1)
             print("\nTest dataset Index:\n", test_index)
-            print("\nActual Values:\n", argmax_test)
-            print("\nPredicted Values:\n", argmax_pred)
+            # print("\nActual Values:\n", argmax_test)
+            # print("\nPredicted Values:\n", argmax_pred)
             print("\nFold:", k_fold_step, "Test Accuracy:", "{:.6f}".format(
                 accTest), "Test Loss:", "{:.6f}".format(costTest), "Test Size (excluded fake samples):", batch_test_size)
             # 暂存每次选中的测试集和预测结果
@@ -204,5 +204,9 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             k_fold_step += 1
 
         # 原始真实数据进行模型评估
+        print("\nTest Values: '{0}-test.vals.out'".format(inputFile))
+        np.savetxt('{0}-test.vals.out'.format(inputFile), test_cache, fmt='%d', delimiter=',', header='Test Values with SMOTE')
+        print("\nPredicted Values: '{0}-test.pred.out'".format(inputFile))
+        np.savetxt('{0}-test.pred.out'.format(inputFile), pred_cache, fmt='%d', delimiter=',', header='Predicted Values with SMOTE')
         from .utils import model_evaluation
         model_evaluation(n_class, test_cache, pred_cache)
