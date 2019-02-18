@@ -6,7 +6,7 @@ based on decision tree algorithms, used for ranking, classification and many oth
 Project: `https://github.com/Microsoft/LightGBM`
 Date: 2019-02-13
 """
-import os
+# import os
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
@@ -76,7 +76,8 @@ if __name__ == "__main__":
         print("\nFold:", k_fold_step, "Test Accuracy:",
               "{:.6f}".format(accTest), "Test Size:", test_index.size)
         # eval
-        print('\nThe RMSE of test prediction is: {0:.6f}'.format(mean_squared_error(y[test_index], y_pred) ** 0.5))
+        print('\nThe RMSE of test prediction is: {0:.6f}'.format(
+            mean_squared_error(y[test_index], y_pred) ** 0.5))
         # feature importances
         # print('\nFeature importances:', list(clf.feature_importances_))
         # 暂存每次选中的测试集和预测结果
