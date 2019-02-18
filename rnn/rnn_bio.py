@@ -190,9 +190,11 @@ def run(inputFile, n_class, h_units, fragment, epochs, folds, l_rate, random_s=N
             k_fold_step += 1
 
         # 模型评估结果输出
-        print("\nTest Values: '{0}-test.vals.out'".format(inputFile))
-        np.savetxt('{0}-test.vals.out'.format(inputFile), test_cache, fmt='%d', delimiter=',', header='Test Values without SMOTE')
-        print("\nPredicted Values: '{0}-test.pred.out'".format(inputFile))
-        np.savetxt('{0}-test.pred.out'.format(inputFile), pred_cache, fmt='%d', delimiter=',', header='Predicted Values without SMOTE')
+        print("\nTest Values: '{0}-test.vals.csv'".format(inputFile))
+        np.savetxt('{0}-test.vals.csv'.format(inputFile), test_cache,
+                   fmt='%d', delimiter=',', header='Test Values without SMOTE')
+        print("\nPredicted Values: '{0}-test.pred.csv'".format(inputFile))
+        np.savetxt('{0}-test.pred.csv'.format(inputFile), pred_cache, fmt='%d',
+                   delimiter=',', header='Predicted Values without SMOTE')
         from .utils import model_evaluation
         model_evaluation(n_class, test_cache, pred_cache)

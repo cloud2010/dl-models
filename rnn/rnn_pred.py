@@ -161,11 +161,11 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
         # One-hot 矩阵转换为原始分类矩阵
         argmax_test = np.argmax(batch_test_y, axis=1)
         argmax_pred = np.argmax(predVal, axis=1)
-        print("\nTest Values: '{0}-test.vals.out'".format(testFile))
-        np.savetxt('{0}-test.vals.out'.format(testFile), argmax_test,
+        print("\nTest Values: '{0}-test.vals.csv'".format(testFile))
+        np.savetxt('{0}-test.vals.csv'.format(testFile), argmax_test,
                    fmt='%d', delimiter=',', header='Test Values')
-        print("\nPredicted Values: '{0}-test.pred.out'".format(testFile))
-        np.savetxt('{0}-test.pred.out'.format(testFile), argmax_pred,
+        print("\nPredicted Values: '{0}-test.pred.csv'".format(testFile))
+        np.savetxt('{0}-test.pred.csv'.format(testFile), argmax_pred,
                    fmt='%d', delimiter=',', header='Predicted Values')
         print("\nTest Accuracy:", "{:.6f}".format(accTest), "Test Loss:",
               "{:.6f}".format(costTest), "Test Size:", batch_test_size)
