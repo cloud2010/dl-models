@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-A Recurrent Neural Network (LSTM) with SMOTE implementation based on TensorFlow and sklearn-kit library.
+A Recurrent Neural Network (LSTM) based on TensorFlow and sklearn-kit library.
 Author: liumin@shmtu.edu.cn
-Date: 2019-01-31
+Date: 2019-02-17
 Tested under: Python3.6 / TensorFlow 1.10+ / Scikit-learn 0.20.0
 """
 import os
@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import OneHotEncoder  # One-hot matrix transform
-from imblearn.over_sampling import SMOTE
+# from imblearn.over_sampling import SMOTE
 
 # 避免输出TensorFlow未编译CPU指令集信息
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -45,7 +45,7 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
     # 分类矩阵为第一列数据
     y = df.iloc[:, 0].values
     # 特征矩阵为去第一列之后数据
-    X = df.iloc[:, 1:].values
+    X_train = df.iloc[:, 1:].values
     # 样本数
     nums_samples = y.size
     # 读取测试集数据
@@ -55,7 +55,7 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
     nums_t_samples = y_t.size
 
     # 整个序列长度(特征矩阵维度)
-    seq_length = X.shape[1]
+    seq_length = X_train.shape[1]
 
     # 如未设定隐藏层单元数则数目为整个序列长度
     if h_units == -1:
@@ -73,22 +73,12 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
 
-    # Apply SMOTE 生成 fake data
-    sm = SMOTE(k_neighbors=2)
-    x_resampled, y_resampled = sm.fit_sample(X, y)
-    # after over sampleing 读取分类信息并返回数量
-    np_resampled_y = np.asarray(np.unique(y_resampled, return_counts=True))
-    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['class', 'sum'], index=None)
-    print("\nNumber of training samples after over sampleing:\n{0}".format(df_resampled_y))
-
     # 转换原始分类矩阵为 One-hot Vector
     # reshape(-1, 1) 代表将 1行多列 转为 n行1列
     enc = OneHotEncoder(categories='auto', sparse=True, dtype=np.int)
     one_hot_mat = enc.fit(y.reshape(-1, 1))
     # print("\nClass Info:{0}\n".format(one_hot_mat.active_features_))
-    new_target = one_hot_mat.transform(y.reshape(-1, 1)).toarray()  # 真实数据
-    new_resampled_target = one_hot_mat.transform(
-        y_resampled.reshape(-1, 1)).toarray()  # 含 fake data
+    train_target = one_hot_mat.transform(y.reshape(-1, 1)).toarray()  # 真实数据
     test_target = one_hot_mat.transform(y_t.reshape(-1, 1)).toarray()  # 测试集 label 转换
 
     # tf Graph input
@@ -139,8 +129,8 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
         sess.run(init)
         # 开始训练集训练(含大量 fake data)
         for epoch in range(1, epochs + 1):
-            batch_x = x_resampled  # 特征数据用于训练
-            batch_y = new_resampled_target  # 标记结果用于验证
+            batch_x = X_train  # 特征数据用于训练
+            batch_y = train_target  # 标记结果用于验证
             batch_size = batch_x.shape[0]
             # Reshape data to get N seq of N elements
             batch_x = batch_x.reshape((batch_size, fragment, group))
@@ -173,10 +163,10 @@ def run(trainFile, testFile, h_units, fragment, epochs, l_rate, random_s):
         argmax_pred = np.argmax(predVal, axis=1)
         print("\nTest Values: '{0}-test.vals.out'".format(testFile))
         np.savetxt('{0}-test.vals.out'.format(testFile), argmax_test,
-                   fmt='%d', delimiter=',', header='Test Values with SMOTE')
+                   fmt='%d', delimiter=',', header='Test Values')
         print("\nPredicted Values: '{0}-test.pred.out'".format(testFile))
         np.savetxt('{0}-test.pred.out'.format(testFile), argmax_pred,
-                   fmt='%d', delimiter=',', header='Predicted Values with SMOTE')
+                   fmt='%d', delimiter=',', header='Predicted Values')
         print("\nTest Accuracy:", "{:.6f}".format(accTest), "Test Loss:",
               "{:.6f}".format(costTest), "Test Size:", batch_test_size)
         print("\n=========================================================================")
