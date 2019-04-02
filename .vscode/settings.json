@@ -18,7 +18,7 @@
   "python.formatting.autopep8Args": [
     "--max-line-length=100" //格式化单行最长文字数
   ],
-  "python.pythonPath": "/home/liumin/miniconda3/envs/dl/bin/python",
+  "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
   "python.terminal.activateEnvironment": false,
   "python.linting.pylintEnabled": true
