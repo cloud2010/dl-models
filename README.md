@@ -20,3 +20,4 @@
 8. thunderSVM from [https://github.com/Xtra-Computing/thundersvm](https://github.com/Xtra-Computing/thundersvm)
 9. XGBoost from [https://github.com/dmlc/xgboost](https://github.com/dmlc/xgboost)
 10. LightGBM from [https://github.com/Microsoft/lightgbm/](https://github.com/Microsoft/lightgbm/)
+11. graph2vec from [200~https://github.com/benedekrozemberczki/graph2vec](https://github.com/benedekrozemberczki/graph2vec)
