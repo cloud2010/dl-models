@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # after under sampleing 读取分类信息并返回数量
     np_resampled_y = np.asarray(np.unique(y_resampled.astype(int), return_counts=True))
     df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['Class', 'Sum'])
-    print("\nNumber of samples after under sampleing:\n{0}".format(df_resampled_y))
+    print("\nNumber of samples after under sampling:\n{0}".format(df_resampled_y))
     # 合并新的特征矩阵
     resampled_data = np.column_stack((y_resampled, x_resampled))
     resampled_df = pd.DataFrame(index=None, data=resampled_data, columns=df.columns.values)
