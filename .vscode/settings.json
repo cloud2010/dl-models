@@ -21,5 +21,6 @@
   "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
   "python.terminal.activateEnvironment": false,
-  "python.linting.pylintEnabled": true
+  "python.linting.pylintEnabled": true,
+  "terminal.integrated.windowsEnableConpty": true
 }
