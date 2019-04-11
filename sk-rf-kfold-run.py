@@ -56,11 +56,13 @@ if __name__ == "__main__":
     # 初始化 classifier
     # clf = lgb.LGBMClassifier(boosting_type=args.btype, n_estimators=args.ntrees,
     #                          max_depth=args.depth, random_state=args.randomseed)
-    clf = RandomForestClassifier(n_jobs=-1, n_estimators=args.ntrees, max_depth=args.mdepth)
+    clf = RandomForestClassifier(
+        n_jobs=-1, n_estimators=args.ntrees, max_depth=args.mdepth, random_state=args.randomseed)
     print("\nClassifier parameters:")
     print(clf.get_params())
     # 交叉验证
-    rs = KFold(n_splits=args.kfolds, shuffle=True, random_state=args.randomseed)
+    rs = KFold(n_splits=args.kfolds, shuffle=True,
+               random_state=args.randomseed)
     # 生成 k-fold 训练集、测试集索引
     cv_index_set = rs.split(y)
     k_fold_step = 1  # 初始化折数
