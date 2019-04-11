@@ -71,7 +71,7 @@ if __name__ == "__main__":
         print("\nFold:", k_fold_step)
         clf.fit(X[train_index], y[train_index])
         # 测试集验证
-        y_pred = clf.predict(X[test_index], num_iteration=clf.best_iteration_)
+        y_pred = clf.predict(X[test_index])
         # 计算测试集 ACC
         accTest = accuracy_score(y[test_index], y_pred)
         print("\nFold:", k_fold_step, "Test Accuracy:",
