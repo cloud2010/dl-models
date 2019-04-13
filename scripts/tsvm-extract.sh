@@ -21,7 +21,7 @@ do
     for i in `seq $1 $2`
     do
         # 提取信息追加到新文件
-        echo -n "f$i," >> $4
+        echo -n "f$i," >> seed-$j-$4
         # -n 配合p选项打印替换结果
         `sed -n s/$3\ =\ //p /home/train_logs/svm/seed-$j/f$i-train.log 1>>seed-$j-$4`
     done
