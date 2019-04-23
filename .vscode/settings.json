@@ -1,11 +1,11 @@
 // 将设置放入此文件中以覆盖默认值和用户设置。
 {
-  "editor.fontFamily": "'Hack', '冬青黑体简体中文', 'Courier New', monospace",
+  "editor.fontFamily": "'Fira Code Medium', '冬青黑体简体中文', 'Courier New', monospace",
   "editor.fontLigatures": true,
-  "editor.fontSize": 14,
-  "editor.lineHeight": 24,
+  "editor.fontSize": 15,
+  "editor.lineHeight": 26,
   "editor.fontWeight": "500",
-  "terminal.integrated.fontFamily": "'Hack'",
+  "terminal.integrated.fontFamily": "'Fira Code Medium'",
   "terminal.integrated.fontWeight": "500",
   "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
