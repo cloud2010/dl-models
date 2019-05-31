@@ -1,11 +1,11 @@
 // 将设置放入此文件中以覆盖默认值和用户设置。
 {
-  "editor.fontFamily": "'Fira Code Medium', '冬青黑体简体中文', 'Courier New', monospace",
+  "editor.fontFamily": "'Hack', '冬青黑体简体中文', 'Courier New', monospace",
   "editor.fontLigatures": true,
   "editor.fontSize": 15,
   "editor.lineHeight": 26,
   "editor.fontWeight": "500",
-  "terminal.integrated.fontFamily": "'Fira Code Medium'",
+  "terminal.integrated.fontFamily": "'Hack'",
   "terminal.integrated.fontWeight": "500",
   "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
@@ -13,10 +13,10 @@
     "--ignore=E501" //忽略pep8 E501错误
   ],
   "python.linting.pylintArgs": [
-    "--max-line-length=100" //单行最长文字数
+    "--max-line-length=120" //单行最长文字数
   ],
   "python.formatting.autopep8Args": [
-    "--max-line-length=100" //格式化单行最长文字数
+    "--max-line-length=120" //格式化单行最长文字数
   ],
   "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
