@@ -50,9 +50,11 @@ class BiRNN(nn.Module):
 def init_model(m):
     """Model weights and bias initialization.
     """
-    if type(m) == nn.LSTM:
-        nn.init.xavier_uniform_(m.weight)
-        m.bias.data.fill_(0)
+    # if type(m) == nn.Linear:
+    #     nn.init.xavier_uniform_(m.weight)
+    #     m.bias.data.fill_(0)
+    for params in m.parameters():
+        nn.init.normal_(params)
 
 
 def run(input_file, h_units, s_length, n_layers, l_rate, epochs, folds, random_s):
@@ -122,7 +124,7 @@ def run(input_file, h_units, s_length, n_layers, l_rate, epochs, folds, random_s
         # Start Training
         for epoch in range(epochs):
             x_train = X_t[train_index].reshape(-1, s_length, f_size).to(device)
-            
+
             # Forward pass
             outputs = model(x_train)
             _, pred = outputs.max(1)
@@ -134,7 +136,7 @@ def run(input_file, h_units, s_length, n_layers, l_rate, epochs, folds, random_s
             loss.backward()
             optimizer.step()
 
-            if (epoch + 1) % 10 == 0:
+            if (epoch + 1) % 5 == 0:
                 print('Epoch [{}/{}], Train size: {}, Acc: {:.4%}, Loss: {:.6f}'.format(
                     epoch + 1, epochs, train_index.size, correct / train_index.size, loss.item()))
 
