@@ -48,13 +48,17 @@ class BiRNN(nn.Module):
 
 
 def init_model(m):
-    """Model weights and bias initialization.
+    """Bi-RNN Model weights and bias initialization.
     """
     # if type(m) == nn.Linear:
     #     nn.init.xavier_uniform_(m.weight)
     #     m.bias.data.fill_(0)
-    for params in m.parameters():
-        nn.init.normal_(params)
+    for name, params in m.named_parameters():
+        # print(name)
+        if 'weight_ih' in name:
+            torch.nn.init.xavier_uniform_(params.data)
+        elif 'weight_hh' in name:
+            torch.nn.init.orthogonal_(params.data)
 
 
 def run(input_file, h_units, s_length, n_layers, l_rate, epochs, folds, random_s):
