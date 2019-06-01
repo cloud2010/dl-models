@@ -55,9 +55,9 @@ def init_model(m):
     #     m.bias.data.fill_(0)
     for name, params in m.named_parameters():
         # print(name)
-        if 'weight_ih' in name:
+        if 'weight_ih' in name: # the learnable input-hidden weights of the K^th layer
             torch.nn.init.xavier_uniform_(params.data)
-        elif 'weight_hh' in name:
+        elif 'weight_hh' in name: # the learnable hidden-hidden weights of K^th layer
             torch.nn.init.orthogonal_(params.data)
 
 
