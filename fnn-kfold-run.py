@@ -19,6 +19,8 @@ if __name__ == "__main__":
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-u", "--nunits", type=int,
                         help="Number of hidden layer units.", default=1024)
+    parser.add_argument("-n", "--nlayers", type=int,
+                        help="Number of hidden layer.", default=3)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=100)
     parser.add_argument("-k", "--kfolds", type=int,
@@ -47,7 +49,7 @@ if __name__ == "__main__":
 
     # 执行 FNN 训练模型并验证
     from nn.fnn import run
-    run(args.datapath, args.nunits, args.epochs, args.kfolds,
+    run(args.datapath, args.nunits, args.nlayers, args.epochs, args.kfolds,
         args.learningrate, args.dropout, args.weight, args.randomseed)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(

@@ -17,43 +17,35 @@ from sklearn.metrics import accuracy_score  # 计算 ACC
 from .utils import model_evaluation, bi_model_evaluation
 
 
-class FNNs(nn.Module):
-    """Fully connected neural network with 2 hidden layer and ReLU activation
+# 动态构建 FNN
+class FNNs(nn.Sequential):
+    """Fully connected neural network with n hidden layers and ReLU activation
 
     Args:
         input_size: size of each input sample
         hidden_size: size of hidden layer units
+        dropout_rate: hidden layer dropout rate
+        n_layers: number os hidden layers
         num_classes: size of each output sample
-        dropout_rate: Hidden layer dropout rate
     """
 
-    def __init__(self, input_size, hidden_size, dropout_rate, num_classes):
+    def __init__(self, input_size, hidden_size, dropout_rate, n_layers, num_classes):
         super(FNNs, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        # Alpha Dropout is a type of Dropout that maintains the self-normalizing property.
-        # Ref: `https://pytorch.org/docs/stable/nn.html?highlight=dropout#torch.nn.AlphaDropout`
-        self.dp1 = nn.Dropout(dropout_rate)
-        self.selu1 = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.dp2 = nn.Dropout(dropout_rate)
-        self.selu2 = nn.ReLU()
-        self.fc3 = nn.Linear(hidden_size, hidden_size)
-        self.dp3 = nn.Dropout(dropout_rate)
-        self.selu3 = nn.ReLU()
-        self.output = nn.Linear(hidden_size, num_classes)
+        # 添加输入层
+        self.add_module('fc', nn.Linear(input_size, hidden_size))
+        self.add_module('fc_relu', nn.ReLU())
+        self.add_module('fc_dp', nn.Dropout(dropout_rate))
+        # 动态添加隐藏层
+        for i in range(1, n_layers+1):
+            self.add_module('hidden{0}'.format(
+                i), nn.Linear(hidden_size, hidden_size))
+            self.add_module('relu{0}'.format(i), nn.ReLU())
+            self.add_module('dp{0}'.format(i), nn.Dropout(dropout_rate))
+        # 添加全连接层
+        self.add_module('output', nn.Linear(hidden_size, num_classes))
 
     def forward(self, x):
-        out = self.fc1(x)
-        out = self.dp1(out)
-        out = self.selu1(out)
-        out = self.fc2(out)
-        out = self.dp2(out)
-        out = self.selu2(out)
-        out = self.fc3(out)
-        out = self.dp3(out)
-        out = self.selu3(out)
-        out = self.output(out)
-        return out
+        return super().forward(x).squeeze()
 
 
 def init_model(m):
@@ -64,12 +56,13 @@ def init_model(m):
         m.bias.data.fill_(0)
 
 
-def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
+def run(inputFile, h_units, num_layers, epochs, folds, l_rate, d_rate, w_rate, random_s):
     """Model 训练主程序
     参数
     ----
     inputFile: 训练集文件路径
     h_units: 隐藏层单元数
+    num_layers: 隐藏层数量
     epochs: 每个fold的训练次数
     folds: k-fold折数
     l_rate: Learning rate
@@ -109,8 +102,8 @@ def run(inputFile, h_units, epochs, folds, l_rate, d_rate, w_rate, random_s):
     X_t = torch.from_numpy(X).float().to(device)
     y_t = torch.from_numpy(y).long().to(device)
 
-    # Create FNN Neural Net (Depth: 2)
-    model = FNNs(f_size, h_units, d_rate, num_categories).to(device)
+    # Create FNN Neural Net
+    model = FNNs(f_size, h_units, d_rate, num_layers, num_categories).to(device)
     print("\nModel Parameters:", model)
 
     # Loss and optimizer
