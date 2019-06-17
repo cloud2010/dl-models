@@ -15,6 +15,8 @@ if __name__ == "__main__":
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', '--randomseed', type=int,
                         help='The seed of the pseudo random number generator used when shuffling the data for probability estimates.', default=0)
+    parser.add_argument('-n', '--nestimators', type=int,
+                        help='The number of base estimators (rules) to use for prediction. More are built before selection.', default=10)
     parser.add_argument('--datapath', type=str, help='The path of dataset.', required=True)
 
     args = parser.parse_args()
@@ -22,14 +24,15 @@ if __name__ == "__main__":
     # 导入相关库
     import numpy as np
     import pandas as pd
-    from sklearn import tree
-    from sklearn.tree import DecisionTreeClassifier
+    # from sklearn import tree
+    # from sklearn.tree import DecisionTreeClassifier
+    from skrules import SkopeRules
 
     # 读取数据
     df = pd.read_csv(args.datapath)
     # 设定分类信息和特征矩阵
     X = df.iloc[:, 1:].values
-    y = df.iloc[:, 0].values
+    y = df.iloc[:, 0].values - 1
     f_names = df.columns[1:].values
     # 不同 Class 统计 (根据 Target 列)
     print('\nDataset shape: ', X.shape, ' Number of features: ', X.shape[1])
@@ -39,15 +42,16 @@ if __name__ == "__main__":
     print('\n', df_sum_y)
 
     # 初始化 classifier 并完成数据集训练
-    clf = DecisionTreeClassifier().fit(X, y)
-    print('\nClassifier parameters:')
-    print(clf.get_params())
+    clf = SkopeRules(n_jobs=-1, n_estimators=args.nestimators, feature_names=f_names).fit(X, y)
+    # print('\nClassifier parameters:')
+    # print(clf.get_params())
 
     # 输出分类规则
-    r = tree.export_text(clf, feature_names=f_names.tolist())
-    print('\nBuild a text report showing the rules of the classifier:\n')
-    print(r)
-
+    # r = tree.export_text(clf, feature_names=f_names.tolist())
+    print('\nThe most precise rules are the following:\n')
+    for rule in clf.rules_:
+        print(rule[0])
+    print('\nThe number of generated rules: ', len(clf.rules_))
     end_time = time.time()  # 程序结束时间
-    print('\n[Finished in: {0:.6f} mins = {1:.6f} seconds]'.format(
+    print('\n[Finished in: {0:.6f} mins = {1:.6f} seconds]\n'.format(
         ((end_time - start_time) / 60), (end_time - start_time)))
