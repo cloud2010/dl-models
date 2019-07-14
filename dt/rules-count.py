@@ -85,9 +85,12 @@ if __name__ == "__main__":
     d_uniques, d_idxs, d_counts, = np.unique(d_paths, axis=0, return_counts=True, return_index=True)
     # 规则打印
     print('\nThe most precise rules are the following:')
-    i = 0
-    for rule in d_uniques:
-        print("\nRules_{0}, Counts:{1}".format(i, d_counts[i]))
+    # i = 0
+    # for rule in d_uniques:
+    for i in range(len(d_uniques)):
+        count_max_idx = np.argmax(d_counts)
+        rule = d_uniques[count_max_idx]  # 获取通过次数最多的路径
+        print("\nRules_{0}, passed counts:{1}".format(i, d_counts.max()))
         for node_id in range(len(rule)):
             if rule[node_id] == 1 and threshold[node_id] != -2:
                 if rule[node_id+1] == 0:
@@ -102,7 +105,9 @@ if __name__ == "__main__":
                     threshold[node_id]))
             if rule[node_id] == 1 and threshold[node_id] == -2:
                 print('Class:', np.argmax(clf.tree_.value[node_id]))
-        i = i+1
+        d_counts = np.delete(d_counts, count_max_idx, 0)  # 剔除刚刚最大值元素
+        d_uniques = np.delete(d_uniques, count_max_idx, 0)
+        # i = i+1
 
     # Similarly, we can also have the leaves ids reached by each sample.
 
