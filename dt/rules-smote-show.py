@@ -20,10 +20,12 @@ __author__ = 'Min'
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description='This program is show how to predict sample by rules generated from `DecisionTreeClassifier` with SMOTE.',
-                            formatter_class=ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParser(
+        description='This program is show how to predict sample by rules generated from `DecisionTreeClassifier` with SMOTE.',
+        formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-r', '--randomseed', type=int,
-                        help='The seed of the pseudo random number generator used when shuffling the data for probability estimates.', default=0)
+                        help='The seed of the pseudo random number generator used when shuffling the data for probability estimates.',
+                        default=0)
     parser.add_argument('--datapath', type=str, help='The path of dataset.', required=True)
     parser.add_argument('--testpath', type=str, help='The path of test dataset.', required=True)
 
@@ -33,7 +35,6 @@ if __name__ == "__main__":
     import numpy as np
     import pandas as pd
     from imblearn.over_sampling import SMOTE
-    from sklearn.metrics import accuracy_score, matthews_corrcoef
     from sklearn.tree import DecisionTreeClassifier
 
     # 读取数据
@@ -161,16 +162,15 @@ if __name__ == "__main__":
         print('Predicted class: %s' % pred_vals[sample_id])
         print('Correct class: %s' % y_test[sample_id])
 
-    print('\nTest ACC: %.6f' % accuracy_score(y_test, pred_vals))
-    print('\nTest MCC: %.6f' % matthews_corrcoef(y_test, pred_vals))
+    # print('\nTest ACC: %.6f' % accuracy_score(y_test, pred_vals))
+    # print('\nTest MCC: %.6f' % matthews_corrcoef(y_test, pred_vals))
 
-    # For a group of samples, we have the following common node.
-    # sample_ids = [0, 1, 2, 3]
-    # common_nodes = (node_indicator.toarray()[sample_ids].sum(axis=0) == len(sample_ids))
-    # common_node_id = np.arange(n_nodes)[common_nodes]
-    # print("\nThe following samples %s share the node %s in the tree" % (sample_ids, common_node_id))
-    # print("It is %s %% of all nodes." % (100 * len(common_node_id) / n_nodes,))
+    from utils import bi_model_evaluation, model_evaluation
 
+    if (num_categories > 2):
+        model_evaluation(num_categories, y_test, pred_vals)
+    else:
+        bi_model_evaluation(y_test, pred_vals)
     end_time = time.time()  # 程序结束时间
     print('\n[Finished in: {0:.6f} mins = {1:.6f} seconds]\n'.format(
         ((end_time - start_time) / 60), (end_time - start_time)))
