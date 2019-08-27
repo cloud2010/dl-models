@@ -18,9 +18,11 @@ if __name__ == "__main__":
     # 生成对应长度的序列
     x = np.arange(1, args.num+1)
     # k 行 num 列
-    x_tmp = np.empty((args.k, args.num))
+    # x_tmp = np.empty((args.k, args.num))
     # df = pd.DataFrame()
     for i in range(args.k):
-        x_tmp[i] = shuffle(x, random_state=i)
-    df = pd.DataFrame(data=x_tmp, index=None, columns=None)
-    df.to_csv('shuffled_num{0}_k{1}.csv'.format(args.num, args.k), index=False, header=False)
+        # x_tmp[i] = shuffle(x, random_state=i)
+        df_tmp = pd.DataFrame(data=shuffle(x, random_state=i).tolist(), dtype=np.int)
+        df_tmp.T.to_csv('shuffled_num{0}_k{1}.csv'.format(args.num, i+1), index=False, header=False)
+    # df = pd.DataFrame(data=x_tmp, index=None, columns=None)
+    # df.to_csv('shuffled_num{0}_k{1}.csv'.format(args.num, args.k), index=False, header=False)
