@@ -5,13 +5,13 @@ Author: liumin@shmtu.edu.cn
 Reference: `https://scikit-learn.org/stable/modules/unsupervised_reduction.html`
 Date: 2019-09-22
 """
+import argparse
+import os
+import time
+
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-import os
-import argparse
-import time
-
 
 if __name__ == "__main__":
 
