@@ -22,5 +22,6 @@
   "workbench.iconTheme": "vscode-icons",
   "python.terminal.activateEnvironment": false,
   "python.linting.pylintEnabled": true,
-  "terminal.integrated.windowsEnableConpty": true
+  "terminal.integrated.windowsEnableConpty": true,
+  "terminal.integrated.inheritEnv": false
 }
