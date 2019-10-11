@@ -9,7 +9,7 @@
   "terminal.integrated.fontWeight": "500",
   "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
-  "python.linting.pep8Args": [
+  "python.linting.pycodestyleArgs": [
     "--ignore=E501" //忽略pep8 E501错误
   ],
   "python.linting.pylintArgs": [
