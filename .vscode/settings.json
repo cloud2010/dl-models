@@ -9,15 +9,6 @@
   "terminal.integrated.fontWeight": "500",
   "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
-  "python.linting.pycodestyleArgs": [
-    "--ignore=E501" //忽略pep8 E501错误
-  ],
-  "python.linting.pylintArgs": [
-    "--max-line-length=120" //单行最长文字数
-  ],
-  "python.formatting.autopep8Args": [
-    "--max-line-length=120" //格式化单行最长文字数
-  ],
   "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
   "python.terminal.activateEnvironment": false,
