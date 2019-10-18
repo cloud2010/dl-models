@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print('\n', df_sum_y)
 
     # Apply SMOTE 生成 fake data
-    sm = SMOTE(k_neighbors=2)
+    sm = SMOTE(k_neighbors=3)
     x_resampled, y_resampled = sm.fit_sample(X, y)
     # after over sampleing 读取分类信息并返回数量
     np_resampled_y = np.asarray(np.unique(y_resampled, return_counts=True))
@@ -78,23 +78,23 @@ if __name__ == "__main__":
         batch_size = train_index.shape[0]
         clf.fit(batch_x, batch_y)
         # 验证测试集 (通过 index 去除 fake data)
-        real_test_index = test_index[test_index < num_samples]
+        real_test_index = test_index[test_index < X.shape[0]]
         batch_test_x = x_resampled[real_test_index]
         batch_test_y = y_resampled[real_test_index]
         batch_test_size = len(real_test_index)
         # 测试集验证
         y_pred = clf.predict(batch_test_x)
         # 计算测试集 ACC
-        accTest = accuracy_score(y[test_index], y_pred)
+        accTest = accuracy_score(batch_test_y, y_pred)
         print("\nFold:", k_fold_step, "Test Accuracy:",
-              "{:.6f}".format(accTest), "Test Size:", test_index.size)
+              "{:.6f}".format(accTest), "Test Size:", batch_test_size)
         # eval
         print('\nThe RMSE of test prediction is: {0:.6f}'.format(
-            mean_squared_error(y[test_index], y_pred) ** 0.5))
+            mean_squared_error(batch_test_y, y_pred) ** 0.5))
         # feature importances
         # print('\nFeature importances:', list(clf.feature_importances_))
         # 暂存每次选中的测试集和预测结果
-        test_cache = np.concatenate((test_cache, y[test_index]))
+        test_cache = np.concatenate((test_cache, batch_test_y))
         pred_cache = np.concatenate((pred_cache, y_pred))
         print("\n=========================================================================")
         # 每个fold训练结束后次数 +1
