@@ -7,7 +7,7 @@
   "editor.fontWeight": "500",
   "terminal.integrated.fontFamily": "'Cascadia Code PL'",
   "terminal.integrated.fontWeight": "500",
-  "terminal.integrated.rendererType": "auto",
+  "terminal.integrated.rendererType": "experimentalWebgl",
   "code-runner.clearPreviousOutput": true,
   "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
