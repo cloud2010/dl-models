@@ -50,7 +50,7 @@ if __name__ == "__main__":
     f_idxs = np.argsort(selector.ranking_)
     # 获取对应的特征名称
     # 构建新的列名称向量
-    new_f_name = np.insert(f_name[f_idxs[0:]], 0, 'class')
+    new_f_name = np.insert(f_name[f_idxs[0:]], 0, df.columns[0])
     # pandas 根据特征名称重新排序训练集
     new_df = df[new_f_name]
     # 输出特征排序后结果
