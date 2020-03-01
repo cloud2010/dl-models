@@ -110,7 +110,7 @@ if __name__ == "__main__":
                     f_names[feature[node_id]],
                     threshold_sign,
                     threshold[node_id]))
-            if rule[node_id] == 1 and threshold[node_id] == -2:s
+            if rule[node_id] == 1 and threshold[node_id] == -2:
                 print('Class:', np.argmax(clf.tree_.value[node_id]))
         d_counts = np.delete(d_counts, count_max_idx, 0)  # 剔除刚刚最大值元素
         d_uniques = np.delete(d_uniques, count_max_idx, 0)
