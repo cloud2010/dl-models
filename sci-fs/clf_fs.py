@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # 导出评估指标数据到 CSV
     header_names = ['{0}_{1}'.format(i, args.classifier) for i in ['acc', 'mcc', 'f1', 'acc_{0}'.format(
         args.feature), 'mcc_{0}'.format(args.feature), 'f1_{0}'.format(args.feature)]]
-    df_fs = pd.DataFrame(data=list(zip(mcc_clf_fs, acc_clf_fs, f1_clf_fs, mcc_clf, acc_clf, f1_clf)),
+    df_fs = pd.DataFrame(data=list(zip(acc_clf, mcc_clf, f1_clf, acc_clf_fs, mcc_clf_fs, f1_clf_fs)),
                          columns=header_names)
     df_fs.to_csv('{0}_{1}.csv'.format(args.classifier, args.feature))
 
