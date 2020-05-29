@@ -4,8 +4,8 @@
 
 if [ $# -eq 0 ]; then
     # datasets=10
-    echo "Usage : $0 [datasets]"
-    echo "Example : $0 train_datasets.csv"
+    echo "Usage : $0 [datasets] [feature_selection_method]"
+    echo "Example : $0 train_datasets.csv f_classif[chi2, mutual_info_classif]"
     exit 1
 fi
 
@@ -16,7 +16,7 @@ start=$(date +%s)
 conda activate dl
 
 for method in xgb lgb rf ext gdbt svm; do
-    $(python clf_fs.py --datapath $1 -c $method)
+    $(python clf_fs.py --datapath $1 -c $method -f $2)
     echo "Datasets $1 was trained using the $method algorithm at $(date)"
 done
 
