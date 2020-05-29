@@ -16,7 +16,7 @@ start=$(date +%s)
 # conda activate dl
 
 for method in xgb lgb rf ext gdbt svm; do
-    $(python clf_fs.py --datapath $1 -c $method -f $2)
+    python clf_fs.py --datapath $1 -c $method -f $2
     echo "Datasets $1 was trained using the $method algorithm at $(date)"
 done
 
