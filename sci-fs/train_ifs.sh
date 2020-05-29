@@ -13,7 +13,7 @@ fi
 start=$(date +%s)
 
 # 激活python环境
-conda activate dl
+# conda activate dl
 
 for method in xgb lgb rf ext gdbt svm; do
     $(python clf_fs.py --datapath $1 -c $method -f $2)
