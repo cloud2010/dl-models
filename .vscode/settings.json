@@ -13,5 +13,7 @@
   "workbench.iconTheme": "vscode-icons",
   "python.terminal.activateEnvironment": false,
   "python.linting.pylintEnabled": true,
-  "terminal.integrated.windowsEnableConpty": true
+  "terminal.integrated.windowsEnableConpty": true,
+  "python.dataScience.jupyterServerURI": "https://bio-138:8888/",
+  "python.dataScience.allowUnauthorizedRemoteConnection": true
 }
