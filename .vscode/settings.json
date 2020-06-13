@@ -15,6 +15,6 @@
   "python.terminal.activateEnvironment": false,
   "python.linting.pylintEnabled": true,
   "terminal.integrated.windowsEnableConpty": true,
-  "python.dataScience.jupyterServerURI": "https://bio-138:8888/",
+  "python.dataScience.jupyterServerURI": "http://10.10.14.193:8888/",
   "python.dataScience.allowUnauthorizedRemoteConnection": true
 }
