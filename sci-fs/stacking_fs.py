@@ -43,7 +43,7 @@ if __name__ == "__main__":
     df = pd.read_csv(args.datapath)
     # 设定分类信息和特征矩阵
     X = df.iloc[:, 1:].values
-    y = df.iloc[:, 1:].values
+    y = df.iloc[:, 0].values
     # y = df.iloc[:, 0].map(lambda x: x if x == 1 else 0)  # 调整正负样本标注(1正样本/0负样本)
     f_names = df.columns[1:].values
     # 不同 Class 统计 (根据 Target 列)
