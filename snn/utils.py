@@ -12,7 +12,7 @@ __author__ = "Min"
 
 
 def matthews_corrcoef(c_matrix):
-    """多分类问题MCC计算
+    r"""多分类问题MCC计算
 
     MCC = cov(X, Y) / sqrt(cov(X, X)*cov(Y, Y))
     Ref: http://scikit-learn.org/stable/modules/model_evaluation.html
@@ -59,7 +59,7 @@ def matthews_corrcoef(c_matrix):
 
 
 def model_evaluation(num_classes, y_true, y_pred):
-    """每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
+    r"""每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
 
     Args:
     num_classes : 分类数
@@ -95,7 +95,7 @@ def model_evaluation(num_classes, y_true, y_pred):
 
 
 def bi_model_evaluation(y_true, y_pred):
-    """二分类问题每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
+    r"""二分类问题每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
 
     Args:
     num_classes : 分类数
@@ -128,7 +128,7 @@ def bi_model_evaluation(y_true, y_pred):
 
 
 def get_timestamp(fmt='%Y/%m/%d %H:%M:%S'):
-    '''Returns a string that contains the current date and time.
+    r'''Returns a string that contains the current date and time.
 
     Suggested formats:
         short_format=%y%m%d-%H%M
