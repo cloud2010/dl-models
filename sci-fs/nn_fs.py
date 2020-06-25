@@ -139,7 +139,7 @@ if __name__ == "__main__":
             # 每个fold之初进行参数初始化
             model.apply(init_model)
             # Start Training
-            for epoch in trange(args.epochs):
+            for epoch in range(args.epochs):
                 # Forward pass
                 outputs = model(X_t[train_index])
                 _, pred = outputs.max(1)
