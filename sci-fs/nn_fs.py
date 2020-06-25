@@ -180,8 +180,8 @@ if __name__ == "__main__":
         # print('F{0} => ACC={1:.4f}, MCC={2:.4f}'.format(ifs_i, acc_cache, mcc_cache))
 
     # 测试输出正确性
-    # print('\nMCC Max before FS:', np.argmax(mcc_clf), np.max(mcc_clf))
-    print('\nMCC Max after FS:', np.argmax(mcc_cache), np.max(mcc_cache))
+    print('\nACC Max after FS:', np.argmax(acc_nn_ifs), np.max(acc_nn_ifs))
+    print('\nMCC Max after FS:', np.argmax(mcc_nn_ifs), np.max(mcc_nn_ifs))
 
     # 导出评估指标数据到 CSV
     df_fs = pd.DataFrame(data=list(zip(acc_nn_ifs, mcc_nn_ifs)), columns=[
