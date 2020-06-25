@@ -6,7 +6,7 @@ Date: 2020-06-23
 import os
 import sys
 import time
-from tqdm import tqdm, tgrange
+from tqdm import tqdm, trange
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 __author__ = 'Min'
@@ -82,16 +82,16 @@ if __name__ == "__main__":
 
     # 特征排序前的增量特征预测，根据名称调用字典中指定分类器
     y_pred_list = [cross_val_predict(
-        clf, X[:, 0:i+1], y, cv=args.kfolds, n_jobs=-1) for i in tgrange(0, X.shape[1])]
+        clf, X[:, 0:i+1], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
 
     # 特征排序前的评估指标
     mcc_clf = [matthews_corrcoef(y, y_pred_list[i])
-               for i in tgrange(0, X.shape[1])]
+               for i in trange(0, X.shape[1])]
     acc_clf = [accuracy_score(y, y_pred_list[i])
-               for i in tgrange(0, X.shape[1])]
+               for i in trange(0, X.shape[1])]
     # 计算 precision, recall, F-measure 三个指标
     recall_pre_f1_clf = [precision_recall_fscore_support(
-        y, y_pred_list[i], average='binary') for i in tgrange(0, X.shape[1])]
+        y, y_pred_list[i], average='binary') for i in trange(0, X.shape[1])]
 
     # 特征排序，根据函数名，获得相应算法函数对象
     fs = getattr(sys.modules[__name__], args.feature)
@@ -104,15 +104,15 @@ if __name__ == "__main__":
 
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
-        clf, X[:, fs_idxs[0:i+1]], y, cv=args.kfolds, n_jobs=-1) for i in tgrange(0, X.shape[1])]
+        clf, X[:, fs_idxs[0:i+1]], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
 
     # 特征排序后的评估指标
     mcc_clf_fs = [matthews_corrcoef(y, y_pred_list_fs[i])
-                  for i in tgrange(0, X.shape[1])]
+                  for i in trange(0, X.shape[1])]
     acc_clf_fs = [accuracy_score(y, y_pred_list_fs[i])
-                  for i in tgrange(0, X.shape[1])]
+                  for i in trange(0, X.shape[1])]
     recall_pre_f1_clf_fs = [precision_recall_fscore_support(
-        y, y_pred_list_fs[i], average='binary') for i in tgrange(0, X.shape[1])]
+        y, y_pred_list_fs[i], average='binary') for i in trange(0, X.shape[1])]
 
     # 测试输出正确性
     print('\nMCC Max before FS:', np.argmax(mcc_clf), np.max(mcc_clf))

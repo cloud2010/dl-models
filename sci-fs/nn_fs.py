@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # 导入相关库
     import numpy as np
     import pandas as pd
-    from tqdm import tqdm
+    from tqdm import tqdm, trange
     from sklearn.model_selection import KFold
     from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
     from sklearn.metrics import accuracy_score, matthews_corrcoef, precision_recall_fscore_support
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     f1_nn_ifs = []
     print('Starting cross validating...\n')
     # 神经网络 IFS 曲线
-    for ifs_i in tqdm(range(0, X.shape[1])):
+    for ifs_i in trange(0, X.shape[1]):
         # 根据输入特征维度动态建立神经网络模型
         model = NNs(ifs_i+1, args.nunits, args.dropout, 2).to(device)
         # Loss and optimizer
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             # 每个fold之初进行参数初始化
             model.apply(init_model)
             # Start Training
-            for epoch in range(args.epochs):
+            for epoch in trange(args.epochs):
                 # Forward pass
                 outputs = model(X_t[train_index])
                 _, pred = outputs.max(1)
