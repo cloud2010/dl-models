@@ -79,7 +79,8 @@ if __name__ == "__main__":
     #     'ext': ExtraTreesClassifier(n_estimators=100, n_jobs=-1, random_state=args.randomseed),
     #     'svm': SVC(kernel='sigmoid', random_state=args.randomseed)
     # }
-
+    print('\nClassifier parameters:', clf)
+    print('\nStarting cross validating without feature selection...\n')
     # 特征排序前的增量特征预测，根据名称调用字典中指定分类器
     y_pred_list = [cross_val_predict(
         clf, X[:, 0:i+1], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
@@ -101,7 +102,8 @@ if __name__ == "__main__":
 
     # 降序排列特征权重
     fs_idxs = np.argsort(-model_fs.scores_)
-
+    
+    print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
         clf, X[:, fs_idxs[0:i+1]], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]

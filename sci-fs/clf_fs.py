@@ -66,6 +66,10 @@ if __name__ == "__main__":
         'svm': SVC(kernel='sigmoid', random_state=args.randomseed)
     }
 
+    print('\nClassifier parameters:', clf[args.classifier])
+
+    print('\nStarting cross validating without feature selection...\n')
+
     # 特征排序前的增量特征预测，根据名称调用字典中指定分类器
     y_pred_list = [cross_val_predict(
         clf[args.classifier], X[:, 0:i+1], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
@@ -75,7 +79,8 @@ if __name__ == "__main__":
     # 特征排序前的评估指标
     mcc_clf = [matthews_corrcoef(y, y_pred_list[i])
                for i in trange(0, X.shape[1])]
-    acc_clf = [accuracy_score(y, y_pred_list[i]) for i in trange(0, X.shape[1])]
+    acc_clf = [accuracy_score(y, y_pred_list[i])
+               for i in trange(0, X.shape[1])]
     # 计算 precision, recall, F-measure 三个指标
     recall_pre_f1_clf = [precision_recall_fscore_support(
         y, y_pred_list[i], average='binary') for i in trange(0, X.shape[1])]
@@ -89,6 +94,7 @@ if __name__ == "__main__":
     # 降序排列特征权重
     fs_idxs = np.argsort(-model_fs.scores_)
 
+    print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
         clf[args.classifier], X[:, fs_idxs[0:i+1]], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
