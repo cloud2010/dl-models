@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     # 降序排列特征权重
     fs_idxs = np.argsort(-model_fs.scores_)
-    
+
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
@@ -136,7 +136,8 @@ if __name__ == "__main__":
     # filepath = args.datapath.split('/')[-1].split('.')[0]
 
     # 写入 CSV
-    df_fs.to_csv('{0}_{1}_{2}.csv'.format('stacking', args.feature, filepath))
+    df_fs.to_csv('{0}_{1}_{2}.csv'.format(
+        'stacking', args.feature, filepath), index_label='feature')
 
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(

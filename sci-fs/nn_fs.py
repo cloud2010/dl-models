@@ -193,7 +193,8 @@ if __name__ == "__main__":
     # 提取文件名
     filepath = os.path.basename(args.datapath).split('.')[0]
     # 写入 CSV
-    df_fs.to_csv('{0}_{1}_{2}.csv'.format('nn', args.feature, filepath))
+    df_fs.to_csv('{0}_{1}_{2}.csv'.format(
+        'nn', args.feature, filepath), index_label='feature')
 
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(

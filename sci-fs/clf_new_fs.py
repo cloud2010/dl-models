@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-The classifier integrates the feature sorting algorithm based on scikit-learn for prediction.
-Date: 2020-05-28
+The classifier integrates new feature select algorithm based on scikit-learn for classification.
+Date: 2020-06-29
 """
 import os
 import sys
@@ -14,19 +14,19 @@ __author__ = 'Min'
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="The classifier integrates the feature sorting algorithm based on scikit-learn for prediction.",
+    parser = ArgumentParser(description="The classifier integrates new feature select algorithm based on scikit-learn for classification.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-k", "--kfolds", type=int,
                         help="Number of folds. Must be at least 2.", default=10)
     parser.add_argument("-r", "--randomseed", type=int,
-                        help="pseudo-random number generator state used for shuffling.", default=0)
+                        help="pseudo-random number generator state used for shuffling.", default=88)
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("-c", "--classifier", type=str,
                         help="The classifier.(lgb, xgb, rf, gdbt, ext, svm)", default="lgb")
     parser.add_argument("-f", "--feature", type=str,
-                        help="The feature selection algorithm.(f_classif, chi2, mutual_info_classif)", default="f_classif")
+                        help="The feature selection algorithm.(ReliefF, SURF, SURFstar)", default="SURF")
 
     args = parser.parse_args()
     # logdir_base = os.getcwd()  # 获取当前目录
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     from sklearn.svm import SVC
     from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
     from sklearn.model_selection import cross_val_predict
-    from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
     from sklearn.metrics import accuracy_score, matthews_corrcoef, f1_score, precision_recall_fscore_support
+    from skrebate import ReliefF, TuRF, SURF, SURFstar
 
     # 读取数据
     df = pd.read_csv(args.datapath)
@@ -66,6 +66,14 @@ if __name__ == "__main__":
         'svm': SVC(kernel='sigmoid', random_state=args.randomseed)
     }
 
+    # 初始化 fs 字典
+    fs = {
+        'ReliefF': ReliefF(n_features_to_select=100, verbose=False, n_jobs=-1),
+        # 'TuRF': TuRF(core_algorithm="ReliefF", n_features_to_select=100, verbose=False, n_jobs=-1),
+        'SURF': SURF(n_features_to_select=100, verbose=False, n_jobs=-1),
+        'SURFstar': SURFstar(n_features_to_select=100, verbose=False, n_jobs=-1)
+    }
+
     print('\nClassifier parameters:', clf[args.classifier])
 
     print('\nStarting cross validating without feature selection...\n')
@@ -86,13 +94,16 @@ if __name__ == "__main__":
         y, y_pred_list[i], average='binary') for i in trange(0, X.shape[1])]
 
     # 特征排序，根据函数名，获得相应算法函数对象
-    fs = getattr(sys.modules[__name__], args.feature)
+    # fs_model = getattr(sys.modules[__name__], args.feature)
 
     # 特征排序
-    model_fs = SelectKBest(fs, k="all").fit(X, y)
+    fs_score = fs[args.feature].fit(X, y)
 
-    # 降序排列特征权重
-    fs_idxs = np.argsort(-model_fs.scores_)
+    # 获取排序好的索引
+    fs_idxs = fs_score.top_features_
+
+    # 输出特征排序模型参数
+    print('\nFeature selection parameters:', fs[args.feature])
 
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
