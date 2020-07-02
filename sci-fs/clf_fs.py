@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("-c", "--classifier", type=str,
-                        help="The classifier.(lgb, xgb, rf, gdbt, ext, svm)", default="lgb")
+                        help="The classifier.(lgb, xgb, rf, gdbt, ext, svm, knn, nb)", default="lgb")
     parser.add_argument("-f", "--feature", type=str,
                         help="The feature selection algorithm.(f_classif, chi2, mutual_info_classif)", default="f_classif")
 
@@ -37,6 +37,8 @@ if __name__ == "__main__":
     import lightgbm as lgb
     import xgboost as xgb
     from sklearn.svm import SVC
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.naive_bayes import GaussianNB
     from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
     from sklearn.model_selection import cross_val_predict
     from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
@@ -63,6 +65,8 @@ if __name__ == "__main__":
         'gdbt': GradientBoostingClassifier(random_state=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'ext': ExtraTreesClassifier(n_estimators=100, n_jobs=-1, random_state=args.randomseed),
+        'knn': KNeighborsClassifier(n_jobs=-1),
+        'nb': GaussianNB(),
         'svm': SVC(kernel='sigmoid', random_state=args.randomseed)
     }
 

@@ -72,7 +72,7 @@ if __name__ == "__main__":
     # 构建元分类器
     clf = StackingClassifier(
         estimators=estimators,
-        final_estimator=LogisticRegression(),
+        final_estimator=LogisticRegression(n_jobs=-1, random_state=args.randomseed),
         cv=5)
 
     print('\nClassifier parameters:', clf)
