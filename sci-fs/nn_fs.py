@@ -184,7 +184,8 @@ if __name__ == "__main__":
     # 测试输出正确性
     print('\nACC Max after FS:', np.argmax(acc_nn_ifs), np.max(acc_nn_ifs))
     print('\nMCC Max after FS:', np.argmax(mcc_nn_ifs), np.max(mcc_nn_ifs))
-
+    print("\nModel Parameters:", model)
+    print("\nOptimizer Parameters:", optimizer)
     # 导出评估指标数据到 CSV
     df_fs = pd.DataFrame(data=list(zip(acc_nn_ifs, mcc_nn_ifs)), columns=[
                          'acc_fs', 'mcc_fs'])
