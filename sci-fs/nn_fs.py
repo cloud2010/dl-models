@@ -13,35 +13,34 @@ from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 __author__ = 'Min'
 
 
-class NNs(nn.Module):
-    r"""Fully connected neural network with 1 hidden layer and ReLU activation
+class FNNs(nn.Sequential):
+    r"""Fully connected neural network with n hidden layer and ReLU activation
 
     Args:
         input_size: size of each input sample
         hidden_size: size of hidden layer units
         dropout_rate: Hidden layer dropout rate
+        n_layers: number os hidden layers
         num_classes: size of each output sample
     """
 
-    def __init__(self, input_size, hidden_size, dropout_rate, num_classes):
-        super(NNs, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.dp1 = nn.Dropout(dropout_rate)
-        self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.dp2 = nn.Dropout(dropout_rate)
-        self.relu2 = nn.ReLU()
-        self.output = nn.Linear(hidden_size, num_classes)
+    def __init__(self, input_size, hidden_size, dropout_rate, n_layers, num_classes):
+        super(FNNs, self).__init__()
+        # 添加输入层
+        self.add_module('fc', nn.Linear(input_size, hidden_size))
+        self.add_module('fc_relu', nn.ReLU())
+        self.add_module('fc_dp', nn.Dropout(dropout_rate))
+        # 动态添加隐藏层
+        for i in range(1, n_layers+1):
+            self.add_module('hidden{0}'.format(
+                i), nn.Linear(hidden_size, hidden_size))
+            self.add_module('relu{0}'.format(i), nn.ReLU())
+            self.add_module('dp{0}'.format(i), nn.Dropout(dropout_rate))
+        # 添加全连接层
+        self.add_module('output', nn.Linear(hidden_size, num_classes))
 
     def forward(self, x):
-        out = self.fc1(x)
-        out = self.dp1(out)
-        out = self.relu1(out)
-        out = self.fc2(out)
-        out = self.dp2(out)
-        out = self.relu2(out)
-        out = self.output(out)
-        return out
+        return super().forward(x).squeeze()
 
 
 def init_model(m):
@@ -61,6 +60,8 @@ if __name__ == "__main__":
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-u", "--nunits", type=int,
                         help="Number of hidden layer units.", default=1024)
+    parser.add_argument("-n", "--nlayers", type=int,
+                        help="Number of hidden layer.", default=2)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
     parser.add_argument("-d", "--dropout", type=float,
@@ -120,7 +121,8 @@ if __name__ == "__main__":
     # 神经网络 IFS 曲线
     for ifs_i in trange(0, X.shape[1]):
         # 根据输入特征维度动态建立神经网络模型
-        model = NNs(ifs_i+1, args.nunits, args.dropout, 2).to(device)
+        model = FNNs(ifs_i+1, args.nunits, args.dropout,
+                     args.nlayers, 2).to(device)
         # Loss and optimizer
         criterion = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(model.parameters(), lr=args.learningrate)
