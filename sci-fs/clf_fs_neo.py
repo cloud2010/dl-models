@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     parser.add_argument("-c", "--classifier", type=str,
-                        help="The classifier.(lgb, xgb, rf, nb, knn, svm)", default="knn")
+                        help="The classifier.(lgb, xgb, cgb, rf, nb, knn, svm)", default="knn")
     parser.add_argument("-f", "--feature", type=str,
                         help="The feature selection algorithm.(f_classif, svm_rfe, mutual_info_classif)", default="f_classif")
 
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     import pandas as pd
     import lightgbm as lgb
     import xgboost as xgb
+    import catboost as cgb
     from sklearn.svm import SVC
     from sklearn.naive_bayes import GaussianNB
     from sklearn.neighbors import KNeighborsClassifier
@@ -62,6 +63,7 @@ if __name__ == "__main__":
     clf = {
         'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
         'xgb': xgb.XGBClassifier(n_jobs=-1, random_state=args.randomseed),
+        'cgb': cgb.CatBoostClassifier(n_estimators=100, thread_count=-1, random_seed=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'knn': KNeighborsClassifier(n_jobs=-1),
         'nb': GaussianNB(),
