@@ -8,7 +8,7 @@ import sys
 import time
 import torch
 import torch.nn as nn
-from ..lgb.utils import model_evaluation, bi_model_evaluation
+from .utils import model_evaluation, bi_model_evaluation
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 __author__ = 'Min'
