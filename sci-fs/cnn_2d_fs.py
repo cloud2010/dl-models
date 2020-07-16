@@ -8,8 +8,8 @@ import sys
 import time
 import torch
 import torch.nn as nn
-from .utils import model_evaluation, bi_model_evaluation
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from sklearn.metrics import accuracy_score, matthews_corrcoef, precision_recall_fscore_support, confusion_matrix, classification_report
 
 __author__ = 'Min'
 
@@ -64,6 +64,39 @@ def init_model(m):
         m.bias.data.fill_(0)
 
 
+def bi_model_evaluation(y_true, y_pred):
+    """二分类问题每个fold测试结束后计算Precision、Recall、ACC、MCC等统计指标
+
+    Args:
+    num_classes : 分类数
+    y_true : array, shape = [n_samples]
+        Ground truth (correct) target values.
+
+    y_pred : array, shape = [n_samples]
+        Estimated targets as returned by a classifier.
+    """
+    class_names = ["Positive", "Negative"]
+    pred_names = ["Pred Positive", "Pred Negative"]
+
+    # 混淆矩阵生成
+    cm = confusion_matrix(y_true, y_pred)
+    df = pd.DataFrame(data=cm, index=class_names, columns=pred_names)
+
+    # 混淆矩阵添加一列代表各类求和
+    df['Sum'] = df.sum(axis=1).values
+
+    print("\n=== Model evaluation ===")
+    print("\n=== Accuracy classification score ===")
+    print("\nACC = {:.6f}".format(accuracy_score(y_true, y_pred)))
+    print("\n=== Matthews Correlation Coefficient ===")
+    print("\nMCC = {:.6f}".format(matthews_corrcoef(y_true, y_pred)))
+    print("\n=== Confusion Matrix ===\n")
+    print(df.to_string())
+    print("\n=== Detailed Accuracy By Class ===\n")
+    print(classification_report(y_true, y_pred,
+                                target_names=class_names, digits=6))
+
+
 if __name__ == "__main__":
     start_time = time.time()
     parser = ArgumentParser(description="The 2D-CNN integrates the feature selection based on PyTorch for classification.",
@@ -91,7 +124,6 @@ if __name__ == "__main__":
     from tqdm import tqdm, trange
     from sklearn.model_selection import KFold
     from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
-    from sklearn.metrics import accuracy_score, matthews_corrcoef, precision_recall_fscore_support
 
     # 读取数据
     df = pd.read_csv(args.datapath)
@@ -180,10 +212,7 @@ if __name__ == "__main__":
         k_fold_step += 1
 
     # 输出统计结果
-    if(num_categories > 2):
-        model_evaluation(num_categories, test_cache, pred_cache)
-    else:
-        bi_model_evaluation(test_cache, pred_cache)
+    bi_model_evaluation(test_cache, pred_cache)
 
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
