@@ -42,8 +42,8 @@ class ConvNet(nn.Module):
             # 第2层池化，步长2，输出长宽压缩一半
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten())
-        # 全连接层，输入大小本例为 (22-3+1)/2 -> (20-3+1)/2 -> 9
-        self.fc = nn.Linear(9*9*32, num_classes)
+        # 全连接层，输入大小本例为 (22-3+1)/2 -> (10-3+1)/2 -> 4
+        self.fc = nn.Linear(4*4*32, num_classes)
 
     def forward(self, x):
         out = self.layer1(x)
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     print("\nModel Parameters:", model)
     print("\nOptimizer Parameters:", optimizer)
     # 本例面向2维卷积神经网络取前484维(22*22)
-    X = X[:, fs_idxs[0:484]].reshape(len(y), 22, 22, 1)
+    X = X[:, fs_idxs[0:484]].reshape(len(y), 1, 22, 22)
     X_t = torch.from_numpy(X).float().to(device)
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in cv_index_set:
