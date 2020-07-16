@@ -63,7 +63,7 @@ if __name__ == "__main__":
     clf = {
         'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
         'xgb': xgb.XGBClassifier(n_jobs=-1, random_state=args.randomseed),
-        'cgb': cgb.CatBoostClassifier(n_estimators=100, thread_count=-1, random_seed=args.randomseed),
+        'cgb': cgb.CatBoostClassifier(n_estimators=100, thread_count=-1, logging_level='Silent', random_seed=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'knn': KNeighborsClassifier(n_jobs=-1),
         'nb': GaussianNB(),
