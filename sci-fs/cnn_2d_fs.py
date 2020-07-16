@@ -169,7 +169,8 @@ if __name__ == "__main__":
     print("\nModel Parameters:", model)
     print("\nOptimizer Parameters:", optimizer)
     # 本例面向2维卷积神经网络取前484维(22*22)
-    X_t = torch.from_numpy(X[:, fs_idxs[0:484]]).float().to(device)
+    X = X[:, fs_idxs[0:484]].reshape(len(y), 22, 22, 1)
+    X_t = torch.from_numpy(X).float().to(device)
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in cv_index_set:
         print("\nFold:", k_fold_step)
