@@ -31,18 +31,22 @@ class ConvNet(nn.Module):
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.ELU(),
             # 第1层池化，步长2，输出长宽压缩一半
             # nn.MaxPool2d(kernel_size=2, stride=2),
             # 第1层 Dropout，随机丢失5%
-            nn.Dropout2d(0.05))
+            nn.Dropout2d(dropout_rate))
         self.layer2 = nn.Sequential(
             # 第2层32个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(32),
-            nn.ReLU(),
+            # nn.ReLU(),
+            nn.ELU(),
             # 第2层池化，步长2，输出长宽压缩一半
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.AvgPool2d(kernel_size=2, stride=2),
+            # nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout2d(dropout_rate),
             nn.Flatten())
         # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
         # input_size_w =np.int(((f_size-3+1)/2-3+1)/2)
@@ -169,6 +173,7 @@ if __name__ == "__main__":
     # 根据输入特征维度动态建立神经网络模型
     model = ConvNet(args.fsize, args.dropout, num_classes=2).to(device)
     # Loss and optimizer
+    # nn.logSoftmax()和nn.NLLLoss()的整合
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learningrate)
 

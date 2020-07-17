@@ -161,6 +161,7 @@ if __name__ == "__main__":
     # 根据输入特征维度动态建立神经网络模型
     model = ConvNet(args.fsize, args.dropout, num_classes=2).to(device)
     # Loss and optimizer
+    # nn.logSoftmax()和nn.NLLLoss()的整合
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learningrate)
 
