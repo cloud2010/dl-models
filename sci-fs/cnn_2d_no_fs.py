@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The 2D-CNN integrates the feature selection based on PyTorch for classification.
+The 2D-CNN without the feature selection based on PyTorch for classification.
 Date: 2020-07-17
 """
 import os
@@ -61,7 +61,7 @@ def init_model(m):
     r"""Model weights and bias initialization.
 
     Args:
-        m: m: Conv2d or Linear model
+        m: Conv2d or Linear model
     """
     if (type(m) == nn.Conv2d) or (type(m) == nn.Linear):
         nn.init.xavier_uniform_(m.weight)
@@ -103,10 +103,10 @@ def bi_model_evaluation(y_true, y_pred):
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="The 2D-CNN integrates the feature selection based on PyTorch for classification.",
+    parser = ArgumentParser(description="The 2D-CNN without the feature selection based on PyTorch for classification.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-s", "--fsize", type=int,
-                        help="Width or height of the feature matrix.", default=22)
+                        help="Width or height of the feature matrix.", default=30)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
     parser.add_argument("-d", "--dropout", type=float,
@@ -119,8 +119,6 @@ if __name__ == "__main__":
                         help="pseudo-random number generator state used for shuffling.", default=88)
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
-    parser.add_argument("-f", "--feature", type=str,
-                        help="The feature selection algorithm.(f_classif, chi2, mutual_info_classif)", default="f_classif")
 
     args = parser.parse_args()
 
@@ -129,7 +127,6 @@ if __name__ == "__main__":
     import pandas as pd
     from tqdm import tqdm, trange
     from sklearn.model_selection import KFold
-    from sklearn.feature_selection import SelectKBest, chi2, mutual_info_classif, f_classif
 
     torch.manual_seed(args.randomseed)
     np.random.seed(args.randomseed)
@@ -150,12 +147,7 @@ if __name__ == "__main__":
     sum_y = np.asarray(np.unique(y.astype(int), return_counts=True))
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
-    # 特征排序，根据函数名，获得相应算法函数对象
-    fs = getattr(sys.modules[__name__], args.feature)
-    # 特征排序
-    model_fs = SelectKBest(fs, k="all").fit(X, y)
-    # 降序排列特征权重
-    fs_idxs = np.argsort(-model_fs.scores_)
+
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # Label向量读入GPU
@@ -182,7 +174,7 @@ if __name__ == "__main__":
     print("\nOptimizer Parameters:", optimizer)
     # 本例面向2维卷积神经网络，默认取前484维(22^2 or 22*22)
     f_nums = np.square(args.fsize)
-    X = X[:, fs_idxs[0:f_nums]].reshape(len(y), 1, args.fsize, args.fsize)
+    X = X[:, 0:f_nums].reshape(len(y), 1, args.fsize, args.fsize)
     X_t = torch.from_numpy(X).float().to(device)
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in cv_index_set:
