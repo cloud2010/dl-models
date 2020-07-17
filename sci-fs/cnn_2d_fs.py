@@ -16,7 +16,7 @@ __author__ = 'Min'
 
 # Convolutional neural network (two convolutional layers)
 class ConvNet(nn.Module):
-    r"""2层二维卷积神经网络模型(输入：20*20，输出：2)
+    r"""2层二维卷积神经网络模型(输入：W*H，输出：2)
 
     Args:
         f_size: width or height of the feature matrix
@@ -61,7 +61,7 @@ def init_model(m):
     Args:
         m: Conv2d model
     """
-    if type(m) == nn.Conv2d:
+    if (type(m) == nn.Conv2d) or (type(m) == nn.Linear):
         nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0)
 
