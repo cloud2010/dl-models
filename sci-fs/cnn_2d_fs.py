@@ -103,7 +103,7 @@ if __name__ == "__main__":
     start_time = time.time()
     parser = ArgumentParser(description="The 2D-CNN integrates the feature selection based on PyTorch for classification.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-f", "--fsize", type=int,
+    parser.add_argument("-s", "--fsize", type=int,
                         help="Width or height of the feature matrix.", default=22)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
