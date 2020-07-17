@@ -79,8 +79,8 @@ def bi_model_evaluation(y_true, y_pred):
     y_pred : array, shape = [n_samples]
         Estimated targets as returned by a classifier.
     """
-    class_names = ["Positive", "Negative"]
-    pred_names = ["Pred Positive", "Pred Negative"]
+    class_names = ["Negative", "Positive"]
+    pred_names = ["Pred Negative", "Pred Positive"]
 
     # 混淆矩阵生成
     cm = confusion_matrix(y_true, y_pred)

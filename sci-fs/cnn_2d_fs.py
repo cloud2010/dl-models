@@ -31,8 +31,7 @@ class ConvNet(nn.Module):
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(16),
-            # nn.ReLU(),
-            nn.ELU(),
+            nn.ReLU(),
             # 第1层池化，步长2，输出长宽压缩一半
             # nn.MaxPool2d(kernel_size=2, stride=2),
             # 第1层 Dropout，随机丢失5%
@@ -41,8 +40,7 @@ class ConvNet(nn.Module):
             # 第2层32个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(32),
-            # nn.ReLU(),
-            nn.ELU(),
+            nn.ReLU(),
             # 第2层池化，步长2，输出长宽压缩一半
             nn.AvgPool2d(kernel_size=2, stride=2),
             # nn.MaxPool2d(kernel_size=2, stride=2),
@@ -83,8 +81,8 @@ def bi_model_evaluation(y_true, y_pred):
     y_pred : array, shape = [n_samples]
         Estimated targets as returned by a classifier.
     """
-    class_names = ["Positive", "Negative"]
-    pred_names = ["Pred Positive", "Pred Negative"]
+    class_names = ["Negative", "Positive"]
+    pred_names = ["Pred Negative", "Pred Positive"]
 
     # 混淆矩阵生成
     cm = confusion_matrix(y_true, y_pred)
@@ -114,7 +112,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
     parser.add_argument("-d", "--dropout", type=float,
-                        help="Hidden layer dropout rate.", default=5e-2)
+                        help="Hidden layer dropout rate.", default=0)
     parser.add_argument("-l", "--learningrate", type=float,
                         help="Learning rate.", default=1e-2)
     parser.add_argument("-k", "--kfolds", type=int,
