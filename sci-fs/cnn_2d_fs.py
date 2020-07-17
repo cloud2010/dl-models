@@ -44,7 +44,7 @@ class ConvNet(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten())
         # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
-        input_size_w = ((f_size-3+1)/2-3+1)/2
+        input_size_w =np.int(((f_size-3+1)/2-3+1)/2)
         self.fc = nn.Linear(input_size_w*input_size_w*32, num_classes)
 
     def forward(self, x):
