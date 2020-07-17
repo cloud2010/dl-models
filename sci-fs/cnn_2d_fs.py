@@ -19,11 +19,12 @@ class ConvNet(nn.Module):
     r"""2层二维卷积神经网络模型(输入：20*20，输出：2)
 
     Args:
+        f_size: width or height of the feature matrix
         dropout_rate: hidden layer dropout rate
         num_classes: size of each output sample
     """
 
-    def __init__(self, dropout_rate, num_classes=2):
+    def __init__(self, f_size, dropout_rate, num_classes=2):
         super(ConvNet, self).__init__()
         self.layer1 = nn.Sequential(
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
@@ -42,8 +43,9 @@ class ConvNet(nn.Module):
             # 第2层池化，步长2，输出长宽压缩一半
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten())
-        # 全连接层，输入大小本例为 (22-3+1)/2 -> (10-3+1)/2 -> 4
-        self.fc = nn.Linear(4*4*32, num_classes)
+        # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
+        input_size_w = ((f_size-3+1)/2-3+1)/2
+        self.fc = nn.Linear(input_size_w*input_size_w*32, num_classes)
 
     def forward(self, x):
         out = self.layer1(x)
@@ -101,6 +103,8 @@ if __name__ == "__main__":
     start_time = time.time()
     parser = ArgumentParser(description="The 2D-CNN integrates the feature selection based on PyTorch for classification.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-f", "--fsize", type=int,
+                        help="Width or height of the feature matrix.", default=22)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
     parser.add_argument("-d", "--dropout", type=float,
@@ -155,7 +159,7 @@ if __name__ == "__main__":
     print('Starting cross validating...\n')
 
     # 根据输入特征维度动态建立神经网络模型
-    model = ConvNet(args.dropout, num_classes=2).to(device)
+    model = ConvNet(args.fsize, args.dropout, num_classes=2).to(device)
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learningrate)
@@ -168,8 +172,9 @@ if __name__ == "__main__":
     # 输出模型参数
     print("\nModel Parameters:", model)
     print("\nOptimizer Parameters:", optimizer)
-    # 本例面向2维卷积神经网络取前484维(22*22)
-    X = X[:, fs_idxs[0:484]].reshape(len(y), 1, 22, 22)
+    # 本例面向2维卷积神经网络，默认取前484维(22^2 or 22*22)
+    f_nums = np.square(args.fsize)
+    X = X[:, fs_idxs[0:f_nums]].reshape(len(y), 1, args.fsize, args.fsize)
     X_t = torch.from_numpy(X).float().to(device)
     # 迭代训练 k-fold 交叉验证
     for train_index, test_index in cv_index_set:
