@@ -16,8 +16,8 @@ __author__ = 'Min'
 
 # Convolutional neural network (two convolutional layers)
 class ConvNet(nn.Module):
-    r"""2层二维卷积神经网络模型(输入：W*H，输出：2)
-        2层卷积层+2层批归一化+1层Dropout+1层池化+1层全连接
+    r"""3层二维卷积神经网络模型(输入：W*H，输出：2)
+        3层卷积层+3层批归一化+1层池化+1层全连接
 
     Args:
         f_size: width or height of the feature matrix
@@ -25,34 +25,35 @@ class ConvNet(nn.Module):
         num_classes: size of each output sample
     """
 
-    def __init__(self, f_size, dropout_rate, num_classes=2):
+    def __init__(self, f_size, num_classes=2):
         super(ConvNet, self).__init__()
         self.layer1 = nn.Sequential(
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(16),
-            nn.ReLU(),
-            # 第1层池化，步长2，输出长宽压缩一半
-            # nn.MaxPool2d(kernel_size=2, stride=2),
-            # 第1层 Dropout，随机丢失5%
-            nn.Dropout2d(0.05))
+            nn.ReLU())
         self.layer2 = nn.Sequential(
             # 第2层32个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(32),
+            nn.ReLU())
+        self.layer3 = nn.Sequential(
+            # 第3层64个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            # 第2层池化，步长2，输出长宽压缩一半
+            # 第3层的池化，步长2，输出长宽压缩一半
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten())
         # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
-        # input_size_w =np.int(((f_size-3+1)/2-3+1)/2)
-        input_size_w = np.int(((f_size-3+1)-3+1)/2)
-        self.fc = nn.Linear(input_size_w*input_size_w*32, num_classes)
+        # 3次卷积层+1次最大池化，输入矩阵的宽度大小减为 f_size-3*2
+        input_size_w = np.int((f_size-2*3)/2)
+        self.fc = nn.Linear(input_size_w*input_size_w*64, num_classes)
 
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
-        # out = out.reshape(out.size(0), -1)
+        out = self.layer3(out)
         out = self.fc(out)
         return out
 
@@ -109,8 +110,8 @@ if __name__ == "__main__":
                         help="Width or height of the feature matrix.", default=30)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
-    parser.add_argument("-d", "--dropout", type=float,
-                        help="Hidden layer dropout rate.", default=5e-2)
+    # parser.add_argument("-d", "--dropout", type=float,
+    #                     help="Hidden layer dropout rate.", default=5e-2)
     parser.add_argument("-l", "--learningrate", type=float,
                         help="Learning rate.", default=1e-2)
     parser.add_argument("-k", "--kfolds", type=int,
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     print('Starting cross validating...\n')
 
     # 根据输入特征维度动态建立神经网络模型
-    model = ConvNet(args.fsize, args.dropout, num_classes=2).to(device)
+    model = ConvNet(args.fsize, num_classes=2).to(device)
     # Loss and optimizer
     # nn.logSoftmax()和nn.NLLLoss()的整合
     criterion = nn.CrossEntropyLoss()
