@@ -31,11 +31,10 @@ class ConvNet(nn.Module):
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(16),
-            nn.ReLU(),
+            nn.ReLU()
             # 第1层池化，步长2，输出长宽压缩一半
             # nn.MaxPool2d(kernel_size=2, stride=2),
-            # 第1层 Dropout，随机丢失5%
-            nn.Dropout2d(dropout_rate))
+        )
         self.layer2 = nn.Sequential(
             # 第2层32个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=0),
@@ -44,19 +43,24 @@ class ConvNet(nn.Module):
             # 第2层池化，步长2，输出长宽压缩一半
             nn.AvgPool2d(kernel_size=2, stride=2),
             # nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout2d(dropout_rate),
-            nn.Flatten())
-        # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
+            nn.Flatten()
+        )
         # input_size_w =np.int(((f_size-3+1)/2-3+1)/2)
         input_size_w = np.int(((f_size-3+1)-3+1)/2)
-        self.fc = nn.Linear(input_size_w*input_size_w*32, num_classes)
+        # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
+        self.fc = nn.Sequential(
+            nn.Linear(input_size_w*input_size_w*32, 2048),
+            nn.Dropout2d(dropout_rate),
+            nn.ReLU(),
+            nn.Linear(2048, num_classes)
+        )
 
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
-        # out = out.reshape(out.size(0), -1)
         out = self.fc(out)
         return out
+
 
 @torch.no_grad()
 def init_model(m):
@@ -112,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
     parser.add_argument("-d", "--dropout", type=float,
-                        help="Hidden layer dropout rate.", default=0)
+                        help="Hidden layer dropout rate.", default=5e-2)
     parser.add_argument("-l", "--learningrate", type=float,
                         help="Learning rate.", default=1e-2)
     parser.add_argument("-k", "--kfolds", type=int,

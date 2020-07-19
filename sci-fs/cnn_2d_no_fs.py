@@ -25,7 +25,7 @@ class ConvNet(nn.Module):
         num_classes: size of each output sample
     """
 
-    def __init__(self, f_size, num_classes=2):
+    def __init__(self, f_size, dropout_rate, num_classes=2):
         super(ConvNet, self).__init__()
         self.layer1 = nn.Sequential(
             # 第1层16个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
@@ -48,7 +48,12 @@ class ConvNet(nn.Module):
         # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
         # 3次卷积层+1次最大池化，输入矩阵的宽度大小减为 f_size-3*2
         input_size_w = np.int((f_size-2*3)/2)
-        self.fc = nn.Linear(input_size_w*input_size_w*64, num_classes)
+        self.fc = nn.Sequential(
+            nn.Linear(input_size_w*input_size_w*32, 2048),
+            nn.Dropout2d(dropout_rate),
+            nn.ReLU(),
+            nn.Linear(2048, num_classes)
+        )
 
     def forward(self, x):
         out = self.layer1(x)
@@ -111,8 +116,8 @@ if __name__ == "__main__":
                         help="Width or height of the feature matrix.", default=30)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=200)
-    # parser.add_argument("-d", "--dropout", type=float,
-    #                     help="Hidden layer dropout rate.", default=5e-2)
+    parser.add_argument("-d", "--dropout", type=float,
+                        help="Hidden layer dropout rate.", default=5e-2)
     parser.add_argument("-l", "--learningrate", type=float,
                         help="Learning rate.", default=1e-2)
     parser.add_argument("-k", "--kfolds", type=int,
@@ -161,7 +166,7 @@ if __name__ == "__main__":
     print('Starting cross validating...\n')
 
     # 根据输入特征维度动态建立神经网络模型
-    model = ConvNet(args.fsize, num_classes=2).to(device)
+    model = ConvNet(args.fsize, args.dropout, num_classes=2).to(device)
     # Loss and optimizer
     # nn.logSoftmax()和nn.NLLLoss()的整合
     criterion = nn.CrossEntropyLoss()
