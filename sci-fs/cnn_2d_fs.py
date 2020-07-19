@@ -43,15 +43,16 @@ class ConvNet(nn.Module):
             # 第2层池化，步长2，输出长宽压缩一半
             nn.AvgPool2d(kernel_size=2, stride=2),
             # nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Flatten()
+            nn.Flatten(),
+            nn.Dropout(dropout_rate)
         )
         # input_size_w =np.int(((f_size-3+1)/2-3+1)/2)
         input_size_w = np.int(((f_size-3+1)-3+1)/2)
         # 全连接层，输入大小例如 (22-3+1)/2 -> (10-3+1)/2 -> 4
         self.fc = nn.Sequential(
-            nn.Linear(input_size_w*input_size_w*32, 2048),
-            nn.Dropout(dropout_rate),
-            nn.Linear(2048, num_classes)
+            nn.Linear(input_size_w*input_size_w*32, num_classes)
+            # nn.Dropout(dropout_rate),
+            # nn.Linear(2048, num_classes)
         )
 
     def forward(self, x):
