@@ -65,8 +65,8 @@ def init_model(m):
         m: Conv2d or Linear model
     """
     if (type(m) == nn.Conv2d) or (type(m) == nn.Linear):
-        # nn.init.xavier_uniform_(m.weight)
-        m.weight.fill_(1.0)
+        nn.init.xavier_uniform_(m.weight)
+        # m.weight.fill_(1.0)
         m.bias.fill_(0.0)
 
 

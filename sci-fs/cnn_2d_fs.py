@@ -58,7 +58,7 @@ class ConvNet(nn.Module):
         out = self.fc(out)
         return out
 
-
+@torch.no_grad()
 def init_model(m):
     r"""Model weights and bias initialization.
 
@@ -67,7 +67,7 @@ def init_model(m):
     """
     if (type(m) == nn.Conv2d) or (type(m) == nn.Linear):
         nn.init.xavier_uniform_(m.weight)
-        m.bias.data.fill_(0)
+        m.bias.fill_(0.0)
 
 
 def bi_model_evaluation(y_true, y_pred):
