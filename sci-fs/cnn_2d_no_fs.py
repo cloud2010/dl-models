@@ -50,8 +50,7 @@ class ConvNet(nn.Module):
         input_size_w = np.int((f_size-2*3)/2)
         self.fc = nn.Sequential(
             nn.Linear(input_size_w*input_size_w*32, 2048),
-            nn.Dropout2d(dropout_rate),
-            nn.ReLU(),
+            nn.Dropout(dropout_rate),
             nn.Linear(2048, num_classes)
         )
 
