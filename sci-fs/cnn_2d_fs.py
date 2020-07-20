@@ -37,7 +37,7 @@ class ConvNet(nn.Module):
         )
         self.layer2 = nn.Sequential(
             # 第2层64个卷积核，核大小3*3，步长1，有效填充不补0，输出大小 W-3+1
-            nn.Conv2d(16, 64, kernel_size=3, stride=1, padding=0),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=0),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             # 第2层池化，步长2，输出长宽压缩一半
