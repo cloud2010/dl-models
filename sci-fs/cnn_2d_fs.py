@@ -41,8 +41,8 @@ class ConvNet(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             # 第2层池化，步长2，输出长宽压缩一半
-            nn.AvgPool2d(kernel_size=2, stride=2),
-            # nn.MaxPool2d(kernel_size=2, stride=2),
+            # nn.AvgPool2d(kernel_size=2, stride=2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten(),
             nn.Dropout(dropout_rate)
         )
