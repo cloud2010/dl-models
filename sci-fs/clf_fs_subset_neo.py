@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     # 初始化 classifier 字典
     clf = {
-        'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
+        'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='gbdt'),
         'xgb': xgb.XGBClassifier(n_jobs=-1, random_state=args.randomseed),
         'cgb': cgb.CatBoostClassifier(n_estimators=100, thread_count=-1, logging_level='Silent', random_seed=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
