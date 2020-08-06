@@ -41,7 +41,7 @@ if __name__ == "__main__":
     from sklearn.naive_bayes import GaussianNB
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.ensemble import RandomForestClassifier
-    from sklearn.model_selection import cross_val_predict
+    from sklearn.model_selection import cross_val_predict, KFold
     from sklearn.feature_selection import SelectKBest, mutual_info_classif, f_classif, RFE
     from sklearn.metrics import accuracy_score, matthews_corrcoef, f1_score, precision_recall_fscore_support
 
@@ -91,7 +91,10 @@ if __name__ == "__main__":
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
-        clf[args.classifier], X[:, fs_idxs[0:i+1]], y, cv=args.kfolds, n_jobs=-1) for i in trange(0, X.shape[1])]
+        clf[args.classifier], X[:, fs_idxs[0:i+1]], y, cv=KFold(n_splits=args.kfolds,
+                                                                shuffle=True,
+                                                                random_state=args.randomseed),
+        n_jobs=-1) for i in trange(0, X.shape[1])]
 
     # 特征排序后的评估指标
     mcc_clf_fs = [matthews_corrcoef(y, y_pred_list_fs[i])
