@@ -15,7 +15,7 @@ __author__ = 'Min'
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="The classifier integrates the feature sorting algorithm based on scikit-learn for prediction.",
+    parser = ArgumentParser(description="The classifier integrates the feature sorting algorithm and SMOTE-ENN based on scikit-learn for prediction.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-k", "--kfolds", type=int,

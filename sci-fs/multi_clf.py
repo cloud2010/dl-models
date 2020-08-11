@@ -105,12 +105,12 @@ if __name__ == "__main__":
 
     # 导出评估指标数据到 CSV
     df_fs = pd.DataFrame(data=list(zip(acc_clf_fs, mcc_clf_fs)), columns=[
-                         'acc_fs', 'mcc_fs'])
-
+                         'acc_fs', 'mcc_fs'], index=None)
     df_f1 = pd.DataFrame(data=recall_pre_f1_clf_fs, columns=[
-                         'precision_fs', 'recall_fs', 'f-score_fs', 'support_fs'])
+                         'precision_fs', 'recall_fs', 'f-score_fs', 'support_fs'], index=None)
+    df_index = pd.DataFrame(data=clf_dict.keys(), columns=['clf'], index=None)
     # 合并指标输出
-    df_fs = pd.concat([df_fs, df_f1.iloc[:, 0:3]], axis=1)
+    df_fs = pd.concat([df_index, df_fs, df_f1.iloc[:, 0:3]], axis=1)
     # 提取文件名
     filepath = os.path.basename(args.datapath).split('.')[0]
 
