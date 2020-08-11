@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-The classifier integrates the feature sorting algorithm based on scikit-learn for prediction.
-Date: 2020-07-01
+The classifier integrates the feature sorting algorithm and SMOTE-ENN based on scikit-learn for prediction.
+Date: 2020-08-11
 """
 import os
 import sys
 import time
+from collections import Counter
 from tqdm import tqdm, trange
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
@@ -27,6 +28,8 @@ if __name__ == "__main__":
                         help="The classifier.(lgb, xgb, cgb, rf, nb, knn, svm)", default="knn")
     parser.add_argument("-f", "--feature", type=str,
                         help="The feature selection algorithm.(f_classif, svm_rfe, mutual_info_classif)", default="f_classif")
+    parser.add_argument("-s", "--smote", type=str,
+                        help="The combination algorithm of over- and under-sampling.(enn, tomek)", default="tomek")
 
     args = parser.parse_args()
     # logdir_base = os.getcwd()  # 获取当前目录
@@ -37,6 +40,7 @@ if __name__ == "__main__":
     import lightgbm as lgb
     import xgboost as xgb
     import catboost as cgb
+    from imblearn.combine import SMOTEENN, SMOTETomek
     from sklearn.svm import SVC
     from sklearn.naive_bayes import GaussianNB
     from sklearn.neighbors import KNeighborsClassifier
@@ -58,10 +62,22 @@ if __name__ == "__main__":
     sum_y = np.asarray(np.unique(y.astype(int), return_counts=True))
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
+    # 综合采样
+    smote_tomek = SMOTETomek(random_state=args.randomseed, n_jobs=-1)
+    smote_enn = SMOTEENN(random_state=args.randomseed, n_jobs=-1)
+    if args.smote == 'tomek':
+        X_resampled, y_resampled = smote_tomek.fit_resample(X, y)
+        print("\n", smote_tomek)
+    else:
+        X_resampled, y_resampled = smote_enn.fit_resample(X, y)
+        print("\n", smote_enn)
+    
+    # 排序前后正负样本分布
+    print("\nAfter SMOTE-Tomek", sorted(Counter(y_resampled).items()))
 
     # 初始化 classifier 字典
     clf = {
-        'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='gbdt'),
+        'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
         'xgb': xgb.XGBClassifier(booster='gblinear', n_jobs=-1, random_state=args.randomseed),
         'cgb': cgb.CatBoostClassifier(n_estimators=100, thread_count=-1, logging_level='Silent', random_seed=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
@@ -77,32 +93,32 @@ if __name__ == "__main__":
                                               n_jobs=-1,
                                               random_state=args.randomseed),
                  n_features_to_select=100)
-        model_fs = fs.fit(X, y)
+        model_fs = fs.fit(X_resampled, y_resampled)
         # 降序排列特征权重
         fs_idxs = np.argsort(-model_fs.ranking_)
     else:
         # 特征排序，根据函数名，获得相应算法函数对象
         fs = getattr(sys.modules[__name__], args.feature)
         # 特征排序
-        model_fs = SelectKBest(fs, k="all").fit(X, y)
+        model_fs = SelectKBest(fs, k="all").fit(X_resampled, y_resampled)
         # 降序排列特征权重
         fs_idxs = np.argsort(-model_fs.scores_)
 
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的增量特征预测
     y_pred_list_fs = [cross_val_predict(
-        clf[args.classifier], X[:, fs_idxs[0:i+1]], y, cv=KFold(n_splits=args.kfolds,
+        clf[args.classifier], X_resampled[:, fs_idxs[0:i+1]], y_resampled, cv=KFold(n_splits=args.kfolds,
                                                                 shuffle=True,
                                                                 random_state=args.randomseed),
-        n_jobs=-1) for i in trange(0, X.shape[1])]
+        n_jobs=-1) for i in trange(0, X_resampled.shape[1])]
 
-    # 特征排序后的评估指标
-    mcc_clf_fs = [matthews_corrcoef(y, y_pred_list_fs[i])
+    # 特征排序后的评估指标（去除伪样本）
+    mcc_clf_fs = [matthews_corrcoef(y, y_pred_list_fs[i][0:X.shape[0]])
                   for i in trange(0, X.shape[1])]
-    acc_clf_fs = [accuracy_score(y, y_pred_list_fs[i])
+    acc_clf_fs = [accuracy_score(y, y_pred_list_fs[i][0:X.shape[0]])
                   for i in trange(0, X.shape[1])]
     recall_pre_f1_clf_fs = [precision_recall_fscore_support(
-        y, y_pred_list_fs[i], average='binary') for i in trange(0, X.shape[1])]
+        y, y_pred_list_fs[i][0:X.shape[0]], average='binary') for i in trange(0, X.shape[1])]
 
     # 测试输出正确性
     print('\nACC Max after FS:', np.argmax(acc_clf_fs), np.max(acc_clf_fs))
@@ -122,7 +138,7 @@ if __name__ == "__main__":
     # filepath = args.datapath.split('/')[-1].split('.')[0]
 
     # 写入 CSV
-    df_fs.to_csv('{0}_{1}_{2}.csv'.format(
+    df_fs.to_csv('{0}_{1}_{2}_smote.csv'.format(
         args.classifier, args.feature, filepath), index_label='feature')
 
     end_time = time.time()  # 程序结束时间
