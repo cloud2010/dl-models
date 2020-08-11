@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的各分类器在指定的特征维度下进行交叉验证
-    for key in clf_dict.keys():
+    for key in tqdm(clf_dict.keys()):
         y_pred_dict[key] = cross_val_predict(clf_dict[key], X[:, fs_idxs[0:args.idx+1]], y,
                                              cv=KFold(n_splits=args.kfolds,
                                                       shuffle=True,
@@ -116,8 +116,9 @@ if __name__ == "__main__":
 
     # 写入 CSV
     df_fs.to_csv('multi_{0}_{1}.csv'.format(
-        args.feature, filepath), index_label='clf', index=clf_dict.keys())
-
+        args.feature, filepath), index=None)
+    print("\nThe prediction of all classifiers have been saved to 'multi_{0}_{1}.csv'".format(
+        args.feature, filepath))
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
