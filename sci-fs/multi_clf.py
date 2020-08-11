@@ -115,10 +115,10 @@ if __name__ == "__main__":
     filepath = os.path.basename(args.datapath).split('.')[0]
 
     # 写入 CSV
-    df_fs.to_csv('multi_{0}_{1}.csv'.format(
-        args.feature, filepath), index=None)
-    print("\nThe prediction of all classifiers have been saved to 'multi_{0}_{1}.csv'".format(
-        args.feature, filepath))
+    df_fs.to_csv('multi_{0}_{1}_F{2}.csv'.format(
+        args.feature, filepath, args.idx), index=None)
+    print("\nThe prediction of all classifiers have been saved to 'multi_{0}_{1}_F{2}.csv'".format(
+        args.feature, filepath, args.idx))
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
