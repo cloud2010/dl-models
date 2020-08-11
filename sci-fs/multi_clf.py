@@ -90,7 +90,7 @@ if __name__ == "__main__":
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的各分类器在指定的特征维度下进行交叉验证
     for key in clf_dict.keys():
-        y_pred_dict[key] = cross_val_predict(clf_dict[key], X[:, fs_idxs[0:args.i+1]], y,
+        y_pred_dict[key] = cross_val_predict(clf_dict[key], X[:, fs_idxs[0:args.idx+1]], y,
                                              cv=KFold(n_splits=args.kfolds,
                                                       shuffle=True,
                                                       random_state=args.randomseed),
