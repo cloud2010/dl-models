@@ -66,7 +66,7 @@ if __name__ == "__main__":
         'ext': ExtraTreesClassifier(n_jobs=-1),
         'knn': KNeighborsClassifier(n_jobs=-1),
         'nb': GaussianNB(),
-        'svm': SVC(kernel='sigmoid', random_state=args.randomseed)
+        'svm': SVC(kernel='rbf', random_state=args.randomseed)
     }
 
     y_pred_dict = dict().fromkeys(clf_dict.keys(), np.array([]))
