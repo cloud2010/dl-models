@@ -57,7 +57,8 @@ if __name__ == "__main__":
         'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
         'xgb': xgb.XGBClassifier(booster='gblinear', n_jobs=-1, random_state=args.randomseed),
     }
-    k_keys = ['2D_3*3_1D_3','2D_3*3_1D_4','2D_3*3_1D_5','2D_5*5_1D_3','2D_5*5_1D_4','2D_5*5_1D_5']
+    k_keys = ['2D_3*3_1D_3', '2D_3*3_1D_4', '2D_3*3_1D_5',
+              '2D_5*5_1D_3', '2D_5*5_1D_4', '2D_5*5_1D_5']
     y_pred_dict = dict().fromkeys(k_keys, np.array([]))
 
     if(args.feature == 'svm_rfe'):
@@ -79,13 +80,19 @@ if __name__ == "__main__":
     print('\nStarting cross validating after feature selection...\n')
     # 特征排序后的各分类器在指定的特征维度下进行交叉验证
     for key in tqdm(k_keys):
-        bias = k_keys.index(key) # 获取对应类型的索引
-        y_pred_dict[key] = cross_val_predict(clf_dict['xgb'], X[:, fs_idxs[0:args.idx+bias*10]], y,
-                                             cv=KFold(n_splits=args.kfolds,
-                                                      shuffle=True,
-                                                      random_state=args.randomseed),
-                                             n_jobs=-1)
-
+        bias = k_keys.index(key)  # 获取对应类型的索引
+        if bias < 3:
+            y_pred_dict[key] = cross_val_predict(clf_dict['xgb'], X[:, fs_idxs[0:args.idx+bias*10]], y,
+                                                 cv=KFold(n_splits=args.kfolds,
+                                                          shuffle=True,
+                                                          random_state=args.randomseed),
+                                                 n_jobs=-1)
+        else:
+            y_pred_dict[key] = cross_val_predict(clf_dict['lgb'], X[:, fs_idxs[0:args.idx+bias*10]], y,
+                                                 cv=KFold(n_splits=args.kfolds,
+                                                          shuffle=True,
+                                                          random_state=args.randomseed),
+                                                 n_jobs=-1)
     # 特征排序后的评估指标
     mcc_clf_fs = [matthews_corrcoef(y, y_pred_dict[i])
                   for i in k_keys]
