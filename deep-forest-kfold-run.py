@@ -146,9 +146,9 @@ if __name__ == "__main__":
 
     # 输出统计结果
     if(num_categories > 2):
-        model_evaluation(num_categories, y, y_pred)
+        model_evaluation(num_categories, test_cache, pred_cache)
     else:
-        bi_model_evaluation(y, y_pred)
+        bi_model_evaluation(test_cache, pred_cache)
     end_time = time.time()  # 程序结束时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
