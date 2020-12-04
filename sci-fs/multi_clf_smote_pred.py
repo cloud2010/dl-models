@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--test", type=str,
                         help="The path of test dataset.", required=True)
     parser.add_argument("--clf", type=str,
-                        help="The classifier. (svm / rf / knn)", default='svm')
+                        help="The classifier. (svm / rf / knn / dt)", default='svm')
 
     args = parser.parse_args()
 
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     import pandas as pd
     from imblearn.over_sampling import SMOTE
     from sklearn.svm import SVC
+    from sklearn.tree import DecisionTreeClassifier
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.model_selection import cross_val_predict, KFold
@@ -62,7 +63,8 @@ if __name__ == "__main__":
     clf_dict = {
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'knn': KNeighborsClassifier(n_jobs=-1),
-        'svm': SVC(kernel='rbf', random_state=args.randomseed)
+        'svm': SVC(kernel='rbf', random_state=args.randomseed),
+        'dt': DecisionTreeClassifier(random_state=args.randomseed)
     }
 
     y_pred_dict = dict().fromkeys(clf_dict.keys(), np.array([]))
