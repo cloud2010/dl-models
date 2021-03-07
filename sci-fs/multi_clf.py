@@ -60,7 +60,7 @@ if __name__ == "__main__":
     # 初始化 classifier 和预测结果字典
     clf_dict = {
         'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='goss'),
-        'xgb': xgb.XGBClassifier(booster='gblinear', n_jobs=-1, random_state=args.randomseed),
+        'xgb': xgb.XGBClassifier(booster='gblinear', objective='binary:logistic', n_jobs=-1, random_state=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'gdbt': GradientBoostingClassifier(random_state=args.randomseed),
         'ext': ExtraTreesClassifier(n_jobs=-1),

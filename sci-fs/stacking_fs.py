@@ -60,7 +60,7 @@ if __name__ == "__main__":
                                       n_jobs=-1, random_state=args.randomseed)),
         ('svm', SVC(kernel='sigmoid', random_state=args.randomseed)),
         ('xgb', xgb.XGBClassifier(n_estimators=100, objective='binary:logistic',
-                                  use_label_encoder=False, n_jobs=-1, random_state=args.randomseed)),
+                                  n_jobs=-1, random_state=args.randomseed)),
         ('lgb', lgb.LGBMClassifier(boosting_type='goss',
                                    n_estimators=100, n_jobs=-1, random_state=args.randomseed))
     ]
