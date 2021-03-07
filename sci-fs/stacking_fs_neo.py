@@ -61,8 +61,8 @@ if __name__ == "__main__":
         ('rf', RandomForestClassifier(n_estimators=100,
                                       n_jobs=-1, random_state=args.randomseed)),
         ('svm', SVC(kernel='sigmoid', random_state=args.randomseed)),
-        ('xgb', xgb.XGBClassifier(n_estimators=100,
-                                  n_jobs=-1, random_state=args.randomseed)),
+        ('xgb', xgb.XGBClassifier(n_estimators=100, objective='binary:logistic',
+                                  use_label_encoder=False, n_jobs=-1, random_state=args.randomseed)),
         ('lgb', lgb.LGBMClassifier(boosting_type='goss',
                                    n_estimators=100, n_jobs=-1, random_state=args.randomseed)),
         ('nb', GaussianNB()),  # 高斯朴素贝叶斯
@@ -72,7 +72,8 @@ if __name__ == "__main__":
     # 构建元分类器
     clf = StackingClassifier(
         estimators=estimators,
-        final_estimator=LogisticRegression(n_jobs=-1, random_state=args.randomseed),
+        final_estimator=LogisticRegression(
+            n_jobs=-1, random_state=args.randomseed),
         cv=5)
 
     print('\nClassifier parameters:', clf)
