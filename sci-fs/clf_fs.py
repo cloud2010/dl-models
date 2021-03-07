@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # 初始化 classifier 字典
     clf = {
         'lgb': lgb.LGBMClassifier(random_state=args.randomseed, n_jobs=-1, boosting_type='gbdt'),
-        'xgb': xgb.XGBClassifier(booster='gblinear', n_jobs=-1, random_state=args.randomseed),
+        'xgb': xgb.XGBClassifier(booster='gblinear', objective='binary:logistic', use_label_encoder=False, n_jobs=-1, random_state=args.randomseed),
         'gdbt': GradientBoostingClassifier(random_state=args.randomseed),
         'rf': RandomForestClassifier(n_jobs=-1, random_state=args.randomseed),
         'ext': ExtraTreesClassifier(n_estimators=100, n_jobs=-1, random_state=args.randomseed),
