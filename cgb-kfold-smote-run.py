@@ -14,11 +14,11 @@ __author__ = 'Min'
 
 if __name__ == "__main__":
     start_time = time.time()
-    parser = ArgumentParser(description="A random forest classifier based on scikit-learn with SMOTE apply it to classify bio datasets.",
+    parser = ArgumentParser(description="A catboost classifier with SMOTE apply it to classify bio datasets.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("-d", "--mdepth", type=int,
-                        help="The maximum depth of the tree. If None, then nodes are expanded until all leaves are pure or until all leaves contain less than min_samples_split samples.", default=None)
+                        help="The maximum depth of the tree.", default=None)
     parser.add_argument("-e", "--epochs", type=int,
                         help="Number of training epochs.", default=500)
     parser.add_argument("-k", "--kfolds", type=int,
