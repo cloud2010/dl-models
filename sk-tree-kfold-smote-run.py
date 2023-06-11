@@ -20,6 +20,8 @@ if __name__ == "__main__":
                         help="pseudo-random number generator state used for shuffling.", default=0)
     parser.add_argument("-c", "--classifier", type=str,
                         help="Please specify which classifier to use. ExtraTreesClassifier(ext) or AdaBoostClassifier(ada)", default="ext")
+    parser.add_argument("-n", "--kneighbors", type=int,
+                        help="number of nearest neighbours to used to construct synthetic samples.", default=3)
     parser.add_argument("--datapath", type=str,
                         help="The path of dataset.", required=True)
     # parser.add_argument('--output', type=str, help='The path of output dataset.', required=True)
@@ -31,6 +33,7 @@ if __name__ == "__main__":
     import pandas as pd
     from sklearn.ensemble import ExtraTreesClassifier, AdaBoostClassifier
     from sklearn.model_selection import cross_val_predict
+    from imblearn.over_sampling import SMOTE
     from lgb.utils import model_evaluation, bi_model_evaluation
 
     # 读取数据
@@ -46,6 +49,15 @@ if __name__ == "__main__":
     df_sum_y = pd.DataFrame(sum_y.T, columns=['Class', 'Sum'], index=None)
     print('\n', df_sum_y)
 
+    # Apply SMOTE 生成 fake data
+    sm = SMOTE(k_neighbors=args.kneighbors,
+               random_state=args.randomseed, n_jobs=-1)
+    x_resampled, y_resampled = sm.fit_resample(X, y)
+    # after over sampleing 读取分类信息并返回数量
+    np_resampled_y = np.asarray(np.unique(y_resampled, return_counts=True))
+    df_resampled_y = pd.DataFrame(np_resampled_y.T, columns=['Class', 'Sum'])
+    print(f'\nNumber of samples after over sampleing:\n{df_resampled_y}\n')
+
     # 初始化 classifier
     if (args.classifier == "ada"):
         clf = AdaBoostClassifier(random_state=args.randomseed)
@@ -56,8 +68,10 @@ if __name__ == "__main__":
     print("\nClassifier parameters:")
     print(clf.get_params())
     # 交叉验证
-    y_pred = cross_val_predict(
-        clf, X, y, cv=args.kfolds, n_jobs=-1, verbose=0)
+    y_pred_resampled = cross_val_predict(
+        clf, x_resampled, y_resampled, cv=args.kfolds, n_jobs=-1, verbose=1)
+    # 通过 index 去除 fake data
+    y_pred = y_pred_resampled[0:X.shape[0]]
 
     # 输出统计结果
     if(num_categories > 2):
