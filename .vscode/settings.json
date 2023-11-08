@@ -5,14 +5,12 @@
   "editor.fontSize": 15,
   "editor.lineHeight": 25,
   "editor.fontWeight": "500",
-  "terminal.integrated.fontFamily": "'JetBrainsMono NF', '冬青黑体简体中文'",
+  "terminal.integrated.fontFamily": "'JetBrainsMono NF Medium', '冬青黑体简体中文'",
+  "terminal.integrated.fontSize": 15,
   // "terminal.integrated.fontWeight": "500",
-  "terminal.integrated.rendererType": "auto",
   "code-runner.clearPreviousOutput": true,
   // "python.pythonPath": "D:\\Dev\\Miniconda3\\envs\\dl\\python.exe",
   "workbench.iconTheme": "vscode-icons",
-  // "workbench.iconTheme": "easy-icons",
   "python.terminal.activateEnvironment": false,
-  "python.linting.pylintEnabled": true,
   "terminal.integrated.windowsEnableConpty": true
 }
