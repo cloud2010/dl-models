@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This program implements Nearest centroid classifier for predicting biological sequence datasets.
-Date: 2024-01-25
+This program implements native_bayes classifier for predicting biological sequence datasets.
+Date: 2024-01-31
 Author: Min
 """
 # import os
@@ -14,7 +14,7 @@ __author__ = "Min"
 if __name__ == "__main__":
     start_time = time.time()
     parser = ArgumentParser(
-        description="This program implements Nearest centroid classifier for predicting biological sequence datasets.",
+        description="This program implements native_bayes classifier for predicting biological sequence datasets.",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # 导入相关库
     import numpy as np
     import pandas as pd
-    from sklearn.neighbors import NearestCentroid
+    from sklearn.naive_bayes import GaussianNB
     from sklearn.model_selection import cross_val_predict
     from imblearn.over_sampling import SMOTE
     from lgb.utils import model_evaluation, bi_model_evaluation
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     print(f"\nNumber of samples after over sampleing:\n{df_resampled_y}\n")
 
     # 初始化 classifier
-    clf = NearestCentroid()
+    clf = GaussianNB()
     print("\nClassifier parameters:")
     print(clf.get_params())
     # 交叉验证
