@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This program implements Linear Discriminant Analysis classifier for predicting biological sequence datasets.
+This program implements Quadratic Discriminant Analysis classifier for predicting biological sequence datasets.
 Date: 2024-04-11
 Author: Min
 """
@@ -28,7 +28,7 @@ def parse_args():
 
     # 初始化命令行参数解析器
     parser = ArgumentParser(
-        description="This program implements Linear Discriminant Analysis classifier for predicting biological sequence datasets.",
+        description="This program implements Quadratic Discriminant Analysis classifier for predicting biological sequence datasets.",
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
     # 添加-k或--kfolds参数，用于指定折叠数量
@@ -132,11 +132,11 @@ def train_and_evaluate(X, y, args):
     返回值:
     无。该函数直接打印评估结果或在出现异常时退出。
     """
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
     from sklearn.model_selection import cross_val_predict
 
     # 创建线性判别分析器实例
-    clf = LinearDiscriminantAnalysis()
+    clf = QuadraticDiscriminantAnalysis()
     print("\nClassifier parameters:")
     print(clf.get_params())
 
