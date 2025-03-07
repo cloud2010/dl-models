@@ -3,7 +3,6 @@
 A random forest classifier based on scikit-learn with SMOTE apply it to classify bio datasets (ROC).
 Date: 2021-12-31
 """
-# import os
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
@@ -31,7 +30,6 @@ if __name__ == "__main__":
                         help="The path of dataset.", required=True)
 
     args = parser.parse_args()
-    # logdir_base = os.getcwd()  # 获取当前目录
 
     # 导入相关库
     import numpy as np
@@ -77,9 +75,9 @@ if __name__ == "__main__":
     print("\n")
     # 交叉验证
     y_pred_resampled = cross_val_predict(
-        clf, x_resampled, y_resampled, cv=args.kfolds, n_jobs=-1, verbose=1)
+        clf, x_resampled, y_resampled, cv=args.kfolds, n_jobs=-1, verbose=0)
     y_prob_resampled = cross_val_predict(
-        clf_prob, x_resampled, y_resampled, cv=args.kfolds, n_jobs=-1, verbose=1, method='predict_proba')
+        clf_prob, x_resampled, y_resampled, cv=args.kfolds, n_jobs=-1, verbose=0, method='predict_proba')
     # 通过 index 去除 fake data
     y_pred = y_pred_resampled[0:X.shape[0]]
     y_prob = y_prob_resampled[0:X.shape[0]]

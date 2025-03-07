@@ -9,9 +9,9 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 __author__ = 'Min'
 
-
 if __name__ == "__main__":
-    start_time = time.time()
+    # 设置 GPU 环境变量
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid  # 修改: 移到参数解析之前
     parser = ArgumentParser(description="This a Basic RNN implementation with SMOTE for training and predict bio datasets.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("-e", "--epochs", type=int,
@@ -32,25 +32,24 @@ if __name__ == "__main__":
                         help='GPU to use (leave blank for CPU only)', default="")
 
     args = parser.parse_args()
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid
-    # logdir_base = os.getcwd()  # 获取当前目录
 
-    # 输出RNN模型相关训练参数
+    start_time = time.time()  # 程序开始时间
+
+    # 输出 RNN 模型相关训练参数
     print("\nRNN HyperParameters:")
     print("\nEpochs:{0}, Learning rate:{1}, Sequences fragment length: {2}, Hidden Units:{3}".format(
         args.epochs, args.learningrate, args.fragment, args.nunits))
     print("\nRandom seed is", args.randomseed)
-    # print("\nThe directory for TF logs:",
-    #       os.path.join(logdir_base, args.logdir))
-    print("\nGPU to use:", "No GPU support" if args.gpuid == "" else "/gpu:{0}".format(args.gpuid))
+    # 输出 GPU 相关信息
+    print("\nGPU to use:", "No GPU support" if not args.gpuid else f"/gpu:{args.gpuid}")  # 修改: 优化日志输出
     print("\nTraining Start...")
 
     # 执行 RNN 训练模型并验证
-    # by parsing the arguments already, we can bail out now instead of waiting
-    # for TF to load, in case the arguments aren't ok
     from rnn.rnn_smote_pred import run
     run(args.train, args.test, args.nunits, args.fragment,
         args.epochs, args.learningrate, args.randomseed)
+
     end_time = time.time()  # 程序结束时间
+    # 打印程序运行时间
     print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
         ((end_time - start_time) / 60), (end_time - start_time)))
