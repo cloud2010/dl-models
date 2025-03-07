@@ -5,13 +5,15 @@ This a Basic ConvNet implementation.
 import sys
 import os
 import time
+import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 __author__ = 'Min'
 
+# 配置日志记录
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-if __name__ == "__main__":
-    start_time = time.time()
+def parse_arguments():
     parser = ArgumentParser(description="This a basic CNN implementation using TensorFlow and k-fold cross-validation was performed after training.",
                             formatter_class=ArgumentDefaultsHelpFormatter)
 
@@ -49,33 +51,35 @@ if __name__ == "__main__":
                         help="Learning rate.", default=1e-3)
     # parser.add_argument("--logdir", type=str, help="The directory for TF logs and summaries.", default="logs")
 
-    args = parser.parse_args()
-    # os.environ['CUDA_VISIBLE_DEVICES'] = args.gpuid
-    # logdir_base = os.getcwd()  # 获取当前目录
+    return parser.parse_args()
 
-    # 输出CNN模型相关训练参数
-    print("\nCNN HyperParameters:")
-    print("\nN-classes:{0}, Training epochs:{1}, Learning rate:{2}, Dropout rate:{3}".format(
-        args.nclass, args.epochs, args.learningrate, args.dropout))
-    print("\nThe kernel size of the 1st 2D convolution window: [{0}, {1}], The number of filters: 32".format(
-        args.conv1h, args.conv1w))
-    print("\nThe kernel size of the 2nd 2D convolution window: [{0}, {1}], The number of filters: {2}".format(
-        args.conv2h, args.conv2w, args.conv2f))
-    print("\nCross-validation info:")
-    print("\nK-fold:", args.kfolds, ", Random seed is", args.randomseed)
-    # print("\nThe directory for TF logs:",
-    #       os.path.join(logdir_base, args.logdir))
-    # print("\nGPU to use:", "No GPU support" if args.gpuid ==
-    #       "" else "/gpu:{0}".format(args.gpuid))
-    from cnn.utils import get_timestamp
-    print("\n{0} Start training...".format(get_timestamp()))
+def print_hyperparameters(args):
+    logging.info("CNN HyperParameters:")
+    logging.info("N-classes: %d, Training epochs: %d, Learning rate: %f, Dropout rate: %f",
+                 args.nclass, args.epochs, args.learningrate, args.dropout)
+    logging.info("The kernel size of the 1st 2D convolution window: [%d, %d], The number of filters: 32",
+                 args.conv1h, args.conv1w)
+    logging.info("The kernel size of the 2nd 2D convolution window: [%d, %d], The number of filters: %d",
+                 args.conv2h, args.conv2w, args.conv2f)
+    logging.info("Cross-validation info:")
+    logging.info("K-fold: %d, Random seed is %s", args.kfolds, args.randomseed)
 
-    # 执行 CNN 训练模型并验证
-    # by parsing the arguments already, we can bail out now instead of waiting
-    # for TF to load, in case the arguments aren't ok
-    from cnn.cnn_bio import run_model
-    run_model(args.datapath, args.learningrate, args.epochs, args.dropout, args.conv1h, args.conv1w, args.conv2h,
-              args.conv2w, args.conv2f, args.datah, args.dataw, args.nclass, args.kfolds, args.randomseed)
-    end_time = time.time()  # 程序结束时间
-    print("\n[Finished in: {0:.6f} mins = {1:.6f} seconds]".format(
-        ((end_time - start_time) / 60), (end_time - start_time)))
+if __name__ == "__main__":
+    try:
+        start_time = time.time()
+        args = parse_arguments()
+        print_hyperparameters(args)
+
+        from cnn.utils import get_timestamp
+        logging.info("%s Start training...", get_timestamp())
+
+        # 执行 CNN 训练模型并验证
+        from cnn.cnn_bio import run_model
+        run_model(args.datapath, args.learningrate, args.epochs, args.dropout, args.conv1h, args.conv1w, args.conv2h,
+                  args.conv2w, args.conv2f, args.datah, args.dataw, args.nclass, args.kfolds, args.randomseed)
+
+        end_time = time.time()  # 程序结束时间
+        logging.info("[Finished in: %.6f mins = %.6f seconds]",
+                     ((end_time - start_time) / 60), (end_time - start_time))
+    except Exception as e:
+        logging.error("An error occurred: %s", str(e))
