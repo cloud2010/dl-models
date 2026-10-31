@@ -1,0 +1,124 @@
+{
+  "photos": [
+    {
+      "image": "assets/album/roc.png",
+      "title": "一条曲线，衡量一次判断",
+      "caption": "GBDT 的 ROC 曲线，来自特征选择学习笔记。",
+      "source": "notebook/features-selection-learn.ipynb",
+      "cell": 24,
+      "sha256": "bdc878068eb87896abc95db59f15d395a7e981cce924f631839a7b8ef73e3c72"
+    },
+    {
+      "image": "assets/album/lgb-ifs.png",
+      "title": "特征不是越多越好",
+      "caption": "LightGBM 的增量特征曲线，保留当时 Notebook 中的输出。",
+      "source": "notebook/features-selection-learn.ipynb",
+      "cell": 85,
+      "sha256": "294457eea139e8dac91f9d8c0a0ad67080801e6690d410f1815f784f3b0ad040"
+    },
+    {
+      "image": "assets/album/rf-ifs.png",
+      "title": "在森林里寻找线索",
+      "caption": "随机森林的特征数量与 MCC 记录。",
+      "source": "notebook/features-selection-learn.ipynb",
+      "cell": 134,
+      "sha256": "21868dd5b5281362d4624bb04d4bc01a7e74241bb2c3a50313a4ef2e6f640d21"
+    },
+    {
+      "image": "assets/album/sampling.png",
+      "title": "让少数样本，也被看见",
+      "caption": "不平衡学习笔记中的二维可视化。",
+      "source": "notebook/im-learn.ipynb",
+      "cell": 17,
+      "sha256": "42eefcafae1a5d1529bd188046b900b019a581ecee9b629bae294e3a7dd76b7f"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2017",
+      "title": "从一个分类器开始",
+      "description": "NumPy、scikit-learn、TensorFlow；从基础练习走向 SNN、CNN 与交叉验证。",
+      "date": "2017-08-04",
+      "commit": "133b9df",
+      "message": "Initial commit",
+      "source": "README.md"
+    },
+    {
+      "year": "2018",
+      "title": "把序列交给网络",
+      "description": "RNN、肽数据与胶囊网络，模型结构开始回应具体的数据问题。",
+      "date": "2018-04-22",
+      "commit": "9e715e7",
+      "message": "code cleanup",
+      "source": "capsNet/peptide_capsnet.py"
+    },
+    {
+      "year": "2019",
+      "title": "让比较变得更丰富",
+      "description": "PyTorch FNN、BN / LN、传统分类器和多标签实验，留下更多可以比较的路径。",
+      "date": "2019-04-26",
+      "commit": "f85f973",
+      "message": "add relu fnn",
+      "source": "nn/fnn.py"
+    },
+    {
+      "year": "2020",
+      "title": "追问：哪些特征更重要？",
+      "description": "增量特征选择、分类器比较与 Stacking，把注意力从单个模型移向实验流程。",
+      "date": "2020-05-29",
+      "commit": "47e833e",
+      "message": "add clf with ifs",
+      "source": "sci-fs/clf_fs.py"
+    },
+    {
+      "year": "2023",
+      "title": "后来，探索仍有续页",
+      "description": "符号回归与 SVR 的补充记录，成为这份研究生工作档案之后的延伸。",
+      "date": "2023-06-04",
+      "commit": "fd78e9e",
+      "message": "add SVR estimator",
+      "source": "gp-symbolic-regressor.py"
+    }
+  ],
+  "counts": {
+    "python": 172,
+    "notebooks": 19,
+    "logs": 16,
+    "features": 941
+  },
+  "archive_ref": "35628983c967974a8943e4bb4e300e0d5915c561",
+  "log_sources": [
+    {
+      "mcc": "logs/mcc-sum-c2-l3-u512-e300-lr1e-2-d01.csv",
+      "acc": "logs/acc-sum-c2-l3-u512-e300-lr1e-2-d01.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l3-u512-e400-lr1e-3-d01.csv",
+      "acc": "logs/acc-sum-c2-l3-u512-e400-lr1e-3-d01.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l3-u512-e500-lr1e-1-d01.csv",
+      "acc": "logs/acc-sum-c2-l3-u512-e500-lr1e-1-d01.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l4-u300-e300-lr1e-2-d005.csv",
+      "acc": "logs/acc-sum-c2-l4-u300-e300-lr1e-2-d005.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l5-u512-e300-lr1e-2-d005.csv",
+      "acc": "logs/acc-sum-c2-l5-u512-e300-lr1e-2-d005.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l5-u512-e500-lr1e-1-d01.csv",
+      "acc": "logs/acc-sum-c2-l5-u512-e500-lr1e-1-d01.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l5-u512-e600-lr1e-3-d01.csv",
+      "acc": "logs/acc-sum-c2-l5-u512-e600-lr1e-3-d01.csv"
+    },
+    {
+      "mcc": "logs/mcc-sum-c2-l5-u512-e800-lr1e-2-d01.csv",
+      "acc": "logs/acc-sum-c2-l5-u512-e800-lr1e-2-d01.csv"
+    }
+  ]
+}

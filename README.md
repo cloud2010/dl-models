@@ -4,6 +4,8 @@
 
 这里保留了不同时期的学习示例、模型实现、交叉验证脚本、数据处理工具和实验结果，便于回顾研究过程与查找代码。各实验的参数、数据格式和依赖有所不同，使用时以对应脚本为准。
 
+**[打开研究纪念相册](index.html)** · [查看代码检视与整理记录](docs/REVIEW.md)。相册以原始 Notebook 图像、Git 时间线和实验日志回顾当年的工作，可直接在浏览器中打开。
+
 ## 内容导航
 
 - [模型索引](#模型索引)
@@ -90,7 +92,7 @@
 
 原始 README 记录的环境为 **Python 3.5 / 3.6、TensorFlow 1.2+、PyTorch 0.4+**。这些版本反映早期实验背景；后续脚本也有补充，不能将其视为整个仓库的统一兼容范围。
 
-仓库目前没有统一的依赖清单或锁定环境，需根据选用的脚本准备依赖：
+本次整理为维护中的入口提供了 [requirements.txt](requirements.txt) 和可选的 [PyTorch 依赖](requirements-torch.txt)。它们覆盖下文的统一分类、特征选择、SVR 和 PyTorch FNN / SNN / BiRNN 流程；其他历史脚本仍需根据原实现准备依赖：
 
 - 基础数据处理与机器学习：NumPy、pandas、SciPy、scikit-learn。
 - 神经网络：按实现选择 TensorFlow 或 PyTorch。
@@ -109,7 +111,7 @@ label,feature_1,feature_2,feature_3
 2,0.67,0.21,0.44
 ```
 
-上面仅展示列结构，不是可直接用于交叉验证的完整数据集。[sk-rf-kfold-run.py](sk-rf-kfold-run.py) 等脚本会对标签执行 `y - 1`，而其他脚本可能保留原标签，运行前需核对标签编码。
+上面仅展示列结构，不是可直接用于交叉验证的完整数据集。整理后的 scikit-learn 入口保留原始标签，PyTorch 维护入口在内部编码并在输出时还原；部分未迁移的历史脚本仍会对标签执行 `y - 1`，运行前需核对标签编码。
 
 多标签入口使用 ARFF，序列与胶囊网络实验也有各自的数据处理约定。部分脚本引用本地路径或未随仓库提供的数据，需自行准备并调整路径。
 
@@ -128,7 +130,22 @@ python fnn-kfold-run.py --help
 python sk-rf-kfold-run.py --datapath path/to/dataset.csv --ntrees 100 --kfolds 5 --randomseed 0
 ```
 
-不同入口的参数不完全一致，部分学习示例直接在源码中设置路径和超参数。历史脚本中的采样与评估流程也需结合实验目的检查；例如 [sk-rf-kfold-smote-run.py](sk-rf-kfold-smote-run.py) 在交叉验证前对全量数据执行 SMOTE，若用于新的泛化性能评估，应将采样限制在各训练折内，避免数据泄漏。
+16 个常用 scikit-learn 分类入口已统一到 [experiments/classifiers.py](experiments/classifiers.py)，保留旧文件名与主要参数。分类使用有种子的分层交叉验证；SMOTE 和可选的 `--scale` 仅在训练折内拟合；`--output` 导出按输入行序排列的 OOF 预测，`--json` 保存设置与指标。
+
+增量特征比较可使用新的统一入口。特征筛选也在训练折内拟合，以下命令中的特征数不能超过数据列数：
+
+```bash
+python -m experiments.feature_selection --datapath path/to/dataset.csv --model rf --counts 5 10 20 --kfolds 5 --output feature-curve.csv
+```
+
+运行回归检查和静态检视：
+
+```bash
+python -m unittest discover -s tests -v
+python scripts/review_archive.py
+```
+
+不同入口的参数不完全一致，部分学习示例直接在源码中设置路径和超参数。第三方实现与旧框架实验继续保留，迁移边界、已修正问题和未验证部分见 [检视记录](docs/REVIEW.md)。历史日志未重写或重新验证，新的评估流程不能与旧分数直接等同。
 
 ## 参考资料
 

@@ -27,29 +27,7 @@ DATA_WIDTH = 20  # CHANGE HERE, the data width
 CHANNELS = 1  # change to 1 if grayscale
 
 
-def get_datasets(dataset_path):
-    """读取样本数据集
-
-    Args:
-     dataset_path: 数据集路径
-
-    Returns:
-     返回样本文件列表及对应分类列表
-    """
-    sample_paths, sample_labels = list(), list()
-    # 获取文件夹下所有数据集文件名
-    files = os.listdir(dataset_path)
-    for filename in files:
-        filepath = os.path.join(dataset_path, filename)
-        if os.path.isfile(filepath):
-            f = open(filepath, 'r', encoding='utf-8')
-            # 读取样本首行分类信息
-            m_class_info = f.readline().split()
-            f.close()  # sample 文件完整路径
-            # 登记相关信息至训练集列表
-            sample_paths.append(filepath)
-            sample_labels.append(int(m_class_info[1]) - 1)
-    return sample_paths, sample_labels
+from .data import get_datasets
 
 
 def read_data(file_path):

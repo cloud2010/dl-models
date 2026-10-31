@@ -198,3 +198,6 @@ fabric.properties
 
 # PyCharm dir
 .idea/
+
+# Local album browser screenshots and isolated browser profile
+/.preview/

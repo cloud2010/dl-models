@@ -1,0 +1,6 @@
+# Maintained tabular experiments: versions verified during the archive cleanup.
+numpy==2.2.4
+pandas==2.2.3
+scipy==1.15.2
+scikit-learn==1.6.1
+imbalanced-learn==0.13.0

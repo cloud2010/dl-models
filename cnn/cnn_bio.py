@@ -30,66 +30,10 @@ CHANNELS = 1  # change to 1 if grayscale
 DISPLAY_STEP = 2
 
 
-def get_datasets(dataset_path):
-    """读取样本数据集
-
-    Args:
-     dataset_path: 数据集路径
-
-    Returns:
-     返回样本文件列表及对应分类列表
-    """
-    sample_paths, sample_labels = list(), list()
-    # 获取文件夹下所有数据集文件名
-    files = os.listdir(dataset_path)
-    for filename in files:
-        filepath = os.path.join(dataset_path, filename)
-        if os.path.isfile(filepath):
-            f = open(filepath, 'r', encoding='utf-8')
-            # 读取样本首行分类信息
-            m_class_info = f.readline().split()
-            f.close()  # sample 文件完整路径
-            # 登记相关信息至训练集列表
-            sample_paths.append(filepath)
-            sample_labels.append(int(m_class_info[1]) - 1)
-    return sample_paths, sample_labels
+from .data import get_datasets
 
 
-def read_data(file_path, data_height, data_width):
-    """读取样本矩阵信息
-
-    Args:
-     file_path: 样本文件名称
-
-    Returns:
-     numpy 格式矩阵
-    """
-    result = list()
-    with open(file_path, 'r', encoding='utf-8') as f:
-        # 读取首行分类信息
-        for line in f.readlines():
-            line = line.strip()
-            # 过滤首行分类信息和文件末尾空行
-            if len(line) > 0 and not line.startswith('>'):
-                # 逐行存入矩阵信息
-                result.append(line.split())
-    # 转换至 numpy array 格式
-    mat = np.array(result, dtype=np.float)
-    if mat.shape[0] > data_height:
-        # 超出 Max Height 则矩阵做截断
-        new_mat = mat[0:data_height, ]
-    else:
-        # 矩阵填充 padding with 0
-        new_mat = np.lib.pad(mat, ((
-            0, data_height - mat.shape[0]), (0, 0)), 'constant', constant_values=0)
-    # 标准化处理
-    # scale = StandardScaler()
-    # 按列 Standardize features by removing the mean and scaling to unit variance
-    # scale.fit(mat)
-    # 2-D array 转换为 3-D array [Height, Width, Channel]
-    # new_mat = scale.transform(mat)[:, :, np.newaxis]
-    new_mat = new_mat.reshape((data_height, data_width, 1))
-    return new_mat
+from .data import read_data
 
 
 def conv_net(x, n_classes, c1_k_h, c1_k_w, c2_k_h, c2_k_w, c2_f, dropout, reuse, is_training):

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一份机器学习研究札记：沿着真实的代码、实验曲线与学习笔记，重访研究生阶段的模型探索。">
+  <meta name="theme-color" content="#f3eee4">
+  <title>那些年，与模型一起走过的日子 · dl-models</title>
+  <link rel="stylesheet" href="assets/album/album.css">
+  <script defer src="assets/album/data.js"></script>
+  <script defer src="assets/album/album.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="masthead">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">m.</span><span>模型之间<span class="brand-sub">A RESEARCH ALBUM / cloud2010</span></span></a>
+    <nav aria-label="相册章节"><a href="#years">时间的脚注</a><a href="#atlas">模型手记</a><a href="#gallery">实验留影</a><a href="#curves">再看一条曲线 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main id="main">
+    <section class="cover section-wrap" aria-labelledby="cover-title">
+      <div class="cover-copy">
+        <p class="eyebrow"><span class="small-line"></span> FIELD NOTES, KEPT WITH CARE</p>
+        <h1 id="cover-title">那些年，<br>与模型一起<br><em>走过的日子。</em></h1>
+        <p class="cover-description">从第一个分类器，到一整片模型森林。<br>把研究生阶段的探索，装订成一册可以翻阅的记忆。</p>
+        <a class="text-link" href="#years">翻开这本研究札记 <span aria-hidden="true">↓</span></a>
+        <p class="cover-date">始于 2017 <span>·</span> 代码、曲线，以及尚未结束的好奇心</p>
+      </div>
+      <div class="cover-composition" aria-label="由原始实验图与模型示意组成的相册封面">
+        <div class="graph-paper">
+          <div class="paper-top"><span>EXPERIMENT / 001</span><span class="handwriting">keep exploring</span></div>
+          <svg class="network" viewBox="0 0 440 270" role="img" aria-labelledby="network-title network-description">
+            <title id="network-title">一张神经网络手绘示意</title><desc id="network-description">输入、隐藏层、输出依次连接。此图为叙事示意，并非某次实验的模型参数。</desc>
+            <g class="network-edges" fill="none" stroke="#9baaa0" stroke-width="1.2">
+              <path d="M65 78L165 48M65 78L165 106M65 78L165 164M65 78L165 222M65 138L165 48M65 138L165 106M65 138L165 164M65 138L165 222M65 198L165 48M65 198L165 106M65 198L165 164M65 198L165 222M165 48L270 78M165 48L270 138M165 48L270 198M165 106L270 78M165 106L270 138M165 106L270 198M165 164L270 78M165 164L270 138M165 164L270 198M165 222L270 78M165 222L270 138M165 222L270 198M270 78L375 106M270 78L375 170M270 138L375 106M270 138L375 170M270 198L375 106M270 198L375 170"/>
+            </g>
+            <g fill="#f5f0e6" stroke="#536e5f" stroke-width="2"><circle cx="65" cy="78" r="13"/><circle cx="65" cy="138" r="13"/><circle cx="65" cy="198" r="13"/><circle cx="165" cy="48" r="13"/><circle cx="165" cy="106" r="13"/><circle cx="165" cy="164" r="13"/><circle cx="165" cy="222" r="13"/><circle cx="270" cy="78" r="13"/><circle cx="270" cy="138" r="13"/><circle cx="270" cy="198" r="13"/></g>
+            <g fill="#ac6649"><circle cx="375" cy="106" r="14"/><circle cx="375" cy="170" r="14"/></g>
+          </svg>
+          <div class="network-labels"><span>输入 INPUT</span><span>探索 HIDDEN</span><span>答案 OUTPUT</span></div>
+          <p class="paper-caption">一次前向传播，也是一小步向前。<span>结构示意</span></p>
+        </div>
+        <figure class="cover-photo"><span class="tape" aria-hidden="true"></span><img src="assets/album/roc.png" width="501" height="468" alt="特征选择 Notebook 中保留下来的 GBDT ROC 曲线"><figcaption>一条曲线，记下一次尝试。<span>FROM THE ORIGINAL NOTEBOOK</span></figcaption></figure>
+        <div class="cover-stamp" aria-hidden="true">研究札记<br><span>2017 →</span></div>
+      </div>
+    </section>
+
+    <section class="archive-strip section-wrap" aria-label="档案规模">
+      <p>留下来的，<br><strong>不只是代码。</strong></p>
+      <dl><div><dt>Python 文件</dt><dd data-count="python">172</dd></div><div><dt>学习笔记</dt><dd data-count="notebooks">19</dd></div><div><dt>原始指标日志</dt><dd data-count="logs">16</dd></div><div><dt>曲线中的特征步数</dt><dd data-count="features">941</dd></div></dl>
+      <p class="fine-print">按整理前的 Git 档案统计<br>每个数字，都有出处</p>
+    </section>
+
+    <section id="years" class="years section-wrap" aria-labelledby="years-title">
+      <div class="section-heading"><p class="eyebrow">01 / THE YEARS</p><h2 id="years-title">时间的脚注</h2><p>提交记录没有写下全部生活，<br>却认真保存了每一次向前。</p></div>
+      <div id="timeline" class="timeline"><noscript><p>2017：基础学习与神经网络；2018：序列与胶囊网络；2019：FNN 与模型比较；2020：增量特征选择；2023：符号回归等后续探索。具体提交见 <a href="assets/album/sources.json">原始记录索引</a>。</p></noscript></div>
+      <p class="source-note">年份是仓库中的代码足迹，日期对应所列文件的首次提交；2023 为后续探索，不代表学制或毕业年份。</p>
+    </section>
+
+    <section id="atlas" class="atlas" aria-labelledby="atlas-title">
+      <div class="section-wrap">
+        <div class="section-heading horizontal"><div><p class="eyebrow">02 / A MAP OF CURIOSITY</p><h2 id="atlas-title">模型很多，好奇心只有一个。</h2></div><p>从“能不能分类”，到“为什么这样分类”。<br>这些方向，拼成了当年的工作地图。</p></div>
+        <div class="filters" role="group" aria-label="筛选研究方向"><button type="button" class="active" data-filter="all" aria-pressed="true">全部手记</button><button type="button" data-filter="classical" aria-pressed="false">传统模型</button><button type="button" data-filter="deep" aria-pressed="false">神经网络</button><button type="button" data-filter="research" aria-pressed="false">实验方法</button><span id="filter-status" class="sr-only" aria-live="polite"></span></div>
+        <div class="model-grid">
+          <article class="model-note" data-category="classical"><span class="note-number">01 / BASELINES</span><svg viewBox="0 0 160 95" aria-hidden="true"><path d="M15 80H148M25 85V12M40 67L55 58M69 44L85 33M105 24L120 16" stroke="currentColor" stroke-width="2" fill="none"/><path d="M48 81L112 9" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"/><g fill="currentColor"><circle cx="37" cy="66" r="4"/><circle cx="56" cy="60" r="4"/><circle cx="65" cy="74" r="4"/><circle cx="88" cy="31" r="4"/><circle cx="110" cy="26" r="4"/><circle cx="124" cy="45" r="4"/></g></svg><h3>先建立一个可靠的起点</h3><p>SVM、KNN、朴素贝叶斯与判别分析。让同一份数据，在不同的假设下被理解。</p><div class="tags"><span>SVM</span><span>KNN</span><span>LDA / QDA</span></div><a href="sk-svm-kfold-smote-run.py">翻阅分类实验 <span aria-hidden="true">↗</span></a></article>
+          <article class="model-note" data-category="classical"><span class="note-number">02 / THE FOREST</span><svg viewBox="0 0 160 95" aria-hidden="true"><g stroke="currentColor" stroke-width="2" fill="none"><path d="M80 12V30L41 48V69M80 30L119 48V69M41 48L17 69M41 48L65 69M119 48L95 69M119 48L143 69"/><circle cx="80" cy="12" r="7"/><circle cx="41" cy="48" r="7"/><circle cx="119" cy="48" r="7"/></g><g fill="currentColor"><rect x="10" y="69" width="14" height="11"/><rect x="58" y="69" width="14" height="11"/><rect x="88" y="69" width="14" height="11"/><rect x="136" y="69" width="14" height="11"/></g></svg><h3>一棵树，到一片森林</h3><p>随机森林、梯度提升、深度森林与规则模型。在预测之外，寻找可以解释的线索。</p><div class="tags"><span>RF</span><span>XGBoost / LightGBM</span><span>RuleFit</span></div><a href="dt/rules-export.py">翻阅树与规则 <span aria-hidden="true">↗</span></a></article>
+          <article class="model-note" data-category="deep"><span class="note-number">03 / NEURAL PATHS</span><svg viewBox="0 0 160 95" aria-hidden="true"><g stroke="currentColor" fill="none" stroke-width="1.5"><path d="M25 25L80 16M25 25L80 47M25 25L80 78M25 69L80 16M25 69L80 47M25 69L80 78M80 16L135 31M80 47L135 31M80 78L135 31M80 16L135 65M80 47L135 65M80 78L135 65"/></g><g fill="currentColor"><circle cx="25" cy="25" r="6"/><circle cx="25" cy="69" r="6"/><circle cx="80" cy="16" r="6"/><circle cx="80" cy="47" r="6"/><circle cx="80" cy="78" r="6"/><circle cx="135" cy="31" r="6"/><circle cx="135" cy="65" r="6"/></g></svg><h3>让网络学会自己的表示</h3><p>FNN、CNN、SNN 与归一化变体；从激活函数、网络深度，到生成模型的学习。</p><div class="tags"><span>FNN / CNN</span><span>SELU</span><span>GAN / VAE</span></div><a href="nn/fnn.py">翻阅神经网络 <span aria-hidden="true">↗</span></a></article>
+          <article class="model-note" data-category="deep"><span class="note-number">04 / BIOLOGICAL SEQUENCES</span><div class="sequence-art" aria-hidden="true"><span>A</span>—<span>C</span>—<span>G</span>—<span>T</span><small>sequence → representation</small></div><h3>当模型遇见生命的序列</h3><p>肽序列、基因表达与生物数据分类。用 RNN、双向网络和胶囊网络探索新的表示方式。</p><div class="tags"><span>RNN / BiRNN</span><span>CapsNet</span><span>肽数据</span></div><a href="capsNet/peptide_capsnet.py">翻阅序列实验 <span aria-hidden="true">↗</span></a></article>
+          <article class="model-note" data-category="research"><span class="note-number">05 / FINDING SIGNAL</span><svg viewBox="0 0 160 95" aria-hidden="true"><g fill="currentColor"><rect x="18" y="53" width="13" height="27" opacity=".35"/><rect x="42" y="29" width="13" height="51" opacity=".55"/><rect x="66" y="14" width="13" height="66"/><rect x="90" y="38" width="13" height="42" opacity=".7"/><rect x="114" y="62" width="13" height="18" opacity=".35"/></g><path d="M10 82H145" stroke="currentColor"/></svg><h3>在更多特征里，寻找更少</h3><p>Boruta、SVM-RFE、特征排序与 IFS。一步步增加特征，观察信息如何变成判断。</p><div class="tags"><span>特征选择</span><span>IFS</span><span>Stacking</span></div><a href="sci-fs/clf_fs.py">翻阅特征手记 <span aria-hidden="true">↗</span></a></article>
+          <article class="model-note" data-category="research"><span class="note-number">06 / FAIRER COMPARISONS</span><svg viewBox="0 0 160 95" aria-hidden="true"><g fill="currentColor"><circle cx="28" cy="25" r="4"/><circle cx="42" cy="47" r="4"/><circle cx="19" cy="67" r="4"/><circle cx="50" cy="73" r="4"/><circle cx="60" cy="22" r="4"/><circle cx="111" cy="40" r="6"/><circle cx="132" cy="60" r="6"/></g><g stroke="currentColor" fill="none" stroke-dasharray="3 3"><circle cx="104" cy="65" r="6"/><circle cx="133" cy="30" r="6"/><circle cx="122" cy="77" r="6"/></g><path d="M80 10V85" stroke="currentColor" opacity=".3"/></svg><h3>认真对待每一个少数样本</h3><p>SMOTE、欠采样、多标签分类与交叉验证。准确率之外，也用 MCC 和混淆矩阵看问题。</p><div class="tags"><span>SMOTE</span><span>MCC</span><span>交叉验证</span></div><a href="notebook/im-learn.ipynb">翻阅不平衡学习 <span aria-hidden="true">↗</span></a></article>
+        </div>
+        <p class="source-note">以上为研究方向梳理，示意图用于说明方法；教程、开源实现和个人实验的来源见 <a href="README.md">README</a> 与各文件注释。</p>
+      </div>
+    </section>
+
+    <section id="gallery" class="gallery section-wrap" aria-labelledby="gallery-title">
+      <div class="section-heading"><p class="eyebrow">03 / CONTACT SHEETS</p><h2 id="gallery-title">实验，也有它的留影。</h2><p>从旧 Notebook 中取出的原图。<br>保留当时的颜色，也保留探索的痕迹。</p></div>
+      <div id="photo-grid" class="photo-grid"></div>
+      <noscript><p>原图：<a href="assets/album/roc.png">ROC 曲线</a> · <a href="assets/album/lgb-ifs.png">LightGBM IFS</a> · <a href="assets/album/rf-ifs.png">随机森林 IFS</a> · <a href="assets/album/sampling.png">不平衡学习可视化</a></p></noscript>
+      <p class="source-note">点击照片可放大。原图是历史探索输出，未经本次复现实验验证，不作为模型性能排名。</p>
+    </section>
+
+    <section id="curves" class="curve-chapter" aria-labelledby="curves-title">
+      <div class="section-wrap">
+        <div class="section-heading horizontal"><div><p class="eyebrow">04 / A CURVE WORTH KEEPING</p><h2 id="curves-title">941 步，重新走一遍。</h2></div><p>给特征多一点，还是少一点？<br>16 份日志，留下 8 组配置的回答。</p></div>
+        <div class="curve-controls"><div class="metric-switch" role="group" aria-label="选择指标"><button type="button" data-metric="mcc" class="active" aria-pressed="true">MCC</button><button type="button" data-metric="acc" aria-pressed="false">ACC</button></div><label class="config-label" for="configuration">实验配置 <select id="configuration"></select></label><a id="save-chart" class="quiet-link" href="assets/album/historical-ifs.svg" download>保存当前曲线 <span aria-hidden="true">↓</span></a></div>
+        <div class="chart-paper"><div class="chart-topline"><span id="chart-label">SNN / 增量特征曲线</span><span>ORIGINAL LOG, REVISITED</span></div><div id="interactive-chart"><img src="assets/album/historical-ifs.svg" width="1000" height="480" alt="由原始日志重绘的 SNN 增量特征 MCC 曲线"></div><div class="chart-readout"><p>第 <strong id="feature-readout">1</strong> 个特征 <span>·</span> <span id="metric-name">MCC</span> <strong id="value-readout">—</strong></p><p id="peak-readout"></p></div><label class="range-label" for="feature-slider">沿着曲线回看 <span aria-hidden="true">1 — 941</span></label><input id="feature-slider" type="range" min="1" max="941" value="1" step="1" aria-describedby="chart-description"><p id="chart-description" class="source-note">拖动滑块，查看对应特征步数的原始指标。横轴为特征数，纵轴为所选指标。</p></div>
+        <div class="chart-footer"><p>这些是旧实验留下的探索记录。曲线最高点用于回顾，不是重新验证过的泛化成绩。</p><a id="log-source" href="logs/mcc-sum-c2-l3-u512-e300-lr1e-2-d01.csv">查看当前原始日志 <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="afterword section-wrap" aria-labelledby="afterword-title"><p class="eyebrow">05 / TO BE CONTINUED</p><div class="afterword-content"><h2 id="afterword-title">模型会更新，<br><em>探索留下来。</em></h2><div><p>如今再翻开这些文件，能看到的远不止某一种算法：有基础工具的练习，有模型结构的尝试，也有把数据、评估和解释慢慢连起来的过程。</p><p>这次整理合并了重复的实验代码，修正了采样与训练流程。旧笔记和原始结果继续保存，让新的代码可以向前，也让当年的工作有迹可循。</p><a class="text-link" href="docs/REVIEW.md">阅读本次代码检视与整理记录 <span aria-hidden="true">↗</span></a></div></div><div class="closing-note">献给那些认真寻找答案的日子。<span>THE NOTES CONTINUE.</span></div></section>
+  </main>
+  <footer class="section-wrap"><span>dl-models / 研究札记</span><p>依据代码、Git 历史与原始日志整理 · 图表均有来源</p><a href="assets/album/sources.json">材料出处 ↗</a><a href="#">回到封面 ↑</a></footer>
+  <dialog id="photo-dialog" aria-labelledby="photo-title"><div class="dialog-toolbar"><span id="photo-position"></span><button type="button" id="close-photo" aria-label="关闭照片">关闭 <span aria-hidden="true">×</span></button></div><img id="large-photo" alt=""><div class="dialog-caption"><div><h2 id="photo-title"></h2><p id="photo-caption"></p><a id="photo-source" href="README.md">查看原始 Notebook ↗</a></div><div class="photo-arrows"><button type="button" id="previous-photo" aria-label="上一张照片">←</button><button type="button" id="next-photo" aria-label="下一张照片">→</button></div></div></dialog>
+</body>
+</html>

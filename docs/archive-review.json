@@ -1,0 +1,1270 @@
+{
+  "scope": "All Python files parsed; pattern hits are review leads, not runtime proof.",
+  "files": [
+    {
+      "path": "birnn-kfold-run.py",
+      "lines": 50
+    },
+    {
+      "path": "boruta-features.py",
+      "lines": 72
+    },
+    {
+      "path": "capsNet/capsnet.py",
+      "lines": 263
+    },
+    {
+      "path": "capsNet/capsnet_adam.py",
+      "lines": 298
+    },
+    {
+      "path": "capsNet/capsulelayers.py",
+      "lines": 105
+    },
+    {
+      "path": "capsNet/load_data.py",
+      "lines": 19
+    },
+    {
+      "path": "capsNet/peptide_capsnet.py",
+      "lines": 288
+    },
+    {
+      "path": "capsNet/utils.py",
+      "lines": 13
+    },
+    {
+      "path": "cgb-kfold-smote-run.py",
+      "lines": 87
+    },
+    {
+      "path": "cnn/__init__.py",
+      "lines": 2
+    },
+    {
+      "path": "cnn/cnn_basic.py",
+      "lines": 244
+    },
+    {
+      "path": "cnn/cnn_bio.py",
+      "lines": 256
+    },
+    {
+      "path": "cnn/cnn_estimator.py",
+      "lines": 232
+    },
+    {
+      "path": "cnn/cnn_features.py",
+      "lines": 209
+    },
+    {
+      "path": "cnn/cnn_peptide.py",
+      "lines": 259
+    },
+    {
+      "path": "cnn/cnn_peptide_features.py",
+      "lines": 229
+    },
+    {
+      "path": "cnn/data.py",
+      "lines": 42
+    },
+    {
+      "path": "cnn/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "cnn-binary.py",
+      "lines": 74
+    },
+    {
+      "path": "cnn-features-run.py",
+      "lines": 80
+    },
+    {
+      "path": "cnn-k-fold-binary.py",
+      "lines": 72
+    },
+    {
+      "path": "cnn-k-fold-run.py",
+      "lines": 85
+    },
+    {
+      "path": "deep-forest-kfold-run.py",
+      "lines": 154
+    },
+    {
+      "path": "deepForest/data_utils.py",
+      "lines": 201
+    },
+    {
+      "path": "deepForest/deep_forest.py",
+      "lines": 336
+    },
+    {
+      "path": "deepForest/utils.py",
+      "lines": 24
+    },
+    {
+      "path": "dt/eli5-output.py",
+      "lines": 57
+    },
+    {
+      "path": "dt/rules-count.py",
+      "lines": 150
+    },
+    {
+      "path": "dt/rules-export.py",
+      "lines": 100
+    },
+    {
+      "path": "dt/rules-show.py",
+      "lines": 174
+    },
+    {
+      "path": "dt/rules-smote-count.py",
+      "lines": 120
+    },
+    {
+      "path": "dt/rules-smote-show.py",
+      "lines": 176
+    },
+    {
+      "path": "dt/sk-dt-kfold-run.py",
+      "lines": 83
+    },
+    {
+      "path": "dt/sk-dt-smote-kfold-run.py",
+      "lines": 96
+    },
+    {
+      "path": "dt/sk-rf-smote-kfold-run.py",
+      "lines": 100
+    },
+    {
+      "path": "dt/tree_structure.py",
+      "lines": 170
+    },
+    {
+      "path": "dt/utils.py",
+      "lines": 13
+    },
+    {
+      "path": "experiments/__init__.py",
+      "lines": 1
+    },
+    {
+      "path": "experiments/classifiers.py",
+      "lines": 141
+    },
+    {
+      "path": "experiments/data.py",
+      "lines": 31
+    },
+    {
+      "path": "experiments/feature_selection.py",
+      "lines": 77
+    },
+    {
+      "path": "experiments/metrics.py",
+      "lines": 57
+    },
+    {
+      "path": "experiments/regression.py",
+      "lines": 43
+    },
+    {
+      "path": "files-ops/csv_ops.py",
+      "lines": 34
+    },
+    {
+      "path": "files-ops/datasets_management.py",
+      "lines": 72
+    },
+    {
+      "path": "files-ops/datasets_ops.py",
+      "lines": 59
+    },
+    {
+      "path": "files-ops/datasets_preprocessing.py",
+      "lines": 37
+    },
+    {
+      "path": "files-ops/peptide_to_rnn_csv.py",
+      "lines": 110
+    },
+    {
+      "path": "fnn-bn-kfold-run.py",
+      "lines": 56
+    },
+    {
+      "path": "fnn-kfold-run.py",
+      "lines": 56
+    },
+    {
+      "path": "fnn-ln-kfold-run.py",
+      "lines": 56
+    },
+    {
+      "path": "gan/gan.py",
+      "lines": 203
+    },
+    {
+      "path": "go/goDownloader.py",
+      "lines": 33
+    },
+    {
+      "path": "gp-symbolic-regressor.py",
+      "lines": 60
+    },
+    {
+      "path": "ib-learn/ib-oral.py",
+      "lines": 71
+    },
+    {
+      "path": "imb-xgb-kfold-run.py",
+      "lines": 94
+    },
+    {
+      "path": "lgb/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "lgb-kfold-run-parallel.py",
+      "lines": 97
+    },
+    {
+      "path": "lgb-smote-kfold-run.py",
+      "lines": 110
+    },
+    {
+      "path": "ml-test/fnn-relu-test.py",
+      "lines": 176
+    },
+    {
+      "path": "ml-test/gdbt.py",
+      "lines": 187
+    },
+    {
+      "path": "ml-test/snn-k-fold-multi.py",
+      "lines": 520
+    },
+    {
+      "path": "ml-test/snn-k-fold.py",
+      "lines": 439
+    },
+    {
+      "path": "ml-test/snn-linux.py",
+      "lines": 434
+    },
+    {
+      "path": "ml-test/svm-learning.py",
+      "lines": 59
+    },
+    {
+      "path": "multi-label/sk-mutli-label.py",
+      "lines": 76
+    },
+    {
+      "path": "nn/__init__.py",
+      "lines": 0
+    },
+    {
+      "path": "nn/fnn.py",
+      "lines": 18
+    },
+    {
+      "path": "nn/fnn_bn.py",
+      "lines": 17
+    },
+    {
+      "path": "nn/fnn_ln.py",
+      "lines": 17
+    },
+    {
+      "path": "nn/training.py",
+      "lines": 75
+    },
+    {
+      "path": "nn/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "numpy-test/arg-test.py",
+      "lines": 19
+    },
+    {
+      "path": "numpy-test/dict-test.py",
+      "lines": 41
+    },
+    {
+      "path": "numpy-test/k-fold-test.py",
+      "lines": 67
+    },
+    {
+      "path": "numpy-test/numpy-test.py",
+      "lines": 149
+    },
+    {
+      "path": "numpy-test/seaborn-learning.py",
+      "lines": 49
+    },
+    {
+      "path": "numpy-test/sklearn-test.py",
+      "lines": 146
+    },
+    {
+      "path": "numpy-test/sys-args-test.py",
+      "lines": 95
+    },
+    {
+      "path": "numpy-test/test.py",
+      "lines": 44
+    },
+    {
+      "path": "plt/auc-curve-snn.py",
+      "lines": 30
+    },
+    {
+      "path": "plt/ifs-curve-snn.py",
+      "lines": 56
+    },
+    {
+      "path": "plt/ifs-curve.py",
+      "lines": 99
+    },
+    {
+      "path": "plt/tsne-visual.py",
+      "lines": 41
+    },
+    {
+      "path": "rf/random_forest.py",
+      "lines": 146
+    },
+    {
+      "path": "rf/random_forest_smote.py",
+      "lines": 173
+    },
+    {
+      "path": "rf/random_forest_smote_new.py",
+      "lines": 138
+    },
+    {
+      "path": "rf/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "rf-k-fold-run.py",
+      "lines": 54
+    },
+    {
+      "path": "rf-smote-kfold-run.py",
+      "lines": 58
+    },
+    {
+      "path": "rnn/__init__.py",
+      "lines": 2
+    },
+    {
+      "path": "rnn/birnn_torch.py",
+      "lines": 59
+    },
+    {
+      "path": "rnn/example.py",
+      "lines": 117
+    },
+    {
+      "path": "rnn/rnn_bio.py",
+      "lines": 200
+    },
+    {
+      "path": "rnn/rnn_pre_ops.py",
+      "lines": 38
+    },
+    {
+      "path": "rnn/rnn_pred.py",
+      "lines": 179
+    },
+    {
+      "path": "rnn/rnn_smote.py",
+      "lines": 214
+    },
+    {
+      "path": "rnn/rnn_smote_pred.py",
+      "lines": 189
+    },
+    {
+      "path": "rnn/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "rnn-kfold-run.py",
+      "lines": 61
+    },
+    {
+      "path": "rnn-kfold-smote-run.py",
+      "lines": 61
+    },
+    {
+      "path": "rnn-pred-run.py",
+      "lines": 56
+    },
+    {
+      "path": "rnn-smote-pred-run.py",
+      "lines": 55
+    },
+    {
+      "path": "rulefit-k-fold-multi-run.py",
+      "lines": 127
+    },
+    {
+      "path": "rulefit-k-fold-run.py",
+      "lines": 108
+    },
+    {
+      "path": "rulefit-rules-output.py",
+      "lines": 87
+    },
+    {
+      "path": "rulefit-smote-kfold-multi-run.py",
+      "lines": 134
+    },
+    {
+      "path": "rulefit-smote-kfold-run.py",
+      "lines": 117
+    },
+    {
+      "path": "sci-fs/clf_fs.py",
+      "lines": 139
+    },
+    {
+      "path": "sci-fs/clf_fs_neo.py",
+      "lines": 130
+    },
+    {
+      "path": "sci-fs/clf_fs_neo_smote_tomek.py",
+      "lines": 146
+    },
+    {
+      "path": "sci-fs/clf_fs_subset_neo.py",
+      "lines": 235
+    },
+    {
+      "path": "sci-fs/clf_new_fs.py",
+      "lines": 146
+    },
+    {
+      "path": "sci-fs/cnn_2d_fs.py",
+      "lines": 210
+    },
+    {
+      "path": "sci-fs/cnn_2d_no_fs.py",
+      "lines": 202
+    },
+    {
+      "path": "sci-fs/multi_clf.py",
+      "lines": 124
+    },
+    {
+      "path": "sci-fs/multi_clf_smote.py",
+      "lines": 134
+    },
+    {
+      "path": "sci-fs/multi_clf_smote_pred.py",
+      "lines": 95
+    },
+    {
+      "path": "sci-fs/multi_xgb.py",
+      "lines": 121
+    },
+    {
+      "path": "sci-fs/nn_fs.py",
+      "lines": 204
+    },
+    {
+      "path": "sci-fs/stacking_fs.py",
+      "lines": 145
+    },
+    {
+      "path": "sci-fs/stacking_fs_neo.py",
+      "lines": 126
+    },
+    {
+      "path": "sci-fs/utils.py",
+      "lines": 13
+    },
+    {
+      "path": "scripts/build_album.py",
+      "lines": 112
+    },
+    {
+      "path": "scripts/review_archive.py",
+      "lines": 56
+    },
+    {
+      "path": "sk-bayes-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-deep-forest-kfold-smote-pred.py",
+      "lines": 87
+    },
+    {
+      "path": "sk-deep-forest-kfold-smote-run.py",
+      "lines": 81
+    },
+    {
+      "path": "sk-ert-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-gbt-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-gpc-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-knn-kfold-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-knn-kfold-smote-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-lda-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-linear-kfold-smote-run.py",
+      "lines": 14
+    },
+    {
+      "path": "sk-ncentroid-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-qda-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-rf-kfold-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-rf-kfold-smote-run-roc.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-rf-kfold-smote-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-sgd-kfold-smote-run.py",
+      "lines": 13
+    },
+    {
+      "path": "sk-svm-kfold-smote-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-svr-kfold-run.py",
+      "lines": 12
+    },
+    {
+      "path": "sk-tree-kfold-smote-run.py",
+      "lines": 12
+    },
+    {
+      "path": "smote-output.py",
+      "lines": 55
+    },
+    {
+      "path": "snn/__init__.py",
+      "lines": 0
+    },
+    {
+      "path": "snn/model_raw.py",
+      "lines": 351
+    },
+    {
+      "path": "snn/snn_t.py",
+      "lines": 60
+    },
+    {
+      "path": "snn/utils.py",
+      "lines": 15
+    },
+    {
+      "path": "snn-k-fold-run.py",
+      "lines": 79
+    },
+    {
+      "path": "snn-new-kfold-run.py",
+      "lines": 55
+    },
+    {
+      "path": "sort.py",
+      "lines": 19
+    },
+    {
+      "path": "svm/csv2libsvm.py",
+      "lines": 36
+    },
+    {
+      "path": "svm/svm-rfe.py",
+      "lines": 61
+    },
+    {
+      "path": "test_utils.py",
+      "lines": 8
+    },
+    {
+      "path": "tests/__init__.py",
+      "lines": 1
+    },
+    {
+      "path": "tests/test_cnn_data.py",
+      "lines": 25
+    },
+    {
+      "path": "tests/test_experiments.py",
+      "lines": 128
+    },
+    {
+      "path": "tests/test_fnn.py",
+      "lines": 71
+    },
+    {
+      "path": "tf-test/minist-mlp-sample.py",
+      "lines": 108
+    },
+    {
+      "path": "tf-test/minist-sample.py",
+      "lines": 68
+    },
+    {
+      "path": "tf-test/SNNs.py",
+      "lines": 197
+    },
+    {
+      "path": "tf-test/tensorflow-classification.py",
+      "lines": 69
+    },
+    {
+      "path": "tf-test/tensorflow-learning.py",
+      "lines": 61
+    },
+    {
+      "path": "tf-test/tensorflow-sample1.py",
+      "lines": 37
+    },
+    {
+      "path": "tf-test/tf-contrib-test.py",
+      "lines": 88
+    },
+    {
+      "path": "thundergbm-kfold-smote.py",
+      "lines": 80
+    },
+    {
+      "path": "thundersvm/thundersvmScikit.py",
+      "lines": 466
+    },
+    {
+      "path": "thundersvm/utils.py",
+      "lines": 13
+    },
+    {
+      "path": "tsne/t_sne.py",
+      "lines": 49
+    },
+    {
+      "path": "tsvm-k-fold-run.py",
+      "lines": 99
+    },
+    {
+      "path": "tsvm-smote-kfold-run.py",
+      "lines": 109
+    },
+    {
+      "path": "undersampling-output.py",
+      "lines": 55
+    },
+    {
+      "path": "utils/__init__.py",
+      "lines": 18
+    },
+    {
+      "path": "utils/cm-reporter.py",
+      "lines": 31
+    },
+    {
+      "path": "utils/d_pca.py",
+      "lines": 49
+    },
+    {
+      "path": "utils/exportDimsArff.py",
+      "lines": 118
+    },
+    {
+      "path": "utils/exportDimsCSV.py",
+      "lines": 38
+    },
+    {
+      "path": "utils/generateRandomSeq.py",
+      "lines": 28
+    },
+    {
+      "path": "utils/model_evaluation.py",
+      "lines": 13
+    },
+    {
+      "path": "utils/rwr-diffusr.py",
+      "lines": 36
+    },
+    {
+      "path": "utils/scale-transform.py",
+      "lines": 33
+    },
+    {
+      "path": "vae/vae.py",
+      "lines": 239
+    },
+    {
+      "path": "xgb/utils.py",
+      "lines": 36
+    },
+    {
+      "path": "xgb-kfold-run-parallel.py",
+      "lines": 97
+    },
+    {
+      "path": "xgb-kfold-run.py",
+      "lines": 85
+    }
+  ],
+  "syntax_errors": [],
+  "legacy_patterns": {
+    "numpy_int_alias": [
+      {
+        "path": "capsNet/peptide_capsnet.py",
+        "line": 270
+      },
+      {
+        "path": "cnn/cnn_basic.py",
+        "line": 121
+      },
+      {
+        "path": "cnn/cnn_bio.py",
+        "line": 171
+      },
+      {
+        "path": "cnn/cnn_peptide.py",
+        "line": 182
+      },
+      {
+        "path": "deep-forest-kfold-run.py",
+        "line": 129
+      },
+      {
+        "path": "dt/sk-dt-kfold-run.py",
+        "line": 57
+      },
+      {
+        "path": "dt/sk-dt-smote-kfold-run.py",
+        "line": 65
+      },
+      {
+        "path": "dt/sk-rf-smote-kfold-run.py",
+        "line": 69
+      },
+      {
+        "path": "imb-xgb-kfold-run.py",
+        "line": 62
+      },
+      {
+        "path": "lgb-kfold-run-parallel.py",
+        "line": 67
+      },
+      {
+        "path": "lgb-smote-kfold-run.py",
+        "line": 75
+      },
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 235
+      },
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 330
+      },
+      {
+        "path": "ml-test/snn-k-fold.py",
+        "line": 184
+      },
+      {
+        "path": "multi-label/sk-mutli-label.py",
+        "line": 41
+      },
+      {
+        "path": "multi-label/sk-mutli-label.py",
+        "line": 56
+      },
+      {
+        "path": "numpy-test/dict-test.py",
+        "line": 29
+      },
+      {
+        "path": "rf/random_forest.py",
+        "line": 102
+      },
+      {
+        "path": "rf/random_forest_smote.py",
+        "line": 117
+      },
+      {
+        "path": "rf/random_forest_smote_new.py",
+        "line": 94
+      },
+      {
+        "path": "rnn/rnn_bio.py",
+        "line": 80
+      },
+      {
+        "path": "rnn/rnn_bio.py",
+        "line": 143
+      },
+      {
+        "path": "rnn/rnn_pred.py",
+        "line": 78
+      },
+      {
+        "path": "rnn/rnn_smote.py",
+        "line": 96
+      },
+      {
+        "path": "rnn/rnn_smote.py",
+        "line": 154
+      },
+      {
+        "path": "rnn/rnn_smote_pred.py",
+        "line": 86
+      },
+      {
+        "path": "rulefit-k-fold-multi-run.py",
+        "line": 89
+      },
+      {
+        "path": "rulefit-k-fold-run.py",
+        "line": 69
+      },
+      {
+        "path": "rulefit-smote-kfold-multi-run.py",
+        "line": 101
+      },
+      {
+        "path": "rulefit-smote-kfold-run.py",
+        "line": 79
+      },
+      {
+        "path": "sci-fs/cnn_2d_fs.py",
+        "line": 50
+      },
+      {
+        "path": "sci-fs/cnn_2d_fs.py",
+        "line": 156
+      },
+      {
+        "path": "sci-fs/cnn_2d_no_fs.py",
+        "line": 50
+      },
+      {
+        "path": "sci-fs/cnn_2d_no_fs.py",
+        "line": 148
+      },
+      {
+        "path": "sci-fs/nn_fs.py",
+        "line": 133
+      },
+      {
+        "path": "snn/model_raw.py",
+        "line": 136
+      },
+      {
+        "path": "snn/model_raw.py",
+        "line": 238
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 35
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 39
+      },
+      {
+        "path": "tsvm-k-fold-run.py",
+        "line": 74
+      },
+      {
+        "path": "tsvm-smote-kfold-run.py",
+        "line": 77
+      },
+      {
+        "path": "utils/generateRandomSeq.py",
+        "line": 25
+      },
+      {
+        "path": "xgb-kfold-run-parallel.py",
+        "line": 72
+      },
+      {
+        "path": "xgb-kfold-run.py",
+        "line": 60
+      }
+    ],
+    "legacy_sampling_api": [
+      {
+        "path": "cgb-kfold-smote-run.py",
+        "line": 59
+      },
+      {
+        "path": "dt/rules-smote-count.py",
+        "line": 51
+      },
+      {
+        "path": "dt/rules-smote-show.py",
+        "line": 57
+      },
+      {
+        "path": "dt/sk-dt-smote-kfold-run.py",
+        "line": 49
+      },
+      {
+        "path": "dt/sk-rf-smote-kfold-run.py",
+        "line": 50
+      },
+      {
+        "path": "ib-learn/ib-oral.py",
+        "line": 38
+      },
+      {
+        "path": "lgb-smote-kfold-run.py",
+        "line": 58
+      },
+      {
+        "path": "rf/random_forest_smote.py",
+        "line": 66
+      },
+      {
+        "path": "rf/random_forest_smote_new.py",
+        "line": 64
+      },
+      {
+        "path": "rnn/rnn_smote.py",
+        "line": 88
+      },
+      {
+        "path": "rnn/rnn_smote_pred.py",
+        "line": 78
+      },
+      {
+        "path": "rulefit-smote-kfold-multi-run.py",
+        "line": 80
+      },
+      {
+        "path": "rulefit-smote-kfold-run.py",
+        "line": 65
+      },
+      {
+        "path": "sk-deep-forest-kfold-smote-pred.py",
+        "line": 60
+      },
+      {
+        "path": "sk-deep-forest-kfold-smote-run.py",
+        "line": 54
+      },
+      {
+        "path": "smote-output.py",
+        "line": 42
+      },
+      {
+        "path": "thundergbm-kfold-smote.py",
+        "line": 52
+      },
+      {
+        "path": "tsvm-smote-kfold-run.py",
+        "line": 60
+      },
+      {
+        "path": "undersampling-output.py",
+        "line": 42
+      }
+    ],
+    "tensorflow_contrib": [
+      {
+        "path": "cnn/cnn_bio.py",
+        "line": 91
+      },
+      {
+        "path": "cnn/cnn_estimator.py",
+        "line": 110
+      },
+      {
+        "path": "cnn/cnn_peptide.py",
+        "line": 108
+      },
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 31
+      },
+      {
+        "path": "ml-test/snn-k-fold.py",
+        "line": 26
+      },
+      {
+        "path": "ml-test/snn-linux.py",
+        "line": 20
+      },
+      {
+        "path": "rf/random_forest.py",
+        "line": 14
+      },
+      {
+        "path": "rf/random_forest_smote.py",
+        "line": 16
+      },
+      {
+        "path": "rf/random_forest_smote_new.py",
+        "line": 13
+      },
+      {
+        "path": "rf/random_forest_smote_new.py",
+        "line": 80
+      },
+      {
+        "path": "rf/random_forest_smote_new.py",
+        "line": 87
+      },
+      {
+        "path": "rnn/example.py",
+        "line": 17
+      },
+      {
+        "path": "rnn/rnn_bio.py",
+        "line": 22
+      },
+      {
+        "path": "tf-test/SNNs.py",
+        "line": 7
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 33
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 37
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 43
+      },
+      {
+        "path": "tf-test/tf-contrib-test.py",
+        "line": 46
+      }
+    ],
+    "full_dataset_fit_candidate": [
+      {
+        "path": "boruta-features.py",
+        "line": 58
+      },
+      {
+        "path": "deepForest/deep_forest.py",
+        "line": 279
+      },
+      {
+        "path": "dt/rules-export.py",
+        "line": 85
+      },
+      {
+        "path": "gp-symbolic-regressor.py",
+        "line": 53
+      },
+      {
+        "path": "ib-learn/ib-oral.py",
+        "line": 55
+      },
+      {
+        "path": "sci-fs/clf_fs.py",
+        "line": 96
+      },
+      {
+        "path": "sci-fs/clf_fs_neo.py",
+        "line": 80
+      },
+      {
+        "path": "sci-fs/clf_fs_neo.py",
+        "line": 87
+      },
+      {
+        "path": "sci-fs/clf_fs_neo_smote_tomek.py",
+        "line": 96
+      },
+      {
+        "path": "sci-fs/clf_fs_neo_smote_tomek.py",
+        "line": 103
+      },
+      {
+        "path": "sci-fs/clf_new_fs.py",
+        "line": 100
+      },
+      {
+        "path": "sci-fs/cnn_2d_fs.py",
+        "line": 132
+      },
+      {
+        "path": "sci-fs/multi_clf.py",
+        "line": 79
+      },
+      {
+        "path": "sci-fs/multi_clf.py",
+        "line": 86
+      },
+      {
+        "path": "sci-fs/multi_clf_smote.py",
+        "line": 87
+      },
+      {
+        "path": "sci-fs/multi_clf_smote.py",
+        "line": 94
+      },
+      {
+        "path": "sci-fs/multi_clf_smote_pred.py",
+        "line": 74
+      },
+      {
+        "path": "sci-fs/multi_xgb.py",
+        "line": 69
+      },
+      {
+        "path": "sci-fs/multi_xgb.py",
+        "line": 76
+      },
+      {
+        "path": "sci-fs/nn_fs.py",
+        "line": 106
+      },
+      {
+        "path": "sci-fs/stacking_fs.py",
+        "line": 102
+      },
+      {
+        "path": "sci-fs/stacking_fs_neo.py",
+        "line": 85
+      },
+      {
+        "path": "svm/svm-rfe.py",
+        "line": 48
+      }
+    ]
+  },
+  "remaining_exact_function_duplicates": [
+    [
+      {
+        "path": "capsNet/capsnet.py",
+        "line": 76,
+        "function": "caps_loss"
+      },
+      {
+        "path": "capsNet/peptide_capsnet.py",
+        "line": 72,
+        "function": "caps_loss"
+      }
+    ],
+    [
+      {
+        "path": "cnn/cnn_features.py",
+        "line": 35,
+        "function": "conv_net"
+      },
+      {
+        "path": "cnn/cnn_peptide_features.py",
+        "line": 64,
+        "function": "conv_net"
+      }
+    ],
+    [
+      {
+        "path": "ml-test/fnn-relu-test.py",
+        "line": 72,
+        "function": "multilayer_perceptron"
+      },
+      {
+        "path": "tf-test/minist-mlp-sample.py",
+        "line": 32,
+        "function": "multilayer_perceptron"
+      }
+    ],
+    [
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 100,
+        "function": "dropout_selu"
+      },
+      {
+        "path": "ml-test/snn-k-fold.py",
+        "line": 52,
+        "function": "dropout_selu"
+      },
+      {
+        "path": "ml-test/snn-linux.py",
+        "line": 69,
+        "function": "dropout_selu"
+      }
+    ],
+    [
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 145,
+        "function": "multilayer_perceptron"
+      },
+      {
+        "path": "ml-test/snn-k-fold.py",
+        "line": 96,
+        "function": "multilayer_perceptron"
+      },
+      {
+        "path": "ml-test/snn-linux.py",
+        "line": 113,
+        "function": "multilayer_perceptron"
+      },
+      {
+        "path": "snn/model_raw.py",
+        "line": 39,
+        "function": "multilayer_perceptron"
+      }
+    ],
+    [
+      {
+        "path": "ml-test/snn-k-fold-multi.py",
+        "line": 105,
+        "function": "dropout_selu_impl"
+      },
+      {
+        "path": "ml-test/snn-k-fold.py",
+        "line": 57,
+        "function": "dropout_selu_impl"
+      },
+      {
+        "path": "ml-test/snn-linux.py",
+        "line": 74,
+        "function": "dropout_selu_impl"
+      }
+    ]
+  ]
+}
